@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Plus Plus Battery</string>
+    <string name="battery_level">Battery Level: %1$d%%</string>
+    <string name="battery_status">Status: %1$s</string>
+    <string name="battery_temperature">Temperature: %1$.1f°C</string>
+    <string name="battery_health">Health: %1$s</string>
+    <string name="battery_voltage">Voltage: %1$d mV</string>
+    <string name="battery_cycle_count">Cycle Count: %1$s</string>
+    <string name="battery_charge_counter">Charge Counter: %1$.0f mAh</string>
+    <string name="battery_current">Battery Current: %1$d mA</string>
+    <string name="full_charge_capacity">Full Charge Capacity: %1$d mAh</string>
+    <string name="full_charge_capacity_calc">Full Charge Capacity is being calculated. Please wait until the charge is full.</string>
+    <string name="full_charge_capacity_unavailable">Full Charge Capacity: Not available</string>
+    <string name="last_time_estimated_capacity">Last Time Estimated Full Charge Capacity: %1$d mAh</string>
+    <string name="show_instructions">Show Instructions</string>
+    <string name="instructions_title">Instructions</string>
+    <string name="instructions_content">This app displays the following battery information:\n- Battery Level: The current battery level as a percentage.\n- Status: The current status of the battery (Charging, Discharging, Full, Not Charging).\n- Temperature: The current battery temperature in degrees Celsius.\n- Health: The current health of the battery (Good, Overheat, Dead, Unknown).\n- Voltage: The current battery voltage in millivolts.\n- Cycle Count: The number of charge cycles the battery has gone through.\n- Charge Counter: The total charge counter in milliampere-hours.\n- Battery Current: The instantaneous battery current in milliamperes.\n- Full Charge Capacity: The estimated full charge capacity of the battery in milliampere-hours.\n\nThe Full Charge Capacity is calculated when the battery is fully charged. If the battery is not fully charged, the last estimated value is displayed. \nCharge complete only happens when the current is 0 and battery level is 100%."</string>
+    <string name="ok_button">OK</string>
+    <string name="battery_status_charging">Charging</string>
+    <string name="battery_status_discharging">Discharging</string>
+    <string name="battery_status_full">Full</string>
+    <string name="battery_status_not_charging">Not Charging</string>
+    <string name="battery_health_good">Good</string>
+    <string name="battery_health_overheat">Overheat</string>
+    <string name="battery_health_dead">Dead</string>
+    <string name="battery_health_unknown">Unknown</string>
+
 </resources>

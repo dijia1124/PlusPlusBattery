@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F9F9F9"
+    android:layout_gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/tvBatteryLevel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Battery Level: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvTemperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Temperature: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvHealth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Health: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvVoltage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voltage: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvBatteryCurrent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Battery Current: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvCycleCount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cycle Count: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvChargeCounter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Charge Counter: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/tvBatteryPercentage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Battery Capacity: "
+        android:textSize="18sp"
+        android:textColor="#333333"
+        android:paddingBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnShowInstructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/show_instructions"
+        android:layout_gravity="center"
+        android:padding="12dp"
+        android:background="#FF0000"
+        android:textColor="#FFFFFF"/>
+
+</LinearLayout>
