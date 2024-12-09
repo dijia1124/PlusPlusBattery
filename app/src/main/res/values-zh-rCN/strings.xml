@@ -17,7 +17,7 @@
     <string name="instructions_content">此应用显示以下电池信息：\n- 电池电量：当前电池电量百分比。\n- 状态：电池当前状态（充电、放电、满电、未充电）。\n- 温度：当前电池温度（摄氏度）。\n- 健康状况：电池当前健康状况（良好、过热、损坏、未知）。\n- 电压：当前电池电压（毫伏）。\n- 循环次数：电池经历的充电周期次数。\n- 充电计数：总充电计数（毫安时）。\n- 电池电流：瞬时电池电流（毫安）。\n- 完全充电容量：估计的电池完全充电容量（毫安时）。\n\n当电池完全充电时计算完全充电容量。如果电池未完全充电，将显示上次估计的值。 \n仅当电流值为0且电量为100%时，判定充电完成。"</string>
     <string name="ok_button">确定</string>
     <string name="battery_status_charging">充电中</string>
-    <string name="battery_status_discharging">放电中）</string>
+    <string name="battery_status_discharging">放电中</string>
     <string name="battery_status_full">电量充满</string>
     <string name="battery_status_not_charging">未在充电</string>
     <string name="battery_health_good">良好</string>
