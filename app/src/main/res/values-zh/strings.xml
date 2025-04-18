@@ -2,6 +2,8 @@
     <string name="app_name">加加电池</string>
     <string name="about">关于</string>
     <string name="instructions_content">
+        项目地址：https://github.com/dijia1124/PlusPlusBattery \n
+        作者：@dijia1124 aka @goodnic \n
     本应用显示以下电池信息：\n
     - 电量：当前电池电量的百分比。\n
     - 电池状态：当前电池的状态（充电中、放电中、已充满、未充电）。\n
