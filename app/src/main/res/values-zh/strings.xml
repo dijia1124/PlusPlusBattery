@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">加加电池</string>
+    <string name="about">关于</string>
+    <string name="instructions_content">
+    本应用显示以下电池信息：\n
+    - 电量：当前电池电量的百分比。\n
+    - 电池状态：当前电池的状态（充电中、放电中、已充满、未充电）。\n
+    - 电池温度：当前电池温度（摄氏度）。\n
+    - 电池健康：电池当前的健康状况（良好、过热、损坏、未知）。\n
+    - 电压：当前电池电压（毫伏）。\n
+    - 循环计数：电池充放电的次数。\n
+    - 电流：当前电池的瞬时电流（毫安）。\n
+    - 完全充满时的容量：估算的电池完全充满时的容量（毫安时）。\n
+
+    完全充满时的容量会在电池充满时进行计算：\n
+    仅当电流为0且电量为100%时，才视为充电完成。\n
+</string>
+    <string name="plus_plus_battery">加加电池</string>
+    <string name="history">历史信息</string>
+    <string name="cycle_counts">"电池循环次数: "</string>
+    <string name="battery_level">电量</string>
+    <string name="battery_temperature">电池温度</string>
+    <string name="battery_voltage">电池电压</string>
+    <string name="battery_status">电池状态</string>
+    <string name="battery_health">电池健康</string>
+    <string name="battery_cycle_count">循环计数</string>
+    <string name="battery_current">电流</string>
+    <string name="full_charge_capacity">完全充满时的容量</string>
+    <string name="full_charge_capacity_unavailable">无法读取完全充满时的容量</string>
+    <string name="estimating_full_charge_capacity">正在测量完全充满时的容量...</string>
+    <string name="capacity_unavailable">无法读取容量</string>
+    <string name="charging">充电中</string>
+    <string name="discharging">放电中</string>
+    <string name="full">已充满</string>
+    <string name="good">良好</string>
+    <string name="overheat">过热</string>
+    <string name="dead">损坏</string>
+
+</resources>
