@@ -37,5 +37,8 @@
     <string name="good">良好</string>
     <string name="overheat">过热</string>
     <string name="dead">损坏</string>
+    <string name="nav_dashboard">主页</string>
+    <string name="nav_history">历史</string>
+    <string name="nav_about">关于</string>
 
 </resources>

@@ -25,6 +25,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,9 +47,9 @@ class MainActivity : ComponentActivity() {
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Modifier) {
 // Define the list of navigation routes using the data class
     val navRoutes = listOf(
-        NavRoute("dashboard", Icons.Filled.Home, "Dashboard"),
-        NavRoute("history", Icons.Filled.Star, "History"),
-        NavRoute("about", Icons.Filled.Info, "About")
+        NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
+        NavRoute("history", Icons.Filled.Star, stringResource(R.string.nav_history)),
+        NavRoute("about", Icons.Filled.Info, stringResource(R.string.nav_about))
     )
     val navController = rememberNavController()
     Scaffold(
