@@ -86,14 +86,14 @@ fun HistoryInfoScreen(historyInfoViewModel: HistoryInfoViewModel) {
                             .padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val date = Date(historyInfos[index].date)
+                        val date = Date(historyInfos[historyInfos.size - index -1].date)
                         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                         val dateString = formatter.format(date)
 
                         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
                             Text(text = dateString, style = MaterialTheme.typography.bodyMedium)
                             Text(
-                                text = stringResource(R.string.cycle_counts) + historyInfos[index].cycleCount,
+                                text = stringResource(R.string.cycle_counts) + historyInfos[historyInfos.size - index -1].cycleCount,
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold
                             )
