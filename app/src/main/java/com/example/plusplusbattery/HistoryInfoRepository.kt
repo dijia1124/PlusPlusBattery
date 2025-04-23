@@ -16,7 +16,7 @@ class HistoryInfoRepository (application: Application) {
     suspend fun update(historyInfo: HistoryInfo) {
         historyInfoDao.updateHistoryInfo(historyInfo)
     }
-    suspend fun existsHistoryInfo(dateString: String): Boolean {
-        return historyInfoDao.existsHistoryInfo(dateString)
+    suspend fun getHistoryInfoByDate(dateString: String): HistoryInfo? {
+        return historyInfoDao.getHistoryInfoByDate(dateString)
     }
 }

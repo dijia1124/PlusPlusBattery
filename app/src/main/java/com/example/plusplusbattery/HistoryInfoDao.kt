@@ -19,4 +19,6 @@ interface HistoryInfoDao {
     suspend fun deleteHistoryInfo(subject: HistoryInfo)
     @Query("SELECT EXISTS(SELECT 1 FROM HistoryInfo WHERE dateString = :dateString LIMIT 1)")
     suspend fun existsHistoryInfo(dateString: String): Boolean
+    @Query("SELECT * FROM historyinfo WHERE dateString = :dateString LIMIT 1")
+    suspend fun getHistoryInfoByDate(dateString: String): HistoryInfo?
 }
