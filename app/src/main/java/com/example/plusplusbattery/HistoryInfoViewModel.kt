@@ -22,11 +22,21 @@ class HistoryInfoViewModel(application: Application) : AndroidViewModel(applicat
     fun deleteHistoryInfo(historyInfo: HistoryInfo) = viewModelScope.launch(Dispatchers.IO) {
         cRepository.delete(historyInfo)
     }
-    fun existsHistoryInfo(dateString: String): Boolean {
-        var result = false
-        viewModelScope.launch(Dispatchers.IO) {
-            result = cRepository.existsHistoryInfo(dateString)
+
+    suspend fun getHistoryInfoByDate(dateString: String): HistoryInfo? {
+        return cRepository.getHistoryInfoByDate(dateString)
+    }
+
+    suspend fun insertOrUpdateHistoryInfo(newInfo: HistoryInfo) {
+        val oldInfo = getHistoryInfoByDate(newInfo.dateString)
+        if (oldInfo == null) {
+            insertHistoryInfo(newInfo)
+        } else {
+            val oldCount = oldInfo.cycleCount.toIntOrNull() ?: -1
+            val newCount = newInfo.cycleCount.toIntOrNull() ?: -1
+            if (newCount > oldCount) {
+                updateHistoryInfo(newInfo.copy(uid = oldInfo.uid))
+            }
         }
-        return result
     }
 }

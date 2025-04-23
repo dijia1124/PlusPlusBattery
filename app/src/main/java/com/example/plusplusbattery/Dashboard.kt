@@ -26,6 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -104,11 +106,12 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
         dateString = dateString,
         cycleCount = cycleCount.toString()
     )
-    val exists = historyInfoViewModel.existsHistoryInfo(dateString)
-    if (!exists) {
-        historyInfoViewModel.insertHistoryInfo(historyInfo)
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        scope.launch {
+            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+        }
     }
-
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
@@ -206,4 +209,5 @@ private fun getHealthString(health: Int, context: Context): String = when (healt
     BatteryManager.BATTERY_HEALTH_DEAD -> context.getString(R.string.dead)
     else -> "Unknown"
 }
+
 
