@@ -351,7 +351,8 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
             onClick = { if (hasRoot) {
                 isRootMode = !isRootMode}
                 else {
-                    Toast.makeText(context, "Root Access Denied", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,
+                        context.getString(R.string.root_access_denied), Toast.LENGTH_SHORT).show()
             }
             }) {
             Text(if (isRootMode) stringResource(R.string.use_basic_mode) else stringResource(R.string.use_root_mode))
