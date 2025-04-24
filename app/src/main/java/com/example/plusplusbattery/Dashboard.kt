@@ -9,21 +9,28 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,7 +41,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -64,7 +73,6 @@ fun Dashboard(historyInfoViewModel: HistoryInfoViewModel) {
         },
         content = { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {
-                // add a tab row
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -93,7 +101,6 @@ fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel) {
 fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
     val context = LocalContext.current
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-    val historyInfos = historyInfoViewModel.allHistoryInfos.collectAsState(emptyList())
     val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
     val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
 
@@ -106,7 +113,23 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
         dateString = dateString,
         cycleCount = cycleCount.toString()
     )
+    val dualBatFlow = remember {
+        context.dataStore.data.map { prefs -> prefs[DUAL_BATTERY_KEY] ?: false }
+    }
+    val isDualBat by dualBatFlow.collectAsState(initial = false)
+
     val scope = rememberCoroutineScope()
+
+    fun setDualBat(newVal: Boolean) {
+        scope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[DUAL_BATTERY_KEY] = newVal
+            }
+        }
+    }
+
+    val dualBatMultiplier = if (isDualBat) 2 else 1
+
     LaunchedEffect(Unit) {
         scope.launch {
             historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
@@ -115,7 +138,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(dualBatMultiplier) {
         while (true) {
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
@@ -129,7 +152,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                         BatteryInfo(context.getString(R.string.battery_status), getStatusString(it.getIntExtra(BatteryManager.EXTRA_STATUS, -1), context)),
                         BatteryInfo(context.getString(R.string.battery_health), getHealthString(it.getIntExtra(BatteryManager.EXTRA_HEALTH, 0), context)),
                         BatteryInfo(context.getString(R.string.battery_cycle_count), "${it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)}"),
-                        BatteryInfo(context.getString(R.string.battery_current), "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)} mA")
+                        BatteryInfo(context.getString(R.string.battery_current), "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier} mA")
                     )
                 )
 
@@ -181,14 +204,48 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                             .padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
-                            Text(
-                                text = info.value,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Bold
-                            )
+                        if (index == 6) {
+                            Row {
+                                Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                                    Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        text = info.value,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Spacer(modifier = Modifier.weight(1f))
+                                    Row {
+                                        Column {
+                                            Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                                            Text(text = "${getBoolString(isDualBat, context)}",
+                                                style = MaterialTheme.typography.bodyLarge,
+                                                fontWeight = FontWeight.Bold)
+                                        }
+                                        IconButton(
+                                            onClick = { setDualBat(!isDualBat) },
+                                            modifier = Modifier.size(36.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Create,
+                                                contentDescription = "Switch On/Off Dual Battery",
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                    }
+                            }
                         }
+                        else {
+                            Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                                Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    text = info.value,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+
                     }
                 }
             }
@@ -208,6 +265,11 @@ private fun getHealthString(health: Int, context: Context): String = when (healt
     BatteryManager.BATTERY_HEALTH_OVERHEAT -> context.getString(R.string.overheat)
     BatteryManager.BATTERY_HEALTH_DEAD -> context.getString(R.string.dead)
     else -> "Unknown"
+}
+
+private fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
+    true -> context.getString(R.string.yes)
+    false -> context.getString(R.string.no)
 }
 
 

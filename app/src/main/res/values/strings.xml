@@ -38,4 +38,7 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_about">About</string>
+    <string name="dual_battery">Dual Battery</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>
