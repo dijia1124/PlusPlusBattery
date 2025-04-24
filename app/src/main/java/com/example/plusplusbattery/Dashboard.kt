@@ -178,19 +178,17 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
     var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
-
-    if (isRootMode) {
         LaunchedEffect(Unit) {
             scope.launch {
                 historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-                withContext(Dispatchers.IO) {
+                if (isRootMode) {
                     fcc = readBatteryInfo("/sys/class/oplus_chg/battery/battery_fcc", context)
                     soh = readBatteryInfo("/sys/class/oplus_chg/battery/battery_soh", context)
                     batManDate = readBatteryInfo("/sys/class/oplus_chg/battery/battery_manu_date", context)
+
                 }
             }
         }
-    }
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
