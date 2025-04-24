@@ -27,7 +27,7 @@
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
     <string name="full_charge_capacity_unavailable">Full charge capacity unavailable.</string>
-    <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity...</string>
+    <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
     <string name="discharging">Discharging</string>
@@ -44,4 +44,10 @@
     <string name="unknown">Unknown</string>
     <string name="not_charging">Not Charging</string>
     <string name="power">Power</string>
+    <string name="multiply">Multiply</string>
+    <string name="divide">Divide</string>
+    <string name="multiplier">%1$sMultiplier</string>
+    <string name="calibrate_via_multiplier">Calibrate via Multiplier</string>
+    <string name="reset">Reset</string>
+    <string name="close">Close</string>
 </resources>
