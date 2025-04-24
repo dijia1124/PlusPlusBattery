@@ -40,5 +40,8 @@
     <string name="nav_dashboard">主页</string>
     <string name="nav_history">历史</string>
     <string name="nav_about">关于</string>
+    <string name="dual_battery">双电芯</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
 
 </resources>
