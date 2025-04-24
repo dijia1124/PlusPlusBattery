@@ -1,6 +1,7 @@
 package com.example.plusplusbattery
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,7 +26,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import com.topjohnwu.superuser.Shell
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,6 +50,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Modifier) {
+    var hasRoot by remember { mutableStateOf(false) }
+    hasRoot = hasRootAccess()
 // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
@@ -84,9 +91,18 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Mo
             startDestination = "dashboard",
             modifier = Modifier.padding(paddingValues)
         ) {
-            composable("dashboard") { Dashboard(historyInfoViewModel) }
+            composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot) }
             composable("history") { History(historyInfoViewModel) }
             composable("about") { About() }
         }
+    }
+}
+
+fun hasRootAccess(): Boolean {
+    return try {
+        val result = Shell.cmd("su -c whoami").exec()
+        result.isSuccess
+    } catch (e: Exception) {
+        false
     }
 }

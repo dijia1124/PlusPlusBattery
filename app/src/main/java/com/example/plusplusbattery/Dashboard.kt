@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -68,7 +69,7 @@ import kotlinx.coroutines.withContext
 
 
 @Composable
-fun Dashboard(historyInfoViewModel: HistoryInfoViewModel) {
+fun Dashboard(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -94,7 +95,7 @@ fun Dashboard(historyInfoViewModel: HistoryInfoViewModel) {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    DashboardContent(historyInfoViewModel)
+                    DashboardContent(historyInfoViewModel, hasRoot)
                 }
             }
         }
@@ -102,7 +103,7 @@ fun Dashboard(historyInfoViewModel: HistoryInfoViewModel) {
 }
 
 @Composable
-fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel) {
+fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -110,15 +111,14 @@ fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel) {
     )
     {
         Column() {
-            BatteryInfoUpdater(historyInfoViewModel)
+            BatteryInfoUpdater(historyInfoViewModel, hasRoot)
         }
     }
 }
 @Composable
-fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
+fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     val listState = rememberLazyListState()
     var isRootMode by remember { mutableStateOf(false) }
-    var hasRoot by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
     val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -177,7 +177,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
     var fcc by remember {mutableStateOf(context.getString(R.string.unknown))}
     var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
     var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
-    hasRoot = hasRootAccess()
+
 
     if (isRootMode) {
         LaunchedEffect(Unit) {
@@ -482,15 +482,5 @@ fun readBatteryInfo(filePath: String, context: Context): String {
         }
     } catch (e: Exception) {
         context.getString(R.string.unknown)
-    }
-}
-
-
-fun hasRootAccess(): Boolean {
-    return try {
-        val result = Shell.cmd("id").exec()
-        result.isSuccess && result.out.any { it.contains("uid=0") }
-    } catch (e: Exception) {
-        false
     }
 }
