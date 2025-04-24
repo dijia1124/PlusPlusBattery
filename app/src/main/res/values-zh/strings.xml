@@ -29,7 +29,7 @@
     <string name="battery_current">电流</string>
     <string name="full_charge_capacity">完全充满时的容量</string>
     <string name="full_charge_capacity_unavailable">无法读取完全充满时的容量</string>
-    <string name="estimating_full_charge_capacity">正在测量完全充满时的容量...</string>
+    <string name="estimating_full_charge_capacity">正在测量完全充满时的容量…</string>
     <string name="capacity_unavailable">无法读取容量</string>
     <string name="charging">充电中</string>
     <string name="discharging">放电中</string>
@@ -46,5 +46,11 @@
     <string name="unknown">未知</string>
     <string name="not_charging">非充电中</string>
     <string name="power">功率</string>
+    <string name="multiply">乘以</string>
+    <string name="divide">除以</string>
+    <string name="multiplier">%1$s倍率</string>
+    <string name="calibrate_via_multiplier">修改倍率以校准电流</string>
+    <string name="reset">恢复默认</string>
+    <string name="close">关闭</string>
 
 </resources>

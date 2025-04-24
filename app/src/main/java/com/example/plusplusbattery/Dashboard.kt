@@ -15,14 +15,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -32,8 +40,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +58,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.RadioButton
+import kotlin.math.pow
 
 
 @Composable
@@ -130,6 +142,30 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
 
     val dualBatMultiplier = if (isDualBat) 2 else 1
 
+    val multiplyFlow = remember { context.dataStore.data.map { prefs -> prefs[MULTIPLY_KEY] != false } }
+    val savedIsMultiply by multiplyFlow.collectAsState(initial = true)
+    val magnitudeFlow = remember { context.dataStore.data.map { prefs -> prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0 } }
+    val savedMagnitude by magnitudeFlow.collectAsState(initial = 0)
+
+    var showMultiplierDialog by remember { mutableStateOf(false) }
+
+    val isMultiply = savedIsMultiply
+    val selectedMagnitude = savedMagnitude
+
+    fun setMultiplierPrefs(isMultiplyNew: Boolean, magnitudeNew: Int) {
+        scope.launch {
+            context.dataStore.edit { prefs ->
+                prefs[MULTIPLY_KEY] = isMultiplyNew
+                prefs[MULTIPLIER_MAGNITUDE_KEY] = magnitudeNew
+            }
+        }
+    }
+
+    val calibMultiplier = if (isMultiply)
+        10.0.pow(selectedMagnitude.toDouble())
+    else
+        1 / 10.0.pow(selectedMagnitude.toDouble())
+
     LaunchedEffect(Unit) {
         scope.launch {
             historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
@@ -138,7 +174,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
-    LaunchedEffect(dualBatMultiplier) {
+    LaunchedEffect(dualBatMultiplier, calibMultiplier) {
         while (true) {
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
@@ -152,9 +188,9 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                         BatteryInfo(context.getString(R.string.battery_health), getHealthString(it.getIntExtra(BatteryManager.EXTRA_HEALTH, 0), context)),
                         BatteryInfo(context.getString(R.string.battery_cycle_count), "${it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)}"),
                         BatteryInfo(context.getString(R.string.battery_voltage), "${it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)} mV"),
-                        BatteryInfo(context.getString(R.string.battery_current), "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier} mA"),
+                        BatteryInfo(context.getString(R.string.battery_current), "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier * calibMultiplier} mA"),
                         BatteryInfo(context.getString(R.string.power),
-                            String.format("%.2f W",(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) / 1000000.0))
+                            String.format("%.2f W",(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier * calibMultiplier * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) / 1000000.0))
                         ),
                     )
                 )
@@ -217,11 +253,22 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
+                                IconButton(
+                                    onClick = { showMultiplierDialog = true
+                                        },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Create,
+                                        contentDescription = "Calibrate Battery Current",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                                 Spacer(modifier = Modifier.weight(1f))
                                     Row {
                                         Column {
                                             Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
-                                            Text(text = "${getBoolString(isDualBat, context)}",
+                                            Text(text = getBoolString(isDualBat, context),
                                                 style = MaterialTheme.typography.bodyLarge,
                                                 fontWeight = FontWeight.Bold)
                                         }
@@ -254,7 +301,99 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
             }
         }
     }
+
+    if (showMultiplierDialog) {
+        AlertDialog(
+            onDismissRequest = { showMultiplierDialog = false },
+            title = { Text(stringResource(R.string.calibrate_via_multiplier)) },
+            text = {
+                MultiplierSelector(
+                    isMultiply = isMultiply,
+                    onMultiplyChange = { setMultiplierPrefs(it, selectedMagnitude) },
+                    selectedMagnitude = selectedMagnitude,
+                    onMagnitudeChange = { setMultiplierPrefs(isMultiply, it) }
+                )
+            },
+            confirmButton = {
+                Button(onClick = { showMultiplierDialog = false }) {
+                    Text(stringResource(R.string.close))
+                }
+            },
+            dismissButton = {
+                Button(onClick = {
+                    setMultiplierPrefs(true, 0)
+                    showMultiplierDialog = false
+                }) {
+                    Text(stringResource(R.string.reset))
+                }
+
+            }
+        )
+    }
+
+
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MultiplierSelector(
+    isMultiply: Boolean,
+    onMultiplyChange: (Boolean) -> Unit,
+    selectedMagnitude: Int,
+    onMagnitudeChange: (Int) -> Unit
+) {
+    val magnitudeOptions = listOf(0, 1, 2, 3, 4, 5, 6) // 10, 100, 1000, 10000 etc
+    val label = if (isMultiply) stringResource(R.string.multiply) else stringResource(R.string.divide)
+    var isExpanded by remember { mutableStateOf(false) }
+
+    Column {
+        // Multiply/Divide RadioButton
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = isMultiply, onClick = { onMultiplyChange(true) })
+            Text(stringResource(R.string.multiply))
+            Spacer(Modifier.width(16.dp))
+            RadioButton(selected = !isMultiply, onClick = { onMultiplyChange(false) })
+            Text(stringResource(R.string.divide))
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Choose multiplier in dropdown menu
+        ExposedDropdownMenuBox(
+            expanded = isExpanded,
+            onExpandedChange = { isExpanded = it }
+        ) {
+            TextField(
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                readOnly = true,
+                value = "10^$selectedMagnitude",
+                onValueChange = {},
+                label = { Text(stringResource(R.string.multiplier, label)) },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
+                },
+            )
+            ExposedDropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false }
+            ) {
+                magnitudeOptions.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text("10^$option") },
+                        onClick = {
+                            onMagnitudeChange(option)
+                            isExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 private fun getStatusString(status: Int, context: Context): String = when (status) {
     BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
