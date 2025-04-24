@@ -257,14 +257,14 @@ private fun getStatusString(status: Int, context: Context): String = when (statu
     BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
     BatteryManager.BATTERY_STATUS_DISCHARGING -> context.getString(R.string.discharging)
     BatteryManager.BATTERY_STATUS_FULL -> context.getString(R.string.full)
-    else -> "Not Charging"
+    else -> context.getString(R.string.not_charging)
 }
 
 private fun getHealthString(health: Int, context: Context): String = when (health) {
     BatteryManager.BATTERY_HEALTH_GOOD -> context.getString(R.string.good)
     BatteryManager.BATTERY_HEALTH_OVERHEAT -> context.getString(R.string.overheat)
     BatteryManager.BATTERY_HEALTH_DEAD -> context.getString(R.string.dead)
-    else -> "Unknown"
+    else -> context.getString(R.string.unknown)
 }
 
 private fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {

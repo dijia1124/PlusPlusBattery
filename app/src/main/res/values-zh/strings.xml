@@ -43,5 +43,7 @@
     <string name="dual_battery">双电芯</string>
     <string name="yes">是</string>
     <string name="no">否</string>
+    <string name="unknown">未知</string>
+    <string name="not_charging">非充电中</string>
 
 </resources>
