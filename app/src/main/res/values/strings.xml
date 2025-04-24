@@ -50,4 +50,9 @@
     <string name="calibrate_via_multiplier">Calibrate via Multiplier</string>
     <string name="reset">Reset</string>
     <string name="close">Close</string>
+    <string name="use_basic_mode">Use Basic Mode</string>
+    <string name="use_root_mode">Use Root Mode</string>
+    <string name="full_charge_capacity_battery_fcc">Full Charge Capacity (battery_fcc)</string>
+    <string name="battery_health_battery_soh">Battery Health (battery_soh)</string>
+    <string name="battery_manufacture_date_battery_manu_date">Battery Manufacture Date (battery_manu_date)</string>
 </resources>

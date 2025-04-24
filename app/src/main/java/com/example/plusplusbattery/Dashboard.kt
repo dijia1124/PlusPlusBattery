@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
@@ -60,6 +62,9 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.RadioButton
 import kotlin.math.pow
+import com.topjohnwu.superuser.Shell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -111,6 +116,9 @@ fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel) {
 }
 @Composable
 fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
+    val listState = rememberLazyListState()
+    var isRootMode by remember { mutableStateOf(false) }
+    var hasRoot by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
     val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -166,9 +174,21 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
     else
         1 / 10.0.pow(selectedMagnitude.toDouble())
 
-    LaunchedEffect(Unit) {
-        scope.launch {
-            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+    var fcc by remember {mutableStateOf(context.getString(R.string.unknown))}
+    var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
+    var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
+    hasRoot = hasRootAccess()
+
+    if (isRootMode) {
+        LaunchedEffect(Unit) {
+            scope.launch {
+                historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+                withContext(Dispatchers.IO) {
+                    fcc = readBatteryInfo("/sys/class/oplus_chg/battery/battery_fcc", context)
+                    soh = readBatteryInfo("/sys/class/oplus_chg/battery/battery_soh", context)
+                    batManDate = readBatteryInfo("/sys/class/oplus_chg/battery/battery_manu_date", context)
+                }
+            }
         }
     }
 
@@ -192,40 +212,66 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                         BatteryInfo(context.getString(R.string.power),
                             String.format("%.2f W",(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier * calibMultiplier * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) / 1000000.0))
                         ),
+
                     )
                 )
+                if (isRootMode) {
+                    batteryInfoList.addAll(
+                        listOf(
+                            BatteryInfo(context.getString(R.string.full_charge_capacity_battery_fcc), "$fcc mAh"),
+                            BatteryInfo(context.getString(R.string.battery_health_battery_soh), "$soh %"),
+                            BatteryInfo(context.getString(R.string.battery_manufacture_date_battery_manu_date), batManDate),
+                        )
+                    )
+                }
+                else {
 
-                val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+                    val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                    val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-                val fullChargeCapacityText = if (currentNow == 0 && batteryLevel == 100) {
-                    val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-                    val fullChargeCapacity = if (batteryLevel > 0)
-                        (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000 else -1
-                    if (fullChargeCapacity != -1)
-                        "$fullChargeCapacity mAh"
-                    else
-                        context.getString(R.string.full_charge_capacity_unavailable)
-                } else {
-                    if (currentNow != 0)
-                        context.getString(R.string.estimating_full_charge_capacity)
-                    else
-                        context.getString(R.string.capacity_unavailable)
+                    val fullChargeCapacityText = if (currentNow == 0 && batteryLevel == 100) {
+                        val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
+                        val fullChargeCapacity = if (batteryLevel > 0)
+                            (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000 else -1
+                        if (fullChargeCapacity != -1)
+                            "$fullChargeCapacity mAh"
+                        else
+                            context.getString(R.string.full_charge_capacity_unavailable)
+                    } else {
+                        if (currentNow != 0)
+                            context.getString(R.string.estimating_full_charge_capacity)
+                        else
+                            context.getString(R.string.capacity_unavailable)
+                    }
+
+                    batteryInfoList.add(BatteryInfo(
+                        context.getString(R.string.full_charge_capacity),
+                        fullChargeCapacityText.toString()
+                    ))
                 }
 
-                batteryInfoList.add(BatteryInfo(
-                    context.getString(R.string.full_charge_capacity),
-                    fullChargeCapacityText.toString()
-                ))
             }
 
             delay(1000)
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
 
-        LazyColumn {
+    LaunchedEffect(isRootMode, batteryInfoList.size) {
+        if (isRootMode) {
+            scope.launch {
+                listState.animateScrollToItem(index = batteryInfoList.size - 1)
+            }
+        }
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        LazyColumn (
+            state = listState,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+        ){
             items(batteryInfoList.size) { index ->
                 val info = batteryInfoList[index]
 
@@ -300,6 +346,17 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel) {
                 }
             }
         }
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { if (hasRoot) {
+                isRootMode = !isRootMode}
+                else {
+                    Toast.makeText(context, "Root Access Denied", Toast.LENGTH_SHORT).show()
+            }
+            }) {
+            Text(if (isRootMode) stringResource(R.string.use_basic_mode) else stringResource(R.string.use_root_mode))
+        }
+
     }
 
     if (showMultiplierDialog) {
@@ -342,7 +399,7 @@ fun MultiplierSelector(
     selectedMagnitude: Int,
     onMagnitudeChange: (Int) -> Unit
 ) {
-    val magnitudeOptions = listOf(0, 1, 2, 3, 4, 5, 6) // 10, 100, 1000, 10000 etc
+    val magnitudeOptions = listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9) // 10, 100, 1000, 10000 etc
     val label = if (isMultiply) stringResource(R.string.multiply) else stringResource(R.string.divide)
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -414,4 +471,25 @@ private fun getBoolString(boolVal: Boolean, context: Context): String = when(boo
     false -> context.getString(R.string.no)
 }
 
+fun readBatteryInfo(filePath: String, context: Context): String {
+    return try {
+        val result = Shell.cmd("cat $filePath").exec()
+        if (result.isSuccess && result.out.isNotEmpty()) {
+            result.out.joinToString()
+        } else {
+            context.getString(R.string.unknown)
+        }
+    } catch (e: Exception) {
+        context.getString(R.string.unknown)
+    }
+}
 
+
+fun hasRootAccess(): Boolean {
+    return try {
+        val result = Shell.cmd("id").exec()
+        result.isSuccess && result.out.any { it.contains("uid=0") }
+    } catch (e: Exception) {
+        false
+    }
+}

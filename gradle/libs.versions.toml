@@ -1,5 +1,6 @@
 [versions]
 agp = "8.9.1"
+core = "6.0.0"
 datastorePreferences = "1.2.0-alpha01"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
@@ -23,6 +24,7 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCompiler" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
+core = { module = "com.github.topjohnwu.libsu:core", version.ref = "core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
