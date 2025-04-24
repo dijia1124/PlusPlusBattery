@@ -35,7 +35,7 @@ fun History(historyInfoViewModel: HistoryInfoViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                backgroundColor = MaterialTheme.colorScheme.surface,
             ) {
                 Box(
                     modifier = Modifier

@@ -60,6 +60,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Mo
                 val currentDestination = navBackStackEntry?.destination
                 navRoutes.forEach { navRoute ->
                     NavigationBarItem(
+                        alwaysShowLabel = false,
                         icon = { Icon(navRoute.icon, contentDescription =
                             navRoute.label) },
                         label = { Text(navRoute.label) },
