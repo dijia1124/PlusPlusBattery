@@ -15,6 +15,7 @@
     - 完全充满时的容量：估算的电池完全充满时的容量（毫安时）。\n
     完全充满时的容量会在电池充满时进行计算：\n
     仅当电流为0且电量为100%时，才视为充电完成。\n
+    - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n

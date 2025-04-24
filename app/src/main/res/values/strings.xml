@@ -15,6 +15,7 @@
         - Full Charge Capacity: The estimated full charge capacity of the battery in milliampere-hours.\n
           The Full Charge Capacity is calculated when the battery is fully charged.\n
           Charge complete only happens when the current is 0 and battery level is 100%.\n
+        - Root Mode (OnePlus + ColorOS15/OxygenOS15 exclusive):\n
         - Full Charge Capacity (battery_fcc): Value read by cat /sys/class/oplus_chg/battery/battery_fcc.\n
         - Battery Health (battery_soh): Value read by cat /sys/class/oplus_chg/battery/battery_soh.\n
         - Battery Manufacture Date (battery_manu_date): Value read by cat /sys/class/oplus_chg/battery/battery_manu_date.\n
