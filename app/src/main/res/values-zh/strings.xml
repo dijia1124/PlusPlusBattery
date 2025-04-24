@@ -45,5 +45,6 @@
     <string name="no">否</string>
     <string name="unknown">未知</string>
     <string name="not_charging">非充电中</string>
+    <string name="power">功率</string>
 
 </resources>
