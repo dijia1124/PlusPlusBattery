@@ -18,6 +18,7 @@
     - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
+    - 电池欠压阈值（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n
 </string>
     <string name="plus_plus_battery">加加电池</string>
