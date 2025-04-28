@@ -61,4 +61,5 @@
     <string name="battery_health_battery_soh">Battery Health (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">Battery Manufacture Date (battery_manu_date)</string>
     <string name="root_access_denied">Root Access Denied</string>
+    <string name="battery_under_voltage_threshold_vbat_uv">Battery Under-Voltage Threshold (vbat_uv)</string>
 </resources>

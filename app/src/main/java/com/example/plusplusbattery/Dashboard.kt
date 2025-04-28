@@ -176,6 +176,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
 
     var fcc by remember {mutableStateOf(context.getString(R.string.unknown))}
     var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
+    var vbatUv by remember {mutableStateOf(context.getString(R.string.unknown))}
     var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
 
@@ -186,6 +187,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                     withContext(Dispatchers.IO) {
                         fcc = readBatteryInfo("/sys/class/oplus_chg/battery/battery_fcc", context)
                         soh = readBatteryInfo("/sys/class/oplus_chg/battery/battery_soh", context)
+                        vbatUv = readBatteryInfo("/sys/class/oplus_chg/battery/vbat_uv", context)
                         batManDate = readBatteryInfo("/sys/class/oplus_chg/battery/battery_manu_date", context)
                     }
                 }
@@ -220,6 +222,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                         listOf(
                             BatteryInfo(context.getString(R.string.full_charge_capacity_battery_fcc), "$fcc mAh"),
                             BatteryInfo(context.getString(R.string.battery_health_battery_soh), "$soh %"),
+                            BatteryInfo(context.getString(R.string.battery_under_voltage_threshold_vbat_uv), "$vbatUv mV"),
                             BatteryInfo(context.getString(R.string.battery_manufacture_date_battery_manu_date), batManDate),
                         )
                     )
