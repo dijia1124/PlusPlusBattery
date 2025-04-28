@@ -18,6 +18,8 @@
         - Root Mode (OnePlus + ColorOS15/OxygenOS15 exclusive):\n
         - Full Charge Capacity (battery_fcc): Value read by cat /sys/class/oplus_chg/battery/battery_fcc.\n
         - Battery Health (battery_soh): Value read by cat /sys/class/oplus_chg/battery/battery_soh.\n
+        - Battery Under-Voltage Threshold (vbat_uv): Value read by cat /sys/class/oplus_chg/battery/vbat_uv.\n
+          The device shuts down if the voltage is lower than this threshold.\n
         - Battery Manufacture Date (battery_manu_date): Value read by cat /sys/class/oplus_chg/battery/battery_manu_date.\n
 "</string>
     <string name="plus_plus_battery">Plus Plus Battery</string>
