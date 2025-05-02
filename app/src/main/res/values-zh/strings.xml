@@ -63,5 +63,9 @@
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>
     <string name="root_access_denied">无法获取 Root 权限</string>
     <string name="battery_under_voltage_threshold_vbat_uv">电池欠压阈值 (vbat_uv)</string>
+    <string name="raw_battery_health_before_compensation">真实电池健康</string>
+    <string name="raw_full_charge_capacity_before_compensation">真实完全充满时的容量</string>
+    <string name="remaining_charge_counter">"当前剩余电量 (battery_rm)"</string>
+    <string name="battery_serial_number_battery_sn">电池序列号 (battery_sn)</string>
 
 </resources>
