@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -63,7 +62,6 @@ import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.RadioButton
 import kotlin.math.pow
-import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -173,22 +171,29 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
         10.0.pow(selectedMagnitude.toDouble())
     else
         1 / 10.0.pow(selectedMagnitude.toDouble())
-
+    
+    var rm by remember {mutableStateOf(context.getString(R.string.unknown))}
     var fcc by remember {mutableStateOf(context.getString(R.string.unknown))}
     var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
     var vbatUv by remember {mutableStateOf(context.getString(R.string.unknown))}
+    var sn by remember { mutableStateOf(context.getString(R.string.unknown)) }
     var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
-
+    var rawSoh by remember { mutableStateOf(context.getString(R.string.unknown)) }
+    var rawFcc by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
         LaunchedEffect(isRootMode) {
             scope.launch {
                 historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
                 if (isRootMode) {
                     withContext(Dispatchers.IO) {
-                        fcc = readBatteryInfo("/sys/class/oplus_chg/battery/battery_fcc", context)
-                        soh = readBatteryInfo("/sys/class/oplus_chg/battery/battery_soh", context)
-                        vbatUv = readBatteryInfo("/sys/class/oplus_chg/battery/vbat_uv", context)
-                        batManDate = readBatteryInfo("/sys/class/oplus_chg/battery/battery_manu_date", context)
+                        rm = readBatteryInfo("battery_rm", context)
+                        fcc = readBatteryInfo("battery_fcc", context)
+                        soh = readBatteryInfo("battery_soh", context)
+                        vbatUv = readBatteryInfo("vbat_uv", context)
+                        sn = readBatteryInfo("battery_sn", context)
+                        batManDate = readBatteryInfo("battery_manu_date", context)
+                        rawSoh = calcRawSoh(soh.toInt(),vbatUv.toInt(),readTermCoeff()).toString()
+                        rawFcc = calcRawFcc(fcc.toInt(),rawSoh.toFloat(),vbatUv.toInt(),readTermCoeff()).toString()
                     }
                 }
             }
@@ -220,9 +225,13 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                 if (isRootMode) {
                     batteryInfoList.addAll(
                         listOf(
+                            BatteryInfo(context.getString(R.string.remaining_charge_counter), "$rm mAh"),
                             BatteryInfo(context.getString(R.string.full_charge_capacity_battery_fcc), "$fcc mAh"),
+                            BatteryInfo(context.getString(R.string.raw_full_charge_capacity_before_compensation), "$rawFcc mAh"),
                             BatteryInfo(context.getString(R.string.battery_health_battery_soh), "$soh %"),
+                            BatteryInfo(context.getString(R.string.raw_battery_health_before_compensation), "$rawSoh %"),
                             BatteryInfo(context.getString(R.string.battery_under_voltage_threshold_vbat_uv), "$vbatUv mV"),
+                            BatteryInfo(context.getString(R.string.battery_serial_number_battery_sn), sn),
                             BatteryInfo(context.getString(R.string.battery_manufacture_date_battery_manu_date), batManDate),
                         )
                     )
@@ -454,36 +463,3 @@ fun MultiplierSelector(
     }
 }
 
-
-
-private fun getStatusString(status: Int, context: Context): String = when (status) {
-    BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
-    BatteryManager.BATTERY_STATUS_DISCHARGING -> context.getString(R.string.discharging)
-    BatteryManager.BATTERY_STATUS_FULL -> context.getString(R.string.full)
-    else -> context.getString(R.string.not_charging)
-}
-
-private fun getHealthString(health: Int, context: Context): String = when (health) {
-    BatteryManager.BATTERY_HEALTH_GOOD -> context.getString(R.string.good)
-    BatteryManager.BATTERY_HEALTH_OVERHEAT -> context.getString(R.string.overheat)
-    BatteryManager.BATTERY_HEALTH_DEAD -> context.getString(R.string.dead)
-    else -> context.getString(R.string.unknown)
-}
-
-private fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
-    true -> context.getString(R.string.yes)
-    false -> context.getString(R.string.no)
-}
-
-fun readBatteryInfo(filePath: String, context: Context): String {
-    return try {
-        val result = Shell.cmd("cat $filePath").exec()
-        if (result.isSuccess && result.out.isNotEmpty()) {
-            result.out.joinToString()
-        } else {
-            context.getString(R.string.unknown)
-        }
-    } catch (e: Exception) {
-        context.getString(R.string.unknown)
-    }
-}

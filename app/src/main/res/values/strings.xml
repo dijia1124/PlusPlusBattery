@@ -64,4 +64,8 @@
     <string name="battery_manufacture_date_battery_manu_date">Battery Manufacture Date (battery_manu_date)</string>
     <string name="root_access_denied">Root Access Denied</string>
     <string name="battery_under_voltage_threshold_vbat_uv">Battery Under-Voltage Threshold (vbat_uv)</string>
+    <string name="raw_battery_health_before_compensation">Raw Battery Health</string>
+    <string name="raw_full_charge_capacity_before_compensation">Raw Full Charge Capacity</string>
+    <string name="remaining_charge_counter">"Remaining Charge Counter (battery_rm)"</string>
+    <string name="battery_serial_number_battery_sn">Battery Serial Number (battery_sn)</string>
 </resources>
