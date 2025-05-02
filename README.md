@@ -1,66 +1,37 @@
-# PlusPlusBattery - 电池信息及寿命估算工具
+# PlusPlusBattery - OnePlus Battery Info Viewer
 
-## 简介
-
-`PlusPlusBattery` 是一款适合一加宝宝体质的简单电池信息显示和电池寿命估算应用，提供实时电池状态监测，并能在特定条件下评估电池的完全充电容量。
-
-## 特点
-
-- **实时电池信息**：无需Root权限显示当前电池电量、电压、电流、充放功率、健康状态等信息。
-- **电池寿命估算**：仅在电池电流为0且电量达到100%时，计算并记录完全充电容量，以此估算电池的健康状况和寿命。不代表真实值。只是估算值。
-- **历史循环次数记录**: 每日打开app时记录当天的循环次数并记录在本地Room数据库中，用户可在历史页查看。
-- **Root模式**: 需要Root权限读取额外信息（执行cat命令）。
-- **完全充满时的容量（battery_fcc）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。此值随充放使用上下浮动。
-- **电池健康（battery_soh）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。此值随充放使用上下浮动。
-- **电池欠压阈值（vbat_uv）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。
-
-## 安装
-
-本应用目前仅支持安卓系统。您可以通过以下步骤进行安装：
-
-1. 确保您的一加设备运行较新的ColorOS或OxygenOS（比如ColorOS 15)，或是较新的类原生系统。
-2. 前往Release页面下载并安装APK文件。
-3. 运行APP。
-
-
-## 开源许可
-
-本项目采用 MIT 许可证。详情请参阅项目中的 `LICENSE` 文件。
-
----
-
-# PlusPlusBattery - Battery Information and Life Estimation Tool
+[简体中文](./README.zh.md) | English
 
 ## Introduction
 
-`PlusPlusBattery` is a simple app designed for newer OnePlus device users to display battery information and estimate battery life. It provides real-time monitoring of battery status and estimates the full charge capacity under specific conditions.
+`PlusPlusBattery` is a lightweight battery info and health estimation tool specifically tailored for OnePlus devices. It provides real-time monitoring of battery status and can evaluate the Full Charge Capacity (FCC) and the uncompensated raw FCC and State of Health (SOH) of silicon-carbon anode batteries under specific conditions.
 
 ## Features
 
-- **Real-Time Battery Information**: Displays current battery level, current, power, health status, voltage, and more.
-- **Battery Life Estimation**: Calculates and records the full charge capacity only when the battery current is ***0 mA*** and the charge level reaches 100%, to estimate the battery's health and lifespan.
-- **Historical Cycle Counts**: Charge Cycle counts are kept locally in the history screen.
-- **Root Mode**: Ability to read extra info by executing cat command
-- **Full Charge Capacity (battery_fcc)**: Value read by cat /sys/class/oplus_chg/battery/battery_fcc. This value varies depending on charging and discharging activities.
-- **Battery Health (battery_soh)**: Value read by cat /sys/class/oplus_chg/battery/battery_soh. This value varies depending on charging and discharging activities.
-- **Battery Under-Voltage Threshold (vbat_uv)**: Value read by cat /sys/class/oplus_chg/battery/vbat_uv. The device shuts down if the voltage is lower than this value.
+- **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power, and health status without root access.
+- **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery current is 0 and the battery level is 100%. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
+- **Cycle Count History**: Records the daily cycle count when the app is opened and saves it locally using a Room database. Users can view this on the history page.
+- **Root Mode**: Requires root permission to read additional information (via `cat` command).
+- **Current Remaining Capacity**: Read from `/sys/class/oplus_chg/battery/battery_rm`. This value changes with battery level.
+- **Full Charge Capacity (battery_fcc) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_fcc`. This value fluctuates based on charging/discharging behavior.
+- **Raw Full Charge Capacity (Root Mode)**: Reverse-calculated uncompensated FCC. Silicon-carbon anode batteries typically apply algorithmic compensation based on undervoltage thresholds.
+- **Battery Health (battery_soh) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_soh`. This value fluctuates with usage.
+- **Raw Battery Health (Root Mode)**: Reverse-calculated uncompensated SOH. Compensation is usually applied in silicon-carbon batteries based on undervoltage thresholds.
+- **Battery Under-voltage Threshold (vbat_uv) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/vbat_uv`. The device will shut down if the voltage drops below this threshold.
+- **Battery Serial Number (battery_sn) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_sn`.
+- **Battery Manufacture Date (battery_manu_date)**: Read from `/sys/class/oplus_chg/battery/battery_manu_date`.
 
 ## Installation
 
-This app is currently available only for Android systems. Follow these steps to install:
+1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 15), or a relatively new AOSP-based ROM.
+2. Go to the Release page to download and install the APK.
+3. Launch the app.
+4. (Optional) Grant root access.
 
-1. Ensure your device is running on newer ColorOS/OxygenOS (such as OxygenOS 15), or newer AOSP-based ROMs. 
-2. Go to Release Page, and then download the APK file.
-3. Open the app and grant necessary permissions to access battery status information.
+## Credits
 
-## Developer Information
+Special thanks to [@shminer](https://github.com/shminer) for providing source code, algorithm logic, and insights related to FCC & SOH compensation.
 
-If you have any suggestions or feedback, please contact me through:
+## License
 
-- Email: [zrh19981123@gmail.com](mailto:zrh19981123@gmail.com)
-
-## Open Source License
-
-This project is licensed under the MIT License. For more details, please see the `LICENSE` file in the project.
-
-
+This project is licensed under the MIT License. Please refer to the `LICENSE` file for details.
