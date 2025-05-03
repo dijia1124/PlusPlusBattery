@@ -26,6 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -113,6 +114,89 @@ fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
         }
     }
 }
+
+@Composable
+fun NormalBatteryCard(info: BatteryInfo) {
+    Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+        Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = info.value,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+fun BatteryCardWithCalibration(
+    info: BatteryInfo,
+    isDualBat: Boolean,
+    context: Context,
+    onToggleDualBat: () -> Unit,
+    onShowMultiplierDialog: () -> Unit
+) {
+    Row {
+        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+        }
+        IconButton(onClick = onShowMultiplierDialog, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Default.Create, contentDescription = "Calibrate", modifier = Modifier.size(18.dp))
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Row {
+            Column {
+                Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    text = getBoolString(isDualBat, context),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
+                Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun BatteryCardWithCoeffTable(
+    info: BatteryInfo,
+    context: Context,
+    onShowInfo: () -> Unit
+) {
+    Row {
+        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = onShowInfo, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Default.Info, contentDescription = "Show TermCoeff Table", modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
+fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.fcc_soh_offset_table)) },
+        text = {
+            Text(
+                text = infoText,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+}
+
 @Composable
 fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     val listState = rememberLazyListState()
@@ -125,6 +209,9 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     val currentTimestamp = System.currentTimeMillis()
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val dateString = formatter.format(Date(currentTimestamp))
+
+    var showCoeffDialog by remember { mutableStateOf(false) }
+    var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
     val historyInfo = HistoryInfo(
         date = currentTimestamp,
@@ -192,8 +279,8 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                         vbatUv = readBatteryInfo("vbat_uv", context)
                         sn = readBatteryInfo("battery_sn", context)
                         batManDate = readBatteryInfo("battery_manu_date", context)
-                        rawSoh = calcRawSoh(soh.toInt(),vbatUv.toInt(),readTermCoeff()).toString()
-                        rawFcc = calcRawFcc(fcc.toInt(),rawSoh.toFloat(),vbatUv.toInt(),readTermCoeff()).toString()
+                        rawSoh = calcRawSoh(soh.toInt(),vbatUv.toInt(),readTermCoeff(context)).toString()
+                        rawFcc = calcRawFcc(fcc.toInt(),rawSoh.toFloat(),vbatUv.toInt(),readTermCoeff(context)).toString()
                     }
                 }
             }
@@ -301,60 +388,34 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                             .padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        if (index == 6) {
-                            Row {
-                                Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                                    Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
-                                    Text(
-                                        text = info.value,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                IconButton(
-                                    onClick = { showMultiplierDialog = true
-                                        },
-                                    modifier = Modifier.size(36.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Create,
-                                        contentDescription = "Calibrate Battery Current",
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.weight(1f))
-                                    Row {
-                                        Column {
-                                            Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
-                                            Text(text = getBoolString(isDualBat, context),
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                fontWeight = FontWeight.Bold)
+                        when (index) {
+                            6 -> BatteryCardWithCalibration(
+                                info = info,
+                                isDualBat = isDualBat,
+                                context = context,
+                                onToggleDualBat = { setDualBat(!isDualBat) },
+                                onShowMultiplierDialog = { showMultiplierDialog = true }
+                            )
+                            10 -> BatteryCardWithCoeffTable(
+                                info = info,
+                                context = context,
+                                onShowInfo = {
+                                    val list = readTermCoeff(context)
+                                    coeffDialogText = buildString {
+                                        append(context.getString(R.string.raw_fcc_soh_calc_intro))
+                                        append(context.getString(R.string.vbatuv_mv_fccoffset_mah_sohoffset))
+                                        list.forEach {
+                                            append("${it.first}, ${it.second}, ${it.third}\n")
                                         }
-                                        IconButton(
-                                            onClick = { setDualBat(!isDualBat) },
-                                            modifier = Modifier.size(36.dp)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Create,
-                                                contentDescription = "Switch On/Off Dual Battery",
-                                                modifier = Modifier.size(18.dp)
-                                            )
+                                        if (list.isEmpty()) {
+                                            append(context.getString(R.string.offset_table_not_found))
                                         }
                                     }
-                            }
-                        }
-                        else {
-                            Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-                                Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
-                                Text(
-                                    text = info.value,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-
-                    }
+                                    showCoeffDialog = true
+                                }
+                            )
+                            else -> NormalBatteryCard(info)
+                    }}
                 }
             }
         }
@@ -370,6 +431,12 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
             Text(if (isRootMode) stringResource(R.string.use_basic_mode) else stringResource(R.string.use_root_mode))
         }
 
+    }
+
+    if (showCoeffDialog) {
+        CoeffTableDialog(infoText = coeffDialogText) {
+            showCoeffDialog = false
+        }
     }
 
     if (showMultiplierDialog) {
