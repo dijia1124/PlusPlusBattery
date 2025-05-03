@@ -42,10 +42,19 @@ fun readBatteryInfo(field: String, context: Context): String {
 }
 
 
-fun readTermCoeff(): List<Triple<Int, Int, Int>> {
-    val path = "/proc/device-tree/soc/oplus,mms_gauge/silicon_p_770/deep_spec,term_coeff"
+fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> {
+    val battType = readBatteryInfo("battery_type", context)
+    val path = "/proc/device-tree/soc/oplus,mms_gauge/$battType/deep_spec,term_coeff"
+    val altPath = "/proc/device-tree/soc/oplus,mms_gauge/deep_spec,term_coeff"
+
+    val selectedPath = when {
+        Shell.cmd("[ -f $path ] && echo exists").exec().out.joinToString("").trim() == "exists" -> path
+        Shell.cmd("[ -f $altPath ] && echo exists").exec().out.joinToString("").trim() == "exists" -> altPath
+        else -> null
+    }
+
     return try {
-        val result = Shell.cmd("base64 $path").exec()
+        val result = Shell.cmd("base64 $selectedPath").exec()
         if (result.isSuccess && result.out.isNotEmpty()) {
             val base64Str = result.out.joinToString("")
             val bytes = Base64.decode(base64Str, Base64.DEFAULT)
@@ -58,7 +67,6 @@ fun readTermCoeff(): List<Triple<Int, Int, Int>> {
                 val sohOffset = buffer.int
                 list.add(Triple(vbatUv, fccOffset, sohOffset))
             }
-
             list
         } else {
             emptyList()
