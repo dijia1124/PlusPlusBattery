@@ -2,9 +2,9 @@ package com.example.plusplusbattery
 
 import android.content.Context
 import android.os.BatteryManager
-import android.util.Base64
 import com.topjohnwu.superuser.Shell
 import java.nio.ByteBuffer
+import java.io.File
 
 fun getStatusString(status: Int, context: Context): String = when (status) {
     BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
@@ -43,34 +43,44 @@ fun readBatteryInfo(field: String, context: Context): String {
 
 
 fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> {
-    val battType = readBatteryInfo("battery_type", context)
-    val path = "/proc/device-tree/soc/oplus,mms_gauge/$battType/deep_spec,term_coeff"
-    val altPath = "/proc/device-tree/soc/oplus,mms_gauge/deep_spec,term_coeff"
+    // Make a temporary directory in the app's private storage to avoid extra permission
+    val tmpDir = File(context.getExternalFilesDir(null), "read_term_coeff")
+    if (!tmpDir.exists()) tmpDir.mkdirs()
+    val targetFile = File(tmpDir, "term_coeff")
+    val targetPath = targetFile.absolutePath
 
-    val selectedPath = when {
-        Shell.cmd("[ -f $path ] && echo exists").exec().out.joinToString("").trim() == "exists" -> path
-        Shell.cmd("[ -f $altPath ] && echo exists").exec().out.joinToString("").trim() == "exists" -> altPath
-        else -> null
+    val battType = readBatteryInfo("battery_type", context)
+    val primaryPath = "/proc/device-tree/soc/oplus,mms_gauge/$battType/deep_spec,term_coeff"
+    val fallbackPath = "/proc/device-tree/soc/oplus,mms_gauge/deep_spec,term_coeff"
+    var sourcePath = primaryPath
+
+    val checkPrimary = Shell.cmd("[ -f \"$primaryPath\" ] && echo exists").exec().out.joinToString("").trim()
+    if (checkPrimary != "exists") {
+        val checkFallback = Shell.cmd("[ -f \"$fallbackPath\" ] && echo exists").exec().out.joinToString("").trim()
+        if (checkFallback == "exists") {
+            sourcePath = fallbackPath
+        } else {
+            return emptyList()
+        }
+    }
+
+    val ddResult = Shell.cmd("su -c dd if=$sourcePath of=$targetPath").exec()
+    if (!ddResult.isSuccess) {
+        return emptyList()
     }
 
     return try {
-        val result = Shell.cmd("base64 $selectedPath").exec()
-        if (result.isSuccess && result.out.isNotEmpty()) {
-            val base64Str = result.out.joinToString("")
-            val bytes = Base64.decode(base64Str, Base64.DEFAULT)
+        val bytes = targetFile.readBytes()
 
-            val buffer = ByteBuffer.wrap(bytes)
-            val list = mutableListOf<Triple<Int, Int, Int>>()
-            while (buffer.remaining() >= 12) {
-                val vbatUv = buffer.int
-                val fccOffset = buffer.int
-                val sohOffset = buffer.int
-                list.add(Triple(vbatUv, fccOffset, sohOffset))
-            }
-            list
-        } else {
-            emptyList()
+        val buffer = ByteBuffer.wrap(bytes)
+        val list = mutableListOf<Triple<Int, Int, Int>>()
+        while (buffer.remaining() >= 12) {
+            val vbatUv = buffer.int
+            val fccOffset = buffer.int
+            val sohOffset = buffer.int
+            list.add(Triple(vbatUv, fccOffset, sohOffset))
         }
+        list
     } catch (e: Exception) {
         emptyList()
     }
