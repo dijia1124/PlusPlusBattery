@@ -68,4 +68,8 @@
     <string name="raw_full_charge_capacity_before_compensation">Raw Full Charge Capacity</string>
     <string name="remaining_charge_counter">"Remaining Charge Counter (battery_rm)"</string>
     <string name="battery_serial_number_battery_sn">Battery Serial Number (battery_sn)</string>
+    <string name="fcc_soh_offset_table">FCC/SOH Offset Table</string>
+    <string name="vbatuv_mv_fccoffset_mah_sohoffset">\nvbatUv, fccOffset, sohOffset\n</string>
+    <string name="offset_table_not_found">\nOffset Table Not Found</string>
+    <string name="raw_fcc_soh_calc_intro"><![CDATA[Raw fcc&soh in Plus Plus Battery are calculated using this table\n]]></string>
 </resources>
