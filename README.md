@@ -11,7 +11,7 @@
 - **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power, and health status without root access.
 - **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery current is 0 and the battery level is 100%. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
 - **Cycle Count History**: Records the daily cycle count when the app is opened and saves it locally using a Room database. Users can view this on the history page.
-- **Root Mode**: Requires root permission to read additional information (via `cat` command).
+- **Root Mode**: Requires root permission to read additional information.
 - **Current Remaining Capacity**: Read from `/sys/class/oplus_chg/battery/battery_rm`. This value changes with battery level.
 - **Full Charge Capacity (battery_fcc) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_fcc`. This value fluctuates based on charging/discharging behavior.
 - **Raw Full Charge Capacity (Root Mode)**: Reverse-calculated uncompensated FCC. Silicon-carbon anode batteries typically apply algorithmic compensation based on undervoltage thresholds.
