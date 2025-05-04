@@ -18,7 +18,7 @@
     - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
-    - 电池欠压阈值（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
+    - 截止电压（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n
 </string>
     <string name="plus_plus_battery">加加电池</string>
@@ -62,13 +62,13 @@
     <string name="battery_health_battery_soh">电池健康 (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>
     <string name="root_access_denied">无法获取 Root 权限</string>
-    <string name="battery_under_voltage_threshold_vbat_uv">电池欠压阈值 (vbat_uv)</string>
+    <string name="battery_under_voltage_threshold_vbat_uv">截止电压 (vbat_uv)</string>
     <string name="raw_battery_health_before_compensation">真实电池健康</string>
     <string name="raw_full_charge_capacity_before_compensation">真实完全充满时的容量</string>
     <string name="remaining_charge_counter">"当前剩余电量 (battery_rm)"</string>
     <string name="battery_serial_number_battery_sn">电池序列号 (battery_sn)</string>
     <string name="fcc_soh_offset_table">FCC/SOH偏移量表</string>
-    <string name="vbatuv_mv_fccoffset_mah_sohoffset">\n欠压阈值, fcc偏移量, soh偏移量\n</string>
+    <string name="vbatuv_mv_fccoffset_mah_sohoffset">\n截止电压, fcc偏移量, soh偏移量\n</string>
     <string name="offset_table_not_found">\n未找到偏移量表</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的真实 fcc&soh 依据这张表计算反推\n]]></string>
 
