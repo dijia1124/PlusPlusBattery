@@ -87,7 +87,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
             startDestination = "dashboard",
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = paddingValues.calculateBottomPadding() * 0.9f)
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot) }
             composable("history") { History(historyInfoViewModel) }
