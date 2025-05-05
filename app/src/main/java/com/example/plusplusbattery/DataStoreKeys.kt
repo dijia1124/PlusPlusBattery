@@ -7,3 +7,4 @@ val DUAL_BATTERY_KEY = booleanPreferencesKey("dual_battery_key")
 
 val MULTIPLY_KEY = booleanPreferencesKey("multiply_key")
 val MULTIPLIER_MAGNITUDE_KEY = intPreferencesKey("multiplier_magnitude_key")
+val ESTIMATED_FCC_KEY = intPreferencesKey("estimated_fcc")

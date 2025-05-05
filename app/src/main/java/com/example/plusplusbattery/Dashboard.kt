@@ -107,7 +107,7 @@ fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             .background(MaterialTheme.colorScheme.background),
     )
     {
-        Column() {
+        Column{
             BatteryInfoUpdater(historyInfoViewModel, hasRoot)
         }
     }
@@ -161,7 +161,6 @@ fun BatteryCardWithCalibration(
 @Composable
 fun BatteryCardWithCoeffTable(
     info: BatteryInfo,
-    context: Context,
     onShowInfo: () -> Unit
 ) {
     Row {
@@ -208,6 +207,16 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     val dateString = formatter.format(Date(currentTimestamp))
 
+    var estimatedFcc by remember { mutableStateOf(context.getString(R.string.estimating_full_charge_capacity)) }
+
+    val savedCapacityFlow = remember {
+        context.dataStore.data.map { prefs ->
+            prefs[ESTIMATED_FCC_KEY] ?: context.getString(R.string.estimating_full_charge_capacity)
+        }
+    }
+
+    val savedEstimatedFcc by savedCapacityFlow.collectAsState(initial = context.getString(R.string.estimating_full_charge_capacity))
+
     var showCoeffDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
@@ -217,7 +226,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
         cycleCount = cycleCount.toString()
     )
     val dualBatFlow = remember {
-        context.dataStore.data.map { prefs -> prefs[DUAL_BATTERY_KEY] ?: false }
+        context.dataStore.data.map { prefs -> prefs[DUAL_BATTERY_KEY] == true }
     }
     val isDualBat by dualBatFlow.collectAsState(initial = false)
 
@@ -338,24 +347,22 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                     val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
                     val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-                    val fullChargeCapacityText = if (currentNow == 0 && batteryLevel == 100) {
+                    if (currentNow == 0 && batteryLevel == 100) {
                         val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-                        val fullChargeCapacity = if (batteryLevel > 0)
-                            (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000 else -1
-                        if (fullChargeCapacity != -1)
-                            "$fullChargeCapacity mAh"
-                        else
-                            context.getString(R.string.full_charge_capacity_unavailable)
-                    } else {
-                        if (currentNow != 0)
-                            context.getString(R.string.estimating_full_charge_capacity)
-                        else
-                            context.getString(R.string.capacity_unavailable)
+                        val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
+                        if (fullChargeCapacity > 0) {
+                            scope.launch {
+                                context.dataStore.edit { prefs ->
+                                    prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
+                                }
+                            }
+                        }
                     }
+                        estimatedFcc = savedEstimatedFcc.toString()
 
                     batteryInfoList.add(BatteryInfo(
                         context.getString(R.string.full_charge_capacity),
-                        fullChargeCapacityText.toString()
+                        estimatedFcc.toString()
                     ))
                 }
 
@@ -408,7 +415,6 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                             )
                             10 -> BatteryCardWithCoeffTable(
                                 info = info,
-                                context = context,
                                 onShowInfo = {
                                     val list = readTermCoeff(context)
                                     coeffDialogText = buildString {
