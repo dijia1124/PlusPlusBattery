@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +48,7 @@ fun History(historyInfoViewModel: HistoryInfoViewModel) {
             )
         },
         content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
+            Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -77,7 +77,7 @@ fun HistoryContent(historyInfoViewModel: HistoryInfoViewModel) {
 @Composable
 fun HistoryInfoScreen(historyInfoViewModel: HistoryInfoViewModel) {
     val historyInfos by historyInfoViewModel.allHistoryInfos.collectAsState(emptyList())
-    Column (modifier = Modifier.padding(16.dp)){
+    Column (modifier = Modifier.padding(horizontal = 16.dp)){
         LazyColumn {
             items(historyInfos.size) { index ->
 
