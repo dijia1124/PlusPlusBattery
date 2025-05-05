@@ -23,7 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.TextField
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Info
@@ -62,31 +62,28 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TopAppBarDefaults
 import kotlin.math.pow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     Scaffold(
         topBar = {
             TopAppBar(
-                backgroundColor = MaterialTheme.colorScheme.surface,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-
-                    contentAlignment = Alignment.Center
-                ) {
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                title = {
                     Text(
-                        text = stringResource(R.string.plus_plus_battery),
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.headlineSmall
                     )
-                }
-            }
+                },
+            )
         },
         content = { innerPadding ->
             Column(modifier = Modifier.padding(innerPadding)) {

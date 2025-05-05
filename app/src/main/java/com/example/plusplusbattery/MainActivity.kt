@@ -38,18 +38,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlusPlusBatteryTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Column {
-                        BottomNavigationBar(HistoryInfoViewModel(application), modifier = Modifier.padding(innerPadding))
-                    }
-                }
+                        BottomNavigationBar(HistoryInfoViewModel(application))
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Modifier) {
+fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
     var hasRoot by remember { mutableStateOf(false) }
     hasRoot = hasRootAccess()
 // Define the list of navigation routes using the data class
@@ -89,7 +85,9 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, modifier: Mo
         NavHost(
             navController = navController,
             startDestination = "dashboard",
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
             composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot) }
             composable("history") { History(historyInfoViewModel) }
