@@ -37,7 +37,7 @@ fun About() {
             )
         },
         content = { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
+            Column(modifier = Modifier.padding(innerPadding.calculateBottomPadding())) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -68,7 +68,7 @@ fun AboutScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
             .verticalScroll(rememberScrollState())
     ) {
         Text(stringResource(R.string.instructions_content).trimIndent())
