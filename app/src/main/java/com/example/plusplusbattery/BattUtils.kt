@@ -25,7 +25,7 @@ fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
     false -> context.getString(R.string.no)
 }
 
-fun readBatteryInfo(field: String, context: Context): String {
+fun readBatteryInfo(field: String, context: Context): String? {
     val basePath = "/sys/class/oplus_chg/battery/"
     val fullPath = basePath + field
 
@@ -34,10 +34,10 @@ fun readBatteryInfo(field: String, context: Context): String {
         if (result.isSuccess && result.out.isNotEmpty()) {
             result.out.joinToString()
         } else {
-            context.getString(R.string.unknown)
+            null
         }
     } catch (e: Exception) {
-        context.getString(R.string.unknown)
+        null
     }
 }
 

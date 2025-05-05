@@ -273,14 +273,26 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                 historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
                 if (isRootMode) {
                     withContext(Dispatchers.IO) {
-                        rm = readBatteryInfo("battery_rm", context)
-                        fcc = readBatteryInfo("battery_fcc", context)
-                        soh = readBatteryInfo("battery_soh", context)
-                        vbatUv = readBatteryInfo("vbat_uv", context)
-                        sn = readBatteryInfo("battery_sn", context)
-                        batManDate = readBatteryInfo("battery_manu_date", context)
-                        rawSoh = calcRawSoh(soh.toInt(),vbatUv.toInt(),readTermCoeff(context)).toString()
-                        rawFcc = calcRawFcc(fcc.toInt(),rawSoh.toFloat(),vbatUv.toInt(),readTermCoeff(context)).toString()
+                        rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
+                        fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
+                        soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
+                        vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
+                        sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
+                        batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
+                        rawSoh = calcRawSoh(
+                            soh.toIntOrNull() ?: 0,
+                            vbatUv.toIntOrNull() ?: 0,
+                            readTermCoeff(context)
+                        ).let { resultValue ->
+                            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
+                        }
+                        rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
+                            rawSoh.toFloatOrNull() ?: 0f,
+                            vbatUv.toIntOrNull() ?: 0,
+                            readTermCoeff(context)
+                        ).let { resultValue ->
+                            if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
+                        }
                     }
                 }
             }
