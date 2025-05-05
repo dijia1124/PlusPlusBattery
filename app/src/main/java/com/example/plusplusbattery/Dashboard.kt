@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -373,7 +374,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
         }
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         LazyColumn (
             state = listState,
             modifier = Modifier
@@ -428,18 +429,9 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                 }
             }
         }
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = { if (hasRoot) {
-                isRootMode = !isRootMode}
-                else {
-                    Toast.makeText(context,
-                        context.getString(R.string.root_access_denied), Toast.LENGTH_SHORT).show()
-            }
-            }) {
-            Text(if (isRootMode) stringResource(R.string.use_basic_mode) else stringResource(R.string.use_root_mode))
-        }
-
+        RootSwitch(hasRoot, isRootMode , context, onToggle = {
+            isRootMode = it
+        })
     }
 
     if (showCoeffDialog) {
@@ -478,6 +470,52 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     }
 
 
+}
+
+@Composable
+fun RootSwitch(hasRoot: Boolean, isRootMode: Boolean, context: Context, onToggle: (Boolean) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        OutlinedCard(
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, Color.LightGray),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.use_root_mode),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                Switch(
+                    checked = isRootMode,
+                    onCheckedChange = {
+                        if (hasRoot) {
+                            onToggle(it)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.root_access_denied),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                )
+            }
+        }
+
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

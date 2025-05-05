@@ -30,7 +30,7 @@ fun About() {
                 ),
                 title = {
                     Text(
-                        text = stringResource(R.string.app_name),
+                        text = stringResource(R.string.about),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
