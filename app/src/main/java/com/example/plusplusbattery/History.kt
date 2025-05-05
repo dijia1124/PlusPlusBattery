@@ -41,7 +41,7 @@ fun History(historyInfoViewModel: HistoryInfoViewModel) {
                 ),
                 title = {
                     Text(
-                        text = stringResource(R.string.app_name),
+                        text = stringResource(R.string.history),
                         style = MaterialTheme.typography.headlineSmall
                     )
                 },
