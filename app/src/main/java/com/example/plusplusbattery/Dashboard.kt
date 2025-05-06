@@ -292,7 +292,6 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     LaunchedEffect(isRootMode, calibMultiplier, dualBatMultiplier) {
         historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
         if (isRootMode) {
-            Log.d("test111", calibMultiplier.toString())
             var rootReadFailed = false
             withContext(Dispatchers.IO) {
                 while (true){
