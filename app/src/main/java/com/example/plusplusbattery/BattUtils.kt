@@ -41,6 +41,27 @@ fun readBatteryInfo(field: String, context: Context): String? {
     }
 }
 
+fun readBatteryInfo(field: String, context: Context, index: Int): String? {
+    val basePath = "/sys/class/oplus_chg/battery/"
+    val fullPath = basePath + field
+    return try {
+        val result = Shell.cmd("su -c cat $fullPath").exec()
+        if (result.isSuccess && result.out.isNotEmpty()) {
+            val line = result.out.joinToString("").trim()
+            val values = line.split(",")
+            if (index in values.indices) {
+                values[index].trim()
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
 
 fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> {
     // Make a temporary directory in the app's private storage to avoid extra permission
