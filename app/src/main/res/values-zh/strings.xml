@@ -3,7 +3,8 @@
     <string name="about">关于</string>
     <string name="instructions_content">
         项目地址：https://github.com/dijia1124/PlusPlusBattery \n
-        作者：@dijia1124 aka @goodnic \n
+        作者：@dijia1124 aka goodnic \n
+        鸣谢: @shminer aka bybycode \n
     本应用显示以下电池信息：\n
     - 电量：当前电池电量的百分比。\n
     - 电池状态：当前电池的状态（充电中、放电中、已充满、未充电）。\n
@@ -32,7 +33,6 @@
     <string name="battery_cycle_count">循环计数</string>
     <string name="battery_current">电流</string>
     <string name="full_charge_capacity">完全充满时的容量</string>
-    <string name="full_charge_capacity_unavailable">无法读取完全充满时的容量</string>
     <string name="estimating_full_charge_capacity">正在测量完全充满时的容量…</string>
     <string name="capacity_unavailable">无法读取容量</string>
     <string name="charging">充电中</string>
