@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -132,6 +133,7 @@ fun NormalBatteryCard(info: BatteryInfo) {
 fun BatteryCardWithCalibration(
     info: BatteryInfo,
     isDualBat: Boolean,
+    isRootMode: Boolean,
     context: Context,
     onToggleDualBat: () -> Unit,
     onShowMultiplierDialog: () -> Unit
@@ -141,21 +143,26 @@ fun BatteryCardWithCalibration(
             Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
             Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
         }
+        if (isRootMode) {
+            Spacer(modifier = Modifier.weight(1f))
+        }
         IconButton(onClick = onShowMultiplierDialog, modifier = Modifier.size(36.dp)) {
             Icon(Icons.Default.Create, contentDescription = "Calibrate", modifier = Modifier.size(18.dp))
         }
-        Spacer(modifier = Modifier.weight(1f))
-        Row {
-            Column {
-                Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    text = getBoolString(isDualBat, context),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
-                Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+        if (!isRootMode) {
+            Spacer(modifier = Modifier.weight(1f))
+            Row {
+                Column {
+                    Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = getBoolString(isDualBat, context),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
+                    Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+                }
             }
         }
     }
@@ -468,6 +475,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                             6 -> BatteryCardWithCalibration(
                                 info = info,
                                 isDualBat = isDualBat,
+                                isRootMode = isRootMode,
                                 context = context,
                                 onToggleDualBat = { setDualBat(!isDualBat) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }

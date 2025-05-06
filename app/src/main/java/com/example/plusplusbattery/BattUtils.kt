@@ -6,6 +6,8 @@ import com.topjohnwu.superuser.Shell
 import java.nio.ByteBuffer
 import java.io.File
 
+private const val BCC_CURRENT_INDICES_LAST = 18
+
 fun getStatusString(status: Int, context: Context): String = when (status) {
     BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
     BatteryManager.BATTERY_STATUS_DISCHARGING -> context.getString(R.string.discharging)
@@ -49,6 +51,10 @@ fun readBatteryInfo(field: String, context: Context, index: Int): String? {
         if (result.isSuccess && result.out.isNotEmpty()) {
             val line = result.out.joinToString("").trim()
             val values = line.split(",")
+            // check bcc_parms file format
+            if (field == "bcc_parms" && values.indices.last != BCC_CURRENT_INDICES_LAST) {
+                return null
+            }
             if (index in values.indices) {
                 values[index].trim()
             } else {
