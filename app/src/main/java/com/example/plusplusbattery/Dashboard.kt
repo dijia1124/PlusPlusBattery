@@ -305,7 +305,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                                     batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.toInt()
                                 }) { rootReadFailed = true }
                                 rootModePower = if (!rootReadFailed) {
-                                    (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent / 1000000.0
+                                    (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
                                 } else {
                                     val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
                                     (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
@@ -363,7 +363,7 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                             BatteryInfo(context.getString(R.string.battery_voltage),
                                 "$rootModeVoltage0 / $rootModeVoltage1 mV"
                             ),
-                            BatteryInfo(context.getString(R.string.battery_current), "$rootModeCurrent mA"),
+                            BatteryInfo(context.getString(R.string.battery_current), "${rootModeCurrent * calibMultiplier } mA"),
                             BatteryInfo(context.getString(R.string.power),
                                 String.format("%.2f W", rootModePower)
                             ),
