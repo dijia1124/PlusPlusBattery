@@ -13,8 +13,8 @@ android {
         applicationId = "com.example.plusplusbattery"
         minSdk = 31
         targetSdk = 35
-        versionCode = 11
-        versionName = "2.1.8"
+        versionCode = 12
+        versionName = "2.1.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

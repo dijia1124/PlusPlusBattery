@@ -289,63 +289,61 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     var rootModeCurrent by remember { mutableStateOf(0) }
     var rootModePower by remember { mutableStateOf(0.0) }
 
+    LaunchedEffect(isRootMode, calibMultiplier, dualBatMultiplier) {
+        historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+        if (isRootMode) {
+            Log.d("test111", calibMultiplier.toString())
+            var rootReadFailed = false
+            withContext(Dispatchers.IO) {
+                while (true){
+                    // fall back to batteryManager if root read fails for rooted vot1,2 and current
+                    rootModeVoltage0 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_0_INDEX, {
+                        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                        intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
+                    }) { rootReadFailed = true }
 
-        LaunchedEffect(isRootMode, calibMultiplier, dualBatMultiplier) {
-            scope.launch {
-                    historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-                    if (isRootMode) {
-                        var rootReadFailed = false
-                        withContext(Dispatchers.IO) {
-                            while (true){
-                                // fall back to batteryManager if root read fails for rooted vot1,2 and current
-                                rootModeVoltage0 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_0_INDEX, {
-                                    val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                                    intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
-                                }) { rootReadFailed = true }
+                    rootModeVoltage1 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_1_INDEX, {
+                        // if root read fails, shows value 0, on the right side of Battery Voltage entry
+                        0
+                    }) { rootReadFailed = true }
 
-                                rootModeVoltage1 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_1_INDEX, {
-                                    // if root read fails, shows value 0, on the right side of Battery Voltage entry
-                                    0
-                                }) { rootReadFailed = true }
-
-                                rootModeCurrent = safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
-                                    batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.toInt()
-                                }) { rootReadFailed = true }
-                                rootModePower = if (!rootReadFailed) {
-                                    (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
-                                } else {
-                                    val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                                    (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                                    * dualBatMultiplier
-                                    * calibMultiplier
-                                    * (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0) / 1000000.0)
-                                }
-                                rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
-                                fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
-                                soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
-                                vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
-                                sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
-                                batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
-                                rawSoh = calcRawSoh(
-                                    soh.toIntOrNull() ?: 0,
-                                    vbatUv.toIntOrNull() ?: 0,
-                                    readTermCoeff(context)
-                                ).let { resultValue ->
-                                    if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
-                                }
-                                rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
-                                    rawSoh.toFloatOrNull() ?: 0f,
-                                    vbatUv.toIntOrNull() ?: 0,
-                                    readTermCoeff(context)
-                                ).let { resultValue ->
-                                    if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
-                                }
-                                delay(1000)
-                            }
-                        }
+                    rootModeCurrent = safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
+                        batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.toInt()
+                    }) { rootReadFailed = true }
+                    rootModePower = if (!rootReadFailed) {
+                        (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
+                    } else {
+                        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                        (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                        * dualBatMultiplier
+                        * calibMultiplier
+                        * (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0) / 1000000.0)
                     }
+                    rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
+                    fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
+                    soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
+                    vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
+                    sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
+                    batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
+                    rawSoh = calcRawSoh(
+                        soh.toIntOrNull() ?: 0,
+                        vbatUv.toIntOrNull() ?: 0,
+                        readTermCoeff(context)
+                    ).let { resultValue ->
+                        if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
+                    }
+                    rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
+                        rawSoh.toFloatOrNull() ?: 0f,
+                        vbatUv.toIntOrNull() ?: 0,
+                        readTermCoeff(context)
+                    ).let { resultValue ->
+                        if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
+                    }
+                    delay(1000)
                 }
+            }
         }
+    }
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
