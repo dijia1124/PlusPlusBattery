@@ -68,6 +68,9 @@ import kotlin.math.pow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+private const val BCC_VOLTAGE_0_INDEX = 6
+private const val BCC_VOLTAGE_1_INDEX = 11
+private const val BCC_CURRENT_INDEX = 8
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -274,35 +277,47 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
     var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
     var rawSoh by remember { mutableStateOf(context.getString(R.string.unknown)) }
     var rawFcc by remember { mutableStateOf(context.getString(R.string.unknown)) }
+    var rootModeVoltage0 by remember { mutableStateOf(0) }
+    var rootModeVoltage1 by remember { mutableStateOf(0) }
+    var rootModeCurrent by remember { mutableStateOf(0) }
+    var rootModePower by remember { mutableStateOf(0.0) }
+
 
         LaunchedEffect(isRootMode) {
             scope.launch {
-                historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-                if (isRootMode) {
-                    withContext(Dispatchers.IO) {
-                        rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
-                        fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
-                        soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
-                        vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
-                        sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
-                        batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
-                        rawSoh = calcRawSoh(
-                            soh.toIntOrNull() ?: 0,
-                            vbatUv.toIntOrNull() ?: 0,
-                            readTermCoeff(context)
-                        ).let { resultValue ->
-                            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
-                        }
-                        rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
-                            rawSoh.toFloatOrNull() ?: 0f,
-                            vbatUv.toIntOrNull() ?: 0,
-                            readTermCoeff(context)
-                        ).let { resultValue ->
-                            if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
+                    historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+                    if (isRootMode) {
+                        withContext(Dispatchers.IO) {
+                            while (true){
+                                rootModeVoltage0 = readBatteryInfo("bcc_parms", context, BCC_VOLTAGE_0_INDEX)?.toIntOrNull() ?: 0
+                                rootModeVoltage1 = readBatteryInfo("bcc_parms", context, BCC_VOLTAGE_1_INDEX)?.toIntOrNull() ?: 0
+                                rootModeCurrent = readBatteryInfo("bcc_parms", context, BCC_CURRENT_INDEX)?.toIntOrNull() ?: 0
+                                rootModePower = (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * dualBatMultiplier * calibMultiplier / 1000000.0
+                                rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
+                                fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
+                                soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
+                                vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
+                                sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
+                                batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
+                                rawSoh = calcRawSoh(
+                                    soh.toIntOrNull() ?: 0,
+                                    vbatUv.toIntOrNull() ?: 0,
+                                    readTermCoeff(context)
+                                ).let { resultValue ->
+                                    if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
+                                }
+                                rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
+                                    rawSoh.toFloatOrNull() ?: 0f,
+                                    vbatUv.toIntOrNull() ?: 0,
+                                    readTermCoeff(context)
+                                ).let { resultValue ->
+                                    if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
+                                }
+                                delay(1000)
+                            }
                         }
                     }
                 }
-            }
         }
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
@@ -319,18 +334,19 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                         BatteryInfo(context.getString(R.string.battery_temperature), "${it.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10}°C"),
                         BatteryInfo(context.getString(R.string.battery_status), getStatusString(it.getIntExtra(BatteryManager.EXTRA_STATUS, -1), context)),
                         BatteryInfo(context.getString(R.string.battery_health), getHealthString(it.getIntExtra(BatteryManager.EXTRA_HEALTH, 0), context)),
-                        BatteryInfo(context.getString(R.string.battery_cycle_count), "${it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)}"),
-                        BatteryInfo(context.getString(R.string.battery_voltage), "${it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)} mV"),
-                        BatteryInfo(context.getString(R.string.battery_current), "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier} mA"),
-                        BatteryInfo(context.getString(R.string.power),
-                            String.format("%.2f W",(batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * dualBatMultiplier * calibMultiplier * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) / 1000000.0))
-                        ),
-
+                        BatteryInfo(context.getString(R.string.battery_cycle_count), "${it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)}")
                     )
                 )
                 if (isRootMode) {
                     batteryInfoList.addAll(
                         listOf(
+                            BatteryInfo(context.getString(R.string.battery_voltage),
+                                "$rootModeVoltage0 / $rootModeVoltage1 mV"
+                            ),
+                            BatteryInfo(context.getString(R.string.battery_current), "$rootModeCurrent mA"),
+                            BatteryInfo(context.getString(R.string.power),
+                                String.format("%.2f W", rootModePower)
+                            ),
                             BatteryInfo(context.getString(R.string.remaining_charge_counter), "$rm mAh"),
                             BatteryInfo(context.getString(R.string.full_charge_capacity_battery_fcc), "$fcc mAh"),
                             BatteryInfo(context.getString(R.string.raw_full_charge_capacity_before_compensation), "$rawFcc mAh"),
@@ -343,6 +359,22 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                     )
                 }
                 else {
+                    batteryInfoList.addAll(
+                        listOf(
+                            BatteryInfo(context.getString(R.string.battery_voltage), "${it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)} mV"),
+                            BatteryInfo(context.getString(R.string.battery_current),
+                                "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) 
+                                        * calibMultiplier} mA"),
+                            BatteryInfo(context.getString(R.string.power),
+                                String.format("%.2f W",
+                                    (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                                            * dualBatMultiplier
+                                            * calibMultiplier
+                                            * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
+                                            / 1000000.0))
+                            )
+                        )
+                    )
 
                     val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
                     val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
@@ -367,11 +399,9 @@ fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Bool
                 }
 
             }
-
             delay(1000)
         }
     }
-
 
     LaunchedEffect(isRootMode, batteryInfoList.size) {
         if (isRootMode) {
