@@ -4,6 +4,7 @@
     <string name="instructions_content">"
         Repo: https://github.com/dijia1124/PlusPlusBattery \n
         Author: @dijia1124 aka goodnic \n
+        Credits: @shminer aka bybycode \n
         This app displays the following battery information:\n
         - Battery Level: The current battery level as a percentage.\n
         - Status: The current status of the battery (Charging, Discharging, Full, Not Charging).\n
@@ -33,7 +34,6 @@
     <string name="battery_cycle_count">Charge Cycle Count</string>
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
-    <string name="full_charge_capacity_unavailable">Full charge capacity unavailable.</string>
     <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
