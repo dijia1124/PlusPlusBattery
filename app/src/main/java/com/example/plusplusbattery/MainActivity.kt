@@ -61,6 +61,9 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
             {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
+                val currentRoute = navBackStackEntry?.destination?.route
+                val currentTitle = navRoutes.find { it.route == currentRoute }?.label ?: stringResource(R.string.app_name)
+
                 navRoutes.forEach { navRoute ->
                     NavigationBarItem(
                         alwaysShowLabel = false,
@@ -89,9 +92,9 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot) }
-            composable("history") { History(historyInfoViewModel) }
-            composable("about") { About() }
+            composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot, stringResource(R.string.app_name)) }
+            composable("history") { History(historyInfoViewModel, stringResource(R.string.history)) }
+            composable("about") { About(stringResource(R.string.about)) }
         }
     }
 }

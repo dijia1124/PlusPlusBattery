@@ -7,12 +7,9 @@ import android.os.BatteryManager
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,10 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Info
@@ -64,7 +59,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.TopAppBarDefaults
+import com.example.plusplusbattery.ui.components.AppScaffold
 import kotlin.math.pow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -75,45 +70,9 @@ private const val BCC_CURRENT_INDEX = 8
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                title = {
-                    Text(
-                        text = stringResource(R.string.app_name),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-            )
-        },
-        content = { innerPadding ->
-            Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    DashboardContent(historyInfoViewModel, hasRoot)
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun DashboardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    )
-    {
-        Column{
-            BatteryInfoUpdater(historyInfoViewModel, hasRoot)
-        }
+fun Dashboard(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean, currentTitle: String) {
+    AppScaffold(currentTitle) {
+        DashBoardContent(historyInfoViewModel, hasRoot)
     }
 }
 
@@ -205,7 +164,7 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun BatteryInfoUpdater(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
+fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
     val listState = rememberLazyListState()
     var isRootMode by remember { mutableStateOf(false) }
     val context = LocalContext.current
