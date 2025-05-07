@@ -26,52 +26,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import com.example.plusplusbattery.ui.components.AppScaffold
+import com.example.plusplusbattery.ui.components.AppTopBar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun History(historyInfoViewModel: HistoryInfoViewModel) {
-    Scaffold(
-        topBar = {
-            androidx.compose.material3.TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
-                title = {
-                    Text(
-                        text = stringResource(R.string.history),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-            )
-        },
-        content = { innerPadding ->
-            Column(modifier = Modifier.padding(top = innerPadding.calculateTopPadding())) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    HistoryContent(historyInfoViewModel)
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun HistoryContent(historyInfoViewModel: HistoryInfoViewModel) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    )
-    {
-        Column() {
-            HistoryInfoScreen(historyInfoViewModel)
-        }
-    }
+fun History(historyInfoViewModel: HistoryInfoViewModel, currentTitle: String) {
+    AppScaffold(currentTitle) {HistoryInfoScreen(historyInfoViewModel) }
 }
 
 @Composable
