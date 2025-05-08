@@ -181,9 +181,9 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
         )[BatteryInfoViewModel::class.java]
     }
 
-    val batteryInfoListTest by batteryInfoViewModel.batteryInfoList.collectAsState()
-    val batteryInfoListTest2 by batteryInfoViewModel.batteryInfoList2.collectAsState()
-    val batteryInfoListTest3 by batteryInfoViewModel.batteryInfoList3.collectAsState()
+    val batteryInfoListBasic by batteryInfoViewModel.batteryInfoList.collectAsState()
+    val batteryInfoListRoot by batteryInfoViewModel.batteryInfoList2.collectAsState()
+    val batteryInfoListNonRootVCP by batteryInfoViewModel.batteryInfoList3.collectAsState()
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
@@ -200,9 +200,9 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     var showCoeffDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
-    LaunchedEffect(batteryInfoListTest) {
-        if (batteryInfoListTest.isNotEmpty()) {
-            val cycleCount = batteryInfoListTest[CYCLE_COUNT_INDEX_IN_LIST].value
+    LaunchedEffect(batteryInfoListBasic) {
+        if (batteryInfoListBasic.isNotEmpty()) {
+            val cycleCount = batteryInfoListBasic[CYCLE_COUNT_INDEX_IN_LIST].value
             val currentTimestamp = System.currentTimeMillis()
             val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(currentTimestamp))
             val historyInfo = HistoryInfo(
@@ -213,6 +213,7 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
         }
     }
+    // todo needs improvement
 
     val scope = rememberCoroutineScope()
 
@@ -236,18 +237,18 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             intent?.let {
                 batteryInfoList.clear()
                 batteryInfoList.addAll(
-                    batteryInfoListTest
+                    batteryInfoListBasic
                 )
                 if (isRootMode) {
                     batteryInfoViewModel.refreshBatteryInfoWithRoot()
                     batteryInfoList.addAll(
-                        batteryInfoListTest2
+                        batteryInfoListRoot
                     )
                 }
                 else {
                     // use system battery manager api if root access is not available
                     batteryInfoList.addAll(
-                        batteryInfoListTest3
+                        batteryInfoListNonRootVCP
                     )
                     val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
                     val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
