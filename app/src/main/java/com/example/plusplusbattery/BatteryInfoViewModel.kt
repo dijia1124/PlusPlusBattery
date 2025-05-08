@@ -80,37 +80,36 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
 
     fun refreshBatteryInfo() {
         viewModelScope.launch() {
+            val intent =
+                context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
+            val temperature = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -999) ?: 0
+            val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+            val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
+            val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
             refreshLock.withLock {
-                val intent =
-                    context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
-                val temperature = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -999) ?: 0
-                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
-                val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
-                    _batteryInfoList.update {
-                        listOf(
-                            BatteryInfo(context.getString(R.string.battery_level), "$level%"),
-                            BatteryInfo(
-                                context.getString(R.string.battery_temperature),
-                                "${temperature / 10.0}°C"
-                            ),
-                            BatteryInfo(
-                                context.getString(R.string.battery_status),
-                                getStatusString(status, context)
-                            ),
-                            BatteryInfo(
-                                context.getString(R.string.battery_health),
-                                getHealthString(health, context)
-                            ),
-                            BatteryInfo(
-                                context.getString(R.string.battery_cycle_count),
-                                cycleCount.toString()
-                            ),
-                        )
-                    }
+                _batteryInfoList.update {
+                    listOf(
+                        BatteryInfo(context.getString(R.string.battery_level), "$level%"),
+                        BatteryInfo(
+                            context.getString(R.string.battery_temperature),
+                            "${temperature / 10.0}°C"
+                        ),
+                        BatteryInfo(
+                            context.getString(R.string.battery_status),
+                            getStatusString(status, context)
+                        ),
+                        BatteryInfo(
+                            context.getString(R.string.battery_health),
+                            getHealthString(health, context)
+                        ),
+                        BatteryInfo(
+                            context.getString(R.string.battery_cycle_count),
+                            cycleCount.toString()
+                        ),
+                    )
+                }
             }
-
         }
     }
 
@@ -239,7 +238,6 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun refreshNonRootVoltCurrPwr() {
-        //todo fix 10s interval
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
         val current =
@@ -257,7 +255,6 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
                         )
                     )
                 }
-                Log.d("refreshNonRoot current finished coroutine", "current!!!!!!!!!!: $current")
             }
         }
     }
