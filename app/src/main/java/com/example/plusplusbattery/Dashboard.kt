@@ -1,5 +1,6 @@
 package com.example.plusplusbattery
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -59,14 +60,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import androidx.compose.material3.RadioButton
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.plusplusbattery.ui.components.AppScaffold
-import kotlin.math.pow
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
-private const val BCC_VOLTAGE_0_INDEX = 6
-private const val BCC_VOLTAGE_1_INDEX = 11
-private const val BCC_CURRENT_INDEX = 8
+private const val CYCLE_COUNT_INDEX_IN_LIST = 4
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,7 +90,7 @@ fun NormalBatteryCard(info: BatteryInfo) {
 @Composable
 fun BatteryCardWithCalibration(
     info: BatteryInfo,
-    isDualBat: Boolean,
+    isDualBatt: Boolean,
     isRootMode: Boolean,
     context: Context,
     onToggleDualBat: () -> Unit,
@@ -114,7 +113,7 @@ fun BatteryCardWithCalibration(
                 Column {
                     Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
                     Text(
-                        text = getBoolString(isDualBat, context),
+                        text = getBoolString(isDualBatt, context),
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold
                     )
@@ -168,13 +167,25 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     val listState = rememberLazyListState()
     var isRootMode by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-    val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-    val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+    val application = LocalContext.current.applicationContext as Application
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
 
-    val currentTimestamp = System.currentTimeMillis()
-    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    val dateString = formatter.format(Date(currentTimestamp))
+    val batteryInfoViewModel = remember {
+        ViewModelProvider(
+            viewModelStoreOwner,
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return BatteryInfoViewModel(application) as T
+                }
+            }
+        )[BatteryInfoViewModel::class.java]
+    }
+
+    val batteryInfoListTest by batteryInfoViewModel.batteryInfoList.collectAsState()
+    val batteryInfoListTest2 by batteryInfoViewModel.batteryInfoList2.collectAsState()
+    val batteryInfoListTest3 by batteryInfoViewModel.batteryInfoList3.collectAsState()
+
+    val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
     var estimatedFcc by remember { mutableStateOf(context.getString(R.string.estimating_full_charge_capacity)) }
 
@@ -189,177 +200,55 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     var showCoeffDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
-    val historyInfo = HistoryInfo(
-        date = currentTimestamp,
-        dateString = dateString,
-        cycleCount = cycleCount.toString()
-    )
-    val dualBatFlow = remember {
-        context.dataStore.data.map { prefs -> prefs[DUAL_BATTERY_KEY] == true }
+    LaunchedEffect(batteryInfoListTest) {
+        if (batteryInfoListTest.isNotEmpty()) {
+            val cycleCount = batteryInfoListTest[CYCLE_COUNT_INDEX_IN_LIST].value
+            val currentTimestamp = System.currentTimeMillis()
+            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(currentTimestamp))
+            val historyInfo = HistoryInfo(
+                date = currentTimestamp,
+                dateString = dateString,
+                cycleCount = cycleCount.toString()
+            )
+            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+        }
     }
-    val isDualBat by dualBatFlow.collectAsState(initial = false)
 
     val scope = rememberCoroutineScope()
 
-    fun setDualBat(newVal: Boolean) {
-        scope.launch {
-            context.dataStore.edit { prefs ->
-                prefs[DUAL_BATTERY_KEY] = newVal
-            }
-        }
-    }
-
-    val dualBatMultiplier = if (isDualBat) 2 else 1
-
-    val multiplyFlow = remember { context.dataStore.data.map { prefs -> prefs[MULTIPLY_KEY] != false } }
-    val savedIsMultiply by multiplyFlow.collectAsState(initial = true)
-    val magnitudeFlow = remember { context.dataStore.data.map { prefs -> prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0 } }
-    val savedMagnitude by magnitudeFlow.collectAsState(initial = 0)
-
     var showMultiplierDialog by remember { mutableStateOf(false) }
 
-    val isMultiply = savedIsMultiply
-    val selectedMagnitude = savedMagnitude
-
-    fun setMultiplierPrefs(isMultiplyNew: Boolean, magnitudeNew: Int) {
-        scope.launch {
-            context.dataStore.edit { prefs ->
-                prefs[MULTIPLY_KEY] = isMultiplyNew
-                prefs[MULTIPLIER_MAGNITUDE_KEY] = magnitudeNew
-            }
-        }
-    }
-
-    val calibMultiplier = if (isMultiply)
-        10.0.pow(selectedMagnitude.toDouble())
-    else
-        1 / 10.0.pow(selectedMagnitude.toDouble())
-    
-    var rm by remember {mutableStateOf(context.getString(R.string.unknown))}
-    var fcc by remember {mutableStateOf(context.getString(R.string.unknown))}
-    var soh by remember {mutableStateOf(context.getString(R.string.unknown))}
-    var vbatUv by remember {mutableStateOf(context.getString(R.string.unknown))}
-    var sn by remember { mutableStateOf(context.getString(R.string.unknown)) }
-    var batManDate by remember { mutableStateOf(context.getString(R.string.unknown)) }
-    var rawSoh by remember { mutableStateOf(context.getString(R.string.unknown)) }
-    var rawFcc by remember { mutableStateOf(context.getString(R.string.unknown)) }
-    var rootModeVoltage0 by remember { mutableStateOf(0) }
-    var rootModeVoltage1 by remember { mutableStateOf(0) }
-    var rootModeCurrent by remember { mutableStateOf(0) }
-    var rootModePower by remember { mutableStateOf(0.0) }
-
-    LaunchedEffect(isRootMode, calibMultiplier, dualBatMultiplier) {
-        historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-        if (isRootMode) {
-            var rootReadFailed = false
-            withContext(Dispatchers.IO) {
-                while (true){
-                    // fall back to batteryManager if root read fails for rooted vot1,2 and current
-                    rootModeVoltage0 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_0_INDEX, {
-                        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                        intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
-                    }) { rootReadFailed = true }
-
-                    rootModeVoltage1 = safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_1_INDEX, {
-                        // if root read fails, shows value 0, on the right side of Battery Voltage entry
-                        0
-                    }) { rootReadFailed = true }
-
-                    rootModeCurrent = safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
-                        batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.toInt()
-                    }) { rootReadFailed = true }
-                    rootModePower = if (!rootReadFailed) {
-                        (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
-                    } else {
-                        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                        (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                        * dualBatMultiplier
-                        * calibMultiplier
-                        * (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0) / 1000000.0)
-                    }
-                    rm = readBatteryInfo("battery_rm", context) ?: context.getString(R.string.unknown)
-                    fcc = readBatteryInfo("battery_fcc", context) ?: context.getString(R.string.unknown)
-                    soh = readBatteryInfo("battery_soh", context) ?: context.getString(R.string.unknown)
-                    vbatUv = readBatteryInfo("vbat_uv", context) ?: context.getString(R.string.unknown)
-                    sn = readBatteryInfo("battery_sn", context) ?: context.getString(R.string.unknown)
-                    batManDate = readBatteryInfo("battery_manu_date", context) ?: context.getString(R.string.unknown)
-                    rawSoh = calcRawSoh(
-                        soh.toIntOrNull() ?: 0,
-                        vbatUv.toIntOrNull() ?: 0,
-                        readTermCoeff(context)
-                    ).let { resultValue ->
-                        if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
-                    }
-                    rawFcc = calcRawFcc(fcc.toIntOrNull() ?: 0,
-                        rawSoh.toFloatOrNull() ?: 0f,
-                        vbatUv.toIntOrNull() ?: 0,
-                        readTermCoeff(context)
-                    ).let { resultValue ->
-                        if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
-                    }
-                    delay(1000)
-                }
-            }
-        }
-    }
+    val dualBatMultiplier by batteryInfoViewModel.dualBattMultiplier.collectAsState()
+    val calibMultiplier by batteryInfoViewModel.calibMultiplier.collectAsState()
+    val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
+    val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
+    val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
     LaunchedEffect(dualBatMultiplier, calibMultiplier) {
         while (true) {
+            batteryInfoViewModel.refreshBatteryInfo()
+            batteryInfoViewModel.refreshNonRootVoltCurrPwr()
+
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
             intent?.let {
                 batteryInfoList.clear()
                 batteryInfoList.addAll(
-                    listOf(
-                        BatteryInfo(context.getString(R.string.battery_level), "${it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)}%"),
-                        BatteryInfo(context.getString(R.string.battery_temperature), "${it.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) / 10}°C"),
-                        BatteryInfo(context.getString(R.string.battery_status), getStatusString(it.getIntExtra(BatteryManager.EXTRA_STATUS, -1), context)),
-                        BatteryInfo(context.getString(R.string.battery_health), getHealthString(it.getIntExtra(BatteryManager.EXTRA_HEALTH, 0), context)),
-                        BatteryInfo(context.getString(R.string.battery_cycle_count), "${it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)}")
-                    )
+                    batteryInfoListTest
                 )
                 if (isRootMode) {
+                    batteryInfoViewModel.refreshBatteryInfoWithRoot()
                     batteryInfoList.addAll(
-                        listOf(
-                            BatteryInfo(context.getString(R.string.battery_voltage),
-                                "$rootModeVoltage0 / $rootModeVoltage1 mV"
-                            ),
-                            BatteryInfo(context.getString(R.string.battery_current), "${rootModeCurrent * calibMultiplier } mA"),
-                            BatteryInfo(context.getString(R.string.power),
-                                String.format("%.2f W", rootModePower)
-                            ),
-                            BatteryInfo(context.getString(R.string.remaining_charge_counter), "$rm mAh"),
-                            BatteryInfo(context.getString(R.string.full_charge_capacity_battery_fcc), "$fcc mAh"),
-                            BatteryInfo(context.getString(R.string.raw_full_charge_capacity_before_compensation), "$rawFcc mAh"),
-                            BatteryInfo(context.getString(R.string.battery_health_battery_soh), "$soh %"),
-                            BatteryInfo(context.getString(R.string.raw_battery_health_before_compensation), "$rawSoh %"),
-                            BatteryInfo(context.getString(R.string.battery_under_voltage_threshold_vbat_uv), "$vbatUv mV"),
-                            BatteryInfo(context.getString(R.string.battery_serial_number_battery_sn), sn),
-                            BatteryInfo(context.getString(R.string.battery_manufacture_date_battery_manu_date), batManDate),
-                        )
+                        batteryInfoListTest2
                     )
                 }
                 else {
                     // use system battery manager api if root access is not available
                     batteryInfoList.addAll(
-                        listOf(
-                            BatteryInfo(context.getString(R.string.battery_voltage), "${it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)} mV"),
-                            BatteryInfo(context.getString(R.string.battery_current),
-                                "${batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) 
-                                        * calibMultiplier} mA"),
-                            BatteryInfo(context.getString(R.string.power),
-                                String.format("%.2f W",
-                                    (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                                            * dualBatMultiplier
-                                            * calibMultiplier
-                                            * it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
-                                            / 1000000.0))
-                            )
-                        )
+                        batteryInfoListTest3
                     )
-
                     val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
                     val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
@@ -387,15 +276,15 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                             estimatedFcc.toString()
                         ))
                     }
-
                 }
-
             }
             delay(1000)
         }
     }
+    //todo refactor
 
     LaunchedEffect(isRootMode, batteryInfoList.size) {
+        //todo fix latency
         if (isRootMode) {
             scope.launch {
                 listState.animateScrollToItem(index = batteryInfoList.size - 1)
@@ -430,10 +319,10 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                         when (index) {
                             6 -> BatteryCardWithCalibration(
                                 info = info,
-                                isDualBat = isDualBat,
+                                isDualBatt = isDualBatt,
                                 isRootMode = isRootMode,
                                 context = context,
-                                onToggleDualBat = { setDualBat(!isDualBat) },
+                                onToggleDualBat = { batteryInfoViewModel.setDualBat(!isDualBatt) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }
                             )
                             10 -> BatteryCardWithCoeffTable(
@@ -454,7 +343,8 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                                 }
                             )
                             else -> NormalBatteryCard(info)
-                    }}
+                        }
+                    }
                 }
             }
         }
@@ -476,9 +366,9 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             text = {
                 MultiplierSelector(
                     isMultiply = isMultiply,
-                    onMultiplyChange = { setMultiplierPrefs(it, selectedMagnitude) },
+                    onMultiplyChange = { batteryInfoViewModel.setMultiplierPrefs(it, selectedMagnitude) },
                     selectedMagnitude = selectedMagnitude,
-                    onMagnitudeChange = { setMultiplierPrefs(isMultiply, it) }
+                    onMagnitudeChange = { batteryInfoViewModel.setMultiplierPrefs(isMultiply, it) }
                 )
             },
             confirmButton = {
@@ -488,7 +378,7 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             },
             dismissButton = {
                 Button(onClick = {
-                    setMultiplierPrefs(true, 0)
+                    batteryInfoViewModel.setMultiplierPrefs(true, 0)
                     showMultiplierDialog = false
                 }) {
                     Text(stringResource(R.string.reset))
@@ -497,8 +387,6 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             }
         )
     }
-
-
 }
 
 @Composable
@@ -605,8 +493,6 @@ fun MultiplierSelector(
         }
     }
 }
-
-
 
 fun safeRootReadInt(
     context: Context,
