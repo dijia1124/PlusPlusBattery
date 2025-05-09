@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -37,6 +38,10 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
     val batteryInfoList: StateFlow<List<BatteryInfo>> = _batteryInfoList
+
+    val savedEstimatedFcc: StateFlow<String> = dataStore.data
+        .map { it[ESTIMATED_FCC_KEY]?.toString() ?: context.getString(R.string.estimating_full_charge_capacity) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, context.getString(R.string.estimating_full_charge_capacity))
 
     val isDualBatt: StateFlow<Boolean> = dataStore.data
         .map { it[DUAL_BATTERY_KEY] == true }
@@ -230,6 +235,37 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
                 BatteryInfo(context.getString(R.string.battery_current), "$current mA"),
                 BatteryInfo(context.getString(R.string.power), String.format("%.2f W", power))
             )
+        }
+
+    suspend fun getEstimatedFcc(): BatteryInfo =
+        withContext(Dispatchers.IO) {
+            val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+            val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+
+            if (currentNow == 0 && batteryLevel == 100) {
+                val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
+                val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
+                if (fullChargeCapacity > 0) {
+                    context.dataStore.edit { prefs ->
+                        prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
+                    }
+                }
+            }
+            var estimatedFcc = context.getString(R.string.estimating_full_charge_capacity)
+
+            if (savedEstimatedFcc.value.toString() != context.getString(R.string.estimating_full_charge_capacity)) {
+                estimatedFcc = savedEstimatedFcc.value.toString()
+                BatteryInfo(
+                    context.getString(R.string.full_charge_capacity),
+                    "$estimatedFcc mAh"
+                )
+            }
+            else{
+                BatteryInfo(
+                    context.getString(R.string.full_charge_capacity),
+                    estimatedFcc
+                )
+            }
         }
 }
 

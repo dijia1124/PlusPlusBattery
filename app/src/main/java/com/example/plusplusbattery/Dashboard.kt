@@ -182,39 +182,29 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
         )[BatteryInfoViewModel::class.java]
     }
 
-    val batteryInfoListBasic by batteryInfoViewModel.batteryInfoList.collectAsState()
-//    val batteryInfoListRoot by batteryInfoViewModel.batteryInfoList2.collectAsState()
-//    val batteryInfoListNonRootVCP by batteryInfoViewModel.batteryInfoList3.collectAsState()
-
-    val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-
-    var estimatedFcc by remember { mutableStateOf(context.getString(R.string.estimating_full_charge_capacity)) }
-
     val savedCapacityFlow = remember {
         context.dataStore.data.map { prefs ->
             prefs[ESTIMATED_FCC_KEY] ?: context.getString(R.string.estimating_full_charge_capacity)
         }
     }
 
-    val savedEstimatedFcc by savedCapacityFlow.collectAsState(initial = context.getString(R.string.estimating_full_charge_capacity))
-
     var showCoeffDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
 
-    LaunchedEffect(batteryInfoListBasic) {
-        if (batteryInfoListBasic.isNotEmpty()) {
-            val cycleCount = batteryInfoListBasic[CYCLE_COUNT_INDEX_IN_LIST].value
-            val currentTimestamp = System.currentTimeMillis()
-            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(currentTimestamp))
-            val historyInfo = HistoryInfo(
-                date = currentTimestamp,
-                dateString = dateString,
-                cycleCount = cycleCount.toString()
-            )
-            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-        }
-    }
-    // todo needs improvement
+//    LaunchedEffect(batteryInfoListBasic) {
+//        if (batteryInfoListBasic.isNotEmpty()) {
+//            val cycleCount = batteryInfoListBasic[CYCLE_COUNT_INDEX_IN_LIST].value
+//            val currentTimestamp = System.currentTimeMillis()
+//            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(currentTimestamp))
+//            val historyInfo = HistoryInfo(
+//                date = currentTimestamp,
+//                dateString = dateString,
+//                cycleCount = cycleCount.toString()
+//            )
+//            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
+//        }
+//    }
+    // todo needs fix
 
     val scope = rememberCoroutineScope()
 
@@ -242,34 +232,8 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                     // use system battery manager api if root access is not available
                     val nonRootVCPList = batteryInfoViewModel.refreshNonRootVoltCurrPwr()
                     displayList.addAll(nonRootVCPList)
-
-                    val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                    val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-
-                    if (currentNow == 0 && batteryLevel == 100) {
-                        val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-                        val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
-                        if (fullChargeCapacity > 0) {
-                            scope.launch {
-                                context.dataStore.edit { prefs ->
-                                    prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
-                                }
-                            }
-                        }
-                    }
-                    estimatedFcc = savedEstimatedFcc.toString()
-                    if (estimatedFcc != context.getString(R.string.estimating_full_charge_capacity)) {
-                        batteryInfoList.add(BatteryInfo(
-                            context.getString(R.string.full_charge_capacity),
-                            "$estimatedFcc mAh"
-                        ))
-                    }
-                    else {
-                        batteryInfoList.add(BatteryInfo(
-                            context.getString(R.string.full_charge_capacity),
-                            estimatedFcc.toString()
-                        ))
-                    }
+                    val fccInfo = batteryInfoViewModel.getEstimatedFcc()
+                    displayList.add(fccInfo)
                 }
                 batteryInfoList.clear()
                 batteryInfoList.addAll(displayList)
@@ -277,7 +241,6 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             delay(1000)
         }
     }
-    //todo refactor
 
     LaunchedEffect(isRootMode, batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE) {
         //todo fix latency
