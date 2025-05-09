@@ -66,6 +66,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.plusplusbattery.ui.components.AppScaffold
 
 private const val CYCLE_COUNT_INDEX_IN_LIST = 4
+private const val BATTERY_INFO_LIST_ROOT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -230,7 +231,6 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     LaunchedEffect(dualBatMultiplier, calibMultiplier) {
         while (true) {
             batteryInfoViewModel.refreshBatteryInfo()
-            batteryInfoViewModel.refreshBatteryInfoWithRoot()
             batteryInfoViewModel.refreshNonRootVoltCurrPwr()
 
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -241,6 +241,7 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                     batteryInfoListBasic
                 )
                 if (isRootMode) {
+                    batteryInfoViewModel.refreshBatteryInfoWithRoot()
                     batteryInfoList.addAll(
                         batteryInfoListRoot
                     )
@@ -284,7 +285,7 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     }
     //todo refactor
 
-    LaunchedEffect(isRootMode, batteryInfoList.size) {
+    LaunchedEffect(isRootMode, batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE) {
         //todo fix latency
         if (isRootMode) {
             scope.launch {
