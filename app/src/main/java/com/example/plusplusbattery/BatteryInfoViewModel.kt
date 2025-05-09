@@ -42,6 +42,14 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
         dataStore.edit { prefs -> prefs[ROOT_MODE_KEY] = enabled }
     }
 
+    val showSwitchOnDashboard: StateFlow<Boolean> = dataStore.data
+        .map { it[SHOW_SWITCH_ON_DASHBOARD] != false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    fun setShowSwitchOnDashboard(show: Boolean) = viewModelScope.launch {
+        dataStore.edit { it[SHOW_SWITCH_ON_DASHBOARD] = show }
+    }
+
     val savedEstimatedFcc: StateFlow<String> = dataStore.data
         .map { it[ESTIMATED_FCC_KEY]?.toString() ?: context.getString(R.string.estimating_full_charge_capacity) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, context.getString(R.string.estimating_full_charge_capacity))

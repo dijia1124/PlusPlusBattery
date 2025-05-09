@@ -157,6 +157,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
+    val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
@@ -257,9 +258,11 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 }
             }
         }
-        RootSwitch(hasRoot, isRootMode , context, onToggle = {
-            batteryInfoViewModel.setRootMode(it)
-        })
+        if (showSwitch){
+            RootSwitch(hasRoot, isRootMode , context, onToggle = {
+                batteryInfoViewModel.setRootMode(it)
+            })
+        }
     }
 
     if (showCoeffDialog) {
