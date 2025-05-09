@@ -4,8 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.BatteryManager
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -52,27 +50,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.compose.material3.RadioButton
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.plusplusbattery.ui.components.AppScaffold
 
-private const val CYCLE_COUNT_INDEX_IN_LIST = 4
 private const val BATTERY_INFO_LIST_ROOT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean, currentTitle: String) {
+fun Dashboard(hasRoot: Boolean, currentTitle: String) {
     AppScaffold(currentTitle) {
-        DashBoardContent(historyInfoViewModel, hasRoot)
+        DashBoardContent(hasRoot)
     }
 }
 
@@ -164,11 +156,12 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolean) {
+fun DashBoardContent(hasRoot: Boolean) {
     val listState = rememberLazyListState()
     var isRootMode by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val application = LocalContext.current.applicationContext as Application
+    val historyRepo = remember { HistoryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
 
     val batteryInfoViewModel = remember {
@@ -176,35 +169,14 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
             viewModelStoreOwner,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application) as T
+                    return BatteryInfoViewModel(application, historyRepo) as T
                 }
             }
         )[BatteryInfoViewModel::class.java]
     }
 
-    val savedCapacityFlow = remember {
-        context.dataStore.data.map { prefs ->
-            prefs[ESTIMATED_FCC_KEY] ?: context.getString(R.string.estimating_full_charge_capacity)
-        }
-    }
-
     var showCoeffDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
-
-//    LaunchedEffect(batteryInfoListBasic) {
-//        if (batteryInfoListBasic.isNotEmpty()) {
-//            val cycleCount = batteryInfoListBasic[CYCLE_COUNT_INDEX_IN_LIST].value
-//            val currentTimestamp = System.currentTimeMillis()
-//            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(currentTimestamp))
-//            val historyInfo = HistoryInfo(
-//                date = currentTimestamp,
-//                dateString = dateString,
-//                cycleCount = cycleCount.toString()
-//            )
-//            historyInfoViewModel.insertOrUpdateHistoryInfo(historyInfo)
-//        }
-//    }
-    // todo needs fix
 
     val scope = rememberCoroutineScope()
 

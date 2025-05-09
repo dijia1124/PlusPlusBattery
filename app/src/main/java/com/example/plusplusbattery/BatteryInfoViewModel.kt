@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,10 +17,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.pow
 
 private const val BCC_VOLTAGE_0_INDEX = 6
@@ -30,14 +28,11 @@ private const val BCC_CURRENT_INDEX = 8
 private const val IS_DUAL_BATTERY = 2
 private const val IS_SINGLE_BATTERY = 1
 
-class BatteryInfoViewModel(application: Application) : AndroidViewModel(application) {
+class BatteryInfoViewModel(application: Application, private val historyInfoRepo: HistoryInfoRepository) : AndroidViewModel(application) {
     private val context = application.applicationContext
     private val dataStore = context.dataStore
-    private val _batteryInfoList = MutableStateFlow<List<BatteryInfo>>(emptyList())
-
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-    val batteryInfoList: StateFlow<List<BatteryInfo>> = _batteryInfoList
 
     val savedEstimatedFcc: StateFlow<String> = dataStore.data
         .map { it[ESTIMATED_FCC_KEY]?.toString() ?: context.getString(R.string.estimating_full_charge_capacity) }
@@ -86,6 +81,10 @@ class BatteryInfoViewModel(application: Application) : AndroidViewModel(applicat
             val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
             val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
             val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+            val date = System.currentTimeMillis()
+            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(date))
+            val newInfo = HistoryInfo(date = date, dateString = dateString, cycleCount = cycleCount.toString())
+            historyInfoRepo.insertOrUpdate(newInfo)
 
             listOf(
                 BatteryInfo(context.getString(R.string.battery_level), "$level%"),
