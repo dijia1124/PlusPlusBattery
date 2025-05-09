@@ -33,6 +33,7 @@ fun SettingsContent(
     batteryVM: BatteryInfoViewModel
 ) {
     val isRootMode by batteryVM.isRootMode.collectAsState()
+    val showOnDash by batteryVM.showSwitchOnDashboard.collectAsState()
     val context = LocalContext.current
 
     Column(
@@ -55,6 +56,15 @@ fun SettingsContent(
                             ).show()
                         } else batteryVM.setRootMode(false)
                     }
+                )
+            }
+        )
+        ListItem(
+            headlineContent = { Text(text = stringResource(R.string.show_root_switch_on_dashboard), style = MaterialTheme.typography.bodyMedium) },
+            trailingContent = {
+                Switch(
+                    checked = showOnDash,
+                    onCheckedChange = { batteryVM.setShowSwitchOnDashboard(it) }
                 )
             }
         )
