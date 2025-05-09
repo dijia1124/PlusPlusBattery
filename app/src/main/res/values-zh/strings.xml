@@ -73,5 +73,6 @@
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的真实 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
     <string name="show_root_switch_on_dashboard">在首页显示 Root 模式开关</string>
+    <string name="version">版本: %1$s</string>
 
 </resources>
