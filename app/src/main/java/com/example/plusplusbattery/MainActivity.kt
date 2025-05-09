@@ -1,7 +1,6 @@
 package com.example.plusplusbattery
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.plusplusbattery.ui.theme.PlusPlusBatteryTheme
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
@@ -38,7 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlusPlusBatteryTheme {
-                        BottomNavigationBar(HistoryInfoViewModel(application))
+                BottomNavigationBar(HistoryInfoViewModel(application))
             }
         }
     }
@@ -48,7 +46,7 @@ class MainActivity : ComponentActivity() {
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
     var hasRoot by remember { mutableStateOf(false) }
     hasRoot = hasRootAccess()
-// Define the list of navigation routes using the data class
+    // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
         NavRoute("history", Icons.Filled.Star, stringResource(R.string.nav_history)),
@@ -92,7 +90,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            composable("dashboard") { Dashboard(historyInfoViewModel, hasRoot, stringResource(R.string.app_name)) }
+            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name)) }
             composable("history") { History(historyInfoViewModel, stringResource(R.string.history)) }
             composable("about") { About(stringResource(R.string.about)) }
         }

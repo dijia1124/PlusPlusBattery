@@ -19,4 +19,17 @@ class HistoryInfoRepository (application: Application) {
     suspend fun getHistoryInfoByDate(dateString: String): HistoryInfo? {
         return historyInfoDao.getHistoryInfoByDate(dateString)
     }
+
+    suspend fun insertOrUpdate(info: HistoryInfo) {
+        val old = getHistoryInfoByDate(info.dateString)
+        if (old == null) {
+            insert(info)
+        } else {
+            val oldCnt = old.cycleCount.toIntOrNull() ?: -1
+            val newCnt = info.cycleCount.toIntOrNull() ?: -1
+            if (newCnt > oldCnt) {
+                update(info.copy(uid = old.uid))
+            }
+        }
+    }
 }

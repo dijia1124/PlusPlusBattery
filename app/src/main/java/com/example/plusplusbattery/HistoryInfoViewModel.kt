@@ -27,16 +27,5 @@ class HistoryInfoViewModel(application: Application) : AndroidViewModel(applicat
         return cRepository.getHistoryInfoByDate(dateString)
     }
 
-    suspend fun insertOrUpdateHistoryInfo(newInfo: HistoryInfo) {
-        val oldInfo = getHistoryInfoByDate(newInfo.dateString)
-        if (oldInfo == null) {
-            insertHistoryInfo(newInfo)
-        } else {
-            val oldCount = oldInfo.cycleCount.toIntOrNull() ?: -1
-            val newCount = newInfo.cycleCount.toIntOrNull() ?: -1
-            if (newCount > oldCount) {
-                updateHistoryInfo(newInfo.copy(uid = oldInfo.uid))
-            }
-        }
-    }
+    suspend fun insertOrUpdateHistoryInfo(info: HistoryInfo) = cRepository.insertOrUpdate(info)
 }
