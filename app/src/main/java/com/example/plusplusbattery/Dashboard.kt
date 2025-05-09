@@ -230,6 +230,7 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     LaunchedEffect(dualBatMultiplier, calibMultiplier) {
         while (true) {
             batteryInfoViewModel.refreshBatteryInfo()
+            batteryInfoViewModel.refreshBatteryInfoWithRoot()
             batteryInfoViewModel.refreshNonRootVoltCurrPwr()
 
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -240,7 +241,6 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                     batteryInfoListBasic
                 )
                 if (isRootMode) {
-                    batteryInfoViewModel.refreshBatteryInfoWithRoot()
                     batteryInfoList.addAll(
                         batteryInfoListRoot
                     )
