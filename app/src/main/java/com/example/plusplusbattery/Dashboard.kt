@@ -183,8 +183,8 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
     }
 
     val batteryInfoListBasic by batteryInfoViewModel.batteryInfoList.collectAsState()
-    val batteryInfoListRoot by batteryInfoViewModel.batteryInfoList2.collectAsState()
-    val batteryInfoListNonRootVCP by batteryInfoViewModel.batteryInfoList3.collectAsState()
+//    val batteryInfoListRoot by batteryInfoViewModel.batteryInfoList2.collectAsState()
+//    val batteryInfoListNonRootVCP by batteryInfoViewModel.batteryInfoList3.collectAsState()
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
@@ -220,37 +220,29 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
 
     var showMultiplierDialog by remember { mutableStateOf(false) }
 
-    val dualBatMultiplier by batteryInfoViewModel.dualBattMultiplier.collectAsState()
-    val calibMultiplier by batteryInfoViewModel.calibMultiplier.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
 
-    LaunchedEffect(dualBatMultiplier, calibMultiplier) {
+    LaunchedEffect(Unit) {
         while (true) {
-            batteryInfoViewModel.refreshBatteryInfo()
-            batteryInfoViewModel.refreshNonRootVoltCurrPwr()
+            val basicList = batteryInfoViewModel.refreshBatteryInfo()
+            val displayList  = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
 
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
 
             intent?.let {
-                batteryInfoList.clear()
-                batteryInfoList.addAll(
-                    batteryInfoListBasic
-                )
                 if (isRootMode) {
-                    batteryInfoViewModel.refreshBatteryInfoWithRoot()
-                    batteryInfoList.addAll(
-                        batteryInfoListRoot
-                    )
+                    val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
+                    displayList.addAll(rootList)
                 }
                 else {
                     // use system battery manager api if root access is not available
-                    batteryInfoList.addAll(
-                        batteryInfoListNonRootVCP
-                    )
+                    val nonRootVCPList = batteryInfoViewModel.refreshNonRootVoltCurrPwr()
+                    displayList.addAll(nonRootVCPList)
+
                     val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
                     val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
@@ -279,6 +271,8 @@ fun DashBoardContent(historyInfoViewModel: HistoryInfoViewModel, hasRoot: Boolea
                         ))
                     }
                 }
+                batteryInfoList.clear()
+                batteryInfoList.addAll(displayList)
             }
             delay(1000)
         }
