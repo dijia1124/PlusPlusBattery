@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -179,7 +178,7 @@ fun DashBoardContent(hasRoot: Boolean) {
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember(isRootMode) { mutableStateOf(0) }
+    var lastSize by remember { mutableStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
 
     LaunchedEffect(isRootMode, hasRoot) {
         if (!hasRoot && isRootMode) {
@@ -202,6 +201,7 @@ fun DashBoardContent(hasRoot: Boolean) {
                     displayList.addAll(nonRootVCPList)
                     val fccInfo = batteryInfoViewModel.getEstimatedFcc()
                     displayList.add(fccInfo)
+                    lastSize = displayList.size
                 }
                 batteryInfoList.clear()
                 batteryInfoList.addAll(displayList)
