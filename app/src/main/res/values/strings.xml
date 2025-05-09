@@ -72,4 +72,5 @@
     <string name="vbatuv_mv_fccoffset_mah_sohoffset">\nvbatUv, fccOffset, sohOffset\n</string>
     <string name="offset_table_not_found">\nOffset Table Not Found</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[Raw fcc&soh in Plus Plus Battery are calculated using this table\n]]></string>
+    <string name="settings">Settings</string>
 </resources>

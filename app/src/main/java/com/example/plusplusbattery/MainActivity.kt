@@ -1,5 +1,6 @@
 package com.example.plusplusbattery
 
+import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +14,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -28,6 +29,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.topjohnwu.superuser.Shell
 
 class MainActivity : ComponentActivity() {
@@ -36,21 +40,34 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PlusPlusBatteryTheme {
-                BottomNavigationBar(HistoryInfoViewModel(application))
+                BottomNavigationBar(HistoryInfoViewModel(application), application)
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
+fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application) {
+    val historyRepo = remember { HistoryInfoRepository(application) }
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
+    val batteryInfoViewModel = remember {
+        ViewModelProvider(
+            viewModelStoreOwner,
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return BatteryInfoViewModel(application, historyRepo) as T
+                }
+            }
+        )[BatteryInfoViewModel::class.java]
+    }
+
     var hasRoot by remember { mutableStateOf(false) }
     hasRoot = hasRootAccess()
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
         NavRoute("history", Icons.Filled.Star, stringResource(R.string.nav_history)),
-        NavRoute("about", Icons.Filled.Info, stringResource(R.string.nav_about))
+        NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings))
     )
     val navController = rememberNavController()
     Scaffold(
@@ -59,8 +76,6 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
             {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                val currentRoute = navBackStackEntry?.destination?.route
-                val currentTitle = navRoutes.find { it.route == currentRoute }?.label ?: stringResource(R.string.app_name)
 
                 navRoutes.forEach { navRoute ->
                     NavigationBarItem(
@@ -90,9 +105,17 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel) {
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name)) }
+            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name),batteryInfoViewModel) }
             composable("history") { History(historyInfoViewModel, stringResource(R.string.history)) }
-            composable("about") { About(stringResource(R.string.about)) }
+            composable("settings")  {
+                Settings(
+                    currentTitle = stringResource(R.string.settings),
+                    navController = navController,
+                    hasRoot = hasRoot,
+                    batteryVM  = batteryInfoViewModel
+                )
+            }
+            composable("about")     { About(stringResource(R.string.about)) }
         }
     }
 }

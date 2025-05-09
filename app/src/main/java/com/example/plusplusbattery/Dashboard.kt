@@ -1,6 +1,5 @@
 package com.example.plusplusbattery
 
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -51,18 +50,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.example.plusplusbattery.ui.components.AppScaffold
 
 private const val BATTERY_INFO_LIST_ROOT_SIZE = 16
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(hasRoot: Boolean, currentTitle: String) {
+fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel) {
     AppScaffold(currentTitle) {
-        DashBoardContent(hasRoot)
+        DashBoardContent(hasRoot, batteryInfoViewModel)
     }
 }
 
@@ -154,22 +150,9 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun DashBoardContent(hasRoot: Boolean) {
+fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewModel) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
-    val application = LocalContext.current.applicationContext as Application
-    val historyRepo = remember { HistoryInfoRepository(application) }
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
-    val batteryInfoViewModel = remember {
-        ViewModelProvider(
-            viewModelStoreOwner,
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application, historyRepo) as T
-                }
-            }
-        )[BatteryInfoViewModel::class.java]
-    }
     val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
