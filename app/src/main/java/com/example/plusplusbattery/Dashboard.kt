@@ -157,12 +157,10 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 @Composable
 fun DashBoardContent(hasRoot: Boolean) {
     val listState = rememberLazyListState()
-    var isRootMode by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val application = LocalContext.current.applicationContext as Application
     val historyRepo = remember { HistoryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
-
     val batteryInfoViewModel = remember {
         ViewModelProvider(
             viewModelStoreOwner,
@@ -173,22 +171,20 @@ fun DashBoardContent(hasRoot: Boolean) {
             }
         )[BatteryInfoViewModel::class.java]
     }
-
-    var showCoeffDialog by remember { mutableStateOf(false) }
-    var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
-
-    val scope = rememberCoroutineScope()
-
-    var showMultiplierDialog by remember { mutableStateOf(false) }
-
+    val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
-
+    var showCoeffDialog by remember { mutableStateOf(false) }
+    var showMultiplierDialog by remember { mutableStateOf(false) }
+    var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember { mutableStateOf(0) }
+    var lastSize by remember(isRootMode) { mutableStateOf(0) }
 
-    LaunchedEffect(isRootMode) {
+    LaunchedEffect(isRootMode, hasRoot) {
+        if (!hasRoot && isRootMode) {
+            batteryInfoViewModel.setRootMode(false)
+        }
         while (true) {
             val basicList = batteryInfoViewModel.refreshBatteryInfo()
             val displayList  = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
@@ -279,7 +275,7 @@ fun DashBoardContent(hasRoot: Boolean) {
             }
         }
         RootSwitch(hasRoot, isRootMode , context, onToggle = {
-            isRootMode = it
+            batteryInfoViewModel.setRootMode(it)
         })
     }
 
@@ -347,21 +343,24 @@ fun RootSwitch(hasRoot: Boolean, isRootMode: Boolean, context: Context, onToggle
                 )
                 Switch(
                     checked = isRootMode,
-                    onCheckedChange = {
-                        if (hasRoot) {
-                            onToggle(it)
+                    onCheckedChange = { desired ->
+                        if (desired) {
+                            if (hasRoot) {
+                                onToggle(true)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.root_access_denied),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         } else {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.root_access_denied),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            onToggle(false)
                         }
                     }
                 )
             }
         }
-
     }
 }
 

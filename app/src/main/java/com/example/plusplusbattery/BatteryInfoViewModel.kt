@@ -34,6 +34,14 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
+    val isRootMode: StateFlow<Boolean> = dataStore.data
+        .map { prefs -> prefs[ROOT_MODE_KEY] ?: false }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setRootMode(enabled: Boolean) = viewModelScope.launch {
+        dataStore.edit { prefs -> prefs[ROOT_MODE_KEY] = enabled }
+    }
+
     val savedEstimatedFcc: StateFlow<String> = dataStore.data
         .map { it[ESTIMATED_FCC_KEY]?.toString() ?: context.getString(R.string.estimating_full_charge_capacity) }
         .stateIn(viewModelScope, SharingStarted.Eagerly, context.getString(R.string.estimating_full_charge_capacity))
