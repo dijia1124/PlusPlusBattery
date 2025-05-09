@@ -51,7 +51,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.material3.RadioButton
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -187,8 +186,9 @@ fun DashBoardContent(hasRoot: Boolean) {
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
 
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
+    var lastSize by remember { mutableStateOf(0) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(isRootMode) {
         while (true) {
             val basicList = batteryInfoViewModel.refreshBatteryInfo()
             val displayList  = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
@@ -209,17 +209,16 @@ fun DashBoardContent(hasRoot: Boolean) {
                 }
                 batteryInfoList.clear()
                 batteryInfoList.addAll(displayList)
+                // scroll to bottom if root mode is enabled
+                if (isRootMode &&
+                    batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE &&
+                    batteryInfoList.size != lastSize
+                ) {
+                    listState.scrollToItem(batteryInfoList.lastIndex)
+                }
+                lastSize = batteryInfoList.size
             }
             delay(1000)
-        }
-    }
-
-    LaunchedEffect(isRootMode, batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE) {
-        //todo fix latency
-        if (isRootMode) {
-            scope.launch {
-                listState.animateScrollToItem(index = batteryInfoList.size - 1)
-            }
         }
     }
 
