@@ -19,3 +19,27 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class androidx.compose.runtime.Composable { *; }
+-keep class androidx.compose.ui.graphics.vector.VectorPainter { *; }
+
+-keep class com.example.plusplusbattery.navigation.** { *; }
+
+-keep class * extends androidx.room.RoomDatabase { *; }
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    public static <methods>;
+}
+-keep class * extends androidx.room.Entity { *; }
+
+-keep class com.topjohnwu.superuser.** { *; }
+-dontwarn com.topjohnwu.superuser.**
+
+-keep class * implements androidx.datastore.core.DataMigration { *; }
+
+-keep class * extends android.content.BroadcastReceiver {
+    public void onReceive(android.content.Context, android.content.Intent);
+}
+
+-keepclassmembers class * extends androidx.lifecycle.ViewModel {
+    <init>(...);
+}
