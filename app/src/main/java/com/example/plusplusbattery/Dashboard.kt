@@ -52,7 +52,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
 import com.example.plusplusbattery.ui.components.AppScaffold
 
-private const val BATTERY_INFO_LIST_ROOT_SIZE = 16
+private const val BATTERY_INFO_LIST_ROOT_SIZE = 17
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
