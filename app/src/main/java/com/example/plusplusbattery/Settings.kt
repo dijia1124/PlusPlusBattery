@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -35,11 +37,13 @@ fun SettingsContent(
     val isRootMode by batteryVM.isRootMode.collectAsState()
     val showOnDash by batteryVM.showSwitchOnDashboard.collectAsState()
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
+            .verticalScroll(scrollState)
     ) {
         ListItem(
             headlineContent = { Text(text = stringResource(R.string.use_root_mode), style = MaterialTheme.typography.bodyMedium) },

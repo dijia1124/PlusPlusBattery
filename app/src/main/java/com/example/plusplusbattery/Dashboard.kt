@@ -3,6 +3,7 @@ package com.example.plusplusbattery
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -83,6 +84,9 @@ fun BatteryCardWithCalibration(
     onToggleDualBat: () -> Unit,
     onShowMultiplierDialog: () -> Unit
 ) {
+    val isWatch = LocalContext.current.packageManager
+        .hasSystemFeature(PackageManager.FEATURE_WATCH)
+
     Row {
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
             Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
@@ -96,17 +100,19 @@ fun BatteryCardWithCalibration(
         }
         if (!isRootMode) {
             Spacer(modifier = Modifier.weight(1f))
-            Row {
-                Column {
-                    Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        text = getBoolString(isDualBatt, context),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+            if (!isWatch){
+                Row {
+                    Column {
+                        Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = getBoolString(isDualBatt, context),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+                    }
                 }
             }
         }
@@ -274,7 +280,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     if (showMultiplierDialog) {
         AlertDialog(
             onDismissRequest = { showMultiplierDialog = false },
-            title = { Text(stringResource(R.string.calibrate_via_multiplier)) },
             text = {
                 MultiplierSelector(
                     isMultiply = isMultiply,
@@ -358,7 +363,7 @@ fun MultiplierSelector(
     selectedMagnitude: Int,
     onMagnitudeChange: (Int) -> Unit
 ) {
-    val magnitudeOptions = listOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9) // 10, 100, 1000, 10000 etc
+    val magnitudeOptions = listOf(-6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6) // 10, 100, 1000, 10000 etc
     val label = if (isMultiply) stringResource(R.string.multiply) else stringResource(R.string.divide)
     var isExpanded by remember { mutableStateOf(false) }
 
