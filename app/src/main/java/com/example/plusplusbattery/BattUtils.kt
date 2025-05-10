@@ -7,6 +7,7 @@ import java.nio.ByteBuffer
 import java.io.File
 
 private const val BCC_CURRENT_INDICES_LAST = 18
+private const val OPLUS_CHG_BATTERY_PATH = "/sys/class/oplus_chg/battery/"
 
 fun getStatusString(status: Int, context: Context): String = when (status) {
     BatteryManager.BATTERY_STATUS_CHARGING -> context.getString(R.string.charging)
@@ -28,7 +29,7 @@ fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
 }
 
 fun readBatteryInfo(field: String, context: Context): String? {
-    val basePath = "/sys/class/oplus_chg/battery/"
+    val basePath = OPLUS_CHG_BATTERY_PATH
     val fullPath = basePath + field
 
     return try {
@@ -44,7 +45,7 @@ fun readBatteryInfo(field: String, context: Context): String? {
 }
 
 fun readBatteryInfo(field: String, context: Context, index: Int): String? {
-    val basePath = "/sys/class/oplus_chg/battery/"
+    val basePath = OPLUS_CHG_BATTERY_PATH
     val fullPath = basePath + field
     return try {
         val result = Shell.cmd("su -c cat $fullPath").exec()
@@ -143,4 +144,31 @@ fun calcRawFcc(
     } else {
         compensatedFcc
     }
+}
+
+// usage: val logMap = readBatteryLogMap(context)
+//val qMax = logMap["batt_qmax"]
+fun readBatteryLogMap(
+    context: Context,
+    fields: Set<String>? = null
+): Map<String, String> {
+    val base = OPLUS_CHG_BATTERY_PATH
+    fun shellCat(file: String): String? = try {
+        val res = Shell.cmd("su -c cat $base$file").exec()
+        if (res.isSuccess) res.out.joinToString("").trim() else null
+    } catch (_: Exception) { null }
+
+    val headLine = shellCat("battery_log_head") ?: return emptyMap()
+    val valueLine = shellCat("battery_log_content") ?: return emptyMap()
+
+    val heads  = headLine.split(',') // empty string at the first column
+    val values = valueLine.split(',')
+
+    if (heads.size != values.size) return emptyMap()
+
+    // zip => Pair<field, value>
+    return heads.indices
+        .filter { it > 0 } // skip the first column
+        .filter { fields == null || heads[it] in fields }
+        .associate { idx -> heads[idx] to values[idx] }
 }
