@@ -241,7 +241,8 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
             val current =
-                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.value
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.value / 1000
+            // for pixel watch battery current / 1000
             val power = current * voltage * dualBattMultiplier.value / 1_000_000.0
 
             listOf(
