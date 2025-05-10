@@ -188,6 +188,8 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
             ).let { resultValue ->
                 if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
             }
+            val logMap = readBatteryLogMap(context)
+            val qMax = logMap["batt_qmax"] ?.let { "$it mAh"} ?: context.getString(R.string.unknown)
             listOf(
                 BatteryInfo(
                     context.getString(R.string.battery_voltage),
@@ -232,6 +234,10 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                 BatteryInfo(
                     context.getString(R.string.battery_manufacture_date_battery_manu_date),
                     batManDate
+                ),
+                BatteryInfo(
+                    context.getString(R.string.battery_qmax),
+                    qMax ?: context.getString(R.string.unknown)
                 )
             )
         }
