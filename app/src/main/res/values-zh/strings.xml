@@ -21,7 +21,8 @@
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
     - 截止电压（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n
-</string>
+    - 电池最大化学容量（batt_qmax）：电池的最大化学容量。该容量值与负载无关。它是电池在非常小的负载电流下可以释放的容量，通常以毫安时表示。\n
+    </string>
     <string name="plus_plus_battery">加加电池</string>
     <string name="history">历史信息</string>
     <string name="cycle_counts">"电池循环次数: "</string>
@@ -74,5 +75,8 @@
     <string name="settings">设置</string>
     <string name="show_root_switch_on_dashboard">在首页显示 Root 模式开关</string>
     <string name="version">版本: %1$s</string>
+    <string name="battery_qmax">电池最大化学容量 (batt_qmax)</string>
+    <string name="follow_system_theme">跟随系统主题</string>
+    <string name="enable_dark_mode">开启暗黑模式</string>
 
 </resources>
