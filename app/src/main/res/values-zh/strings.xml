@@ -76,5 +76,7 @@
     <string name="show_root_switch_on_dashboard">在首页显示 Root 模式开关</string>
     <string name="version">版本: %1$s</string>
     <string name="battery_qmax">电池最大化学容量 (batt_qmax)</string>
+    <string name="follow_system_theme">跟随系统主题</string>
+    <string name="enable_dark_mode">开启暗黑模式</string>
 
 </resources>

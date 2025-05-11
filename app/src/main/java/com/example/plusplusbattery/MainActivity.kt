@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -38,16 +40,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val settingsViewModel by lazy {
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                        SettingsViewModel(application) as T
+                }
+            )[SettingsViewModel::class.java]
+        }
+
         setContent {
-            PlusPlusBatteryTheme {
-                BottomNavigationBar(HistoryInfoViewModel(application), application)
+            val darkModeEnabled   by settingsViewModel.darkModeEnabled.collectAsState()
+            val followSystemTheme by settingsViewModel.followSystemTheme.collectAsState()
+            val sysDark           = isSystemInDarkTheme()
+
+            val useDarkTheme = if (followSystemTheme) sysDark else darkModeEnabled
+
+            PlusPlusBatteryTheme(darkTheme = useDarkTheme) {
+                BottomNavigationBar(HistoryInfoViewModel(application), application, settingsViewModel)
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application) {
+fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
     val historyRepo = remember { HistoryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
@@ -112,7 +131,8 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
                     currentTitle = stringResource(R.string.settings),
                     navController = navController,
                     hasRoot = hasRoot,
-                    batteryVM  = batteryInfoViewModel
+                    batteryVM  = batteryInfoViewModel,
+                    settingsVM = settingsViewModel
                 )
             }
             composable("about")     { About(stringResource(R.string.about)) }

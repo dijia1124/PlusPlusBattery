@@ -22,9 +22,9 @@ import androidx.compose.ui.unit.dp
 import com.example.plusplusbattery.ui.components.AppScaffold
 
 @Composable
-fun Settings(currentTitle: String, navController: NavController, hasRoot: Boolean, batteryVM: BatteryInfoViewModel) {
+fun Settings(currentTitle: String, navController: NavController, hasRoot: Boolean, batteryVM: BatteryInfoViewModel, settingsVM: SettingsViewModel) {
     AppScaffold(currentTitle) {
-        SettingsContent(navController, hasRoot, batteryVM)
+        SettingsContent(navController, hasRoot, batteryVM, settingsVM)
     }
 }
 
@@ -32,12 +32,15 @@ fun Settings(currentTitle: String, navController: NavController, hasRoot: Boolea
 fun SettingsContent(
     navController: NavController,
     hasRoot: Boolean,
-    batteryVM: BatteryInfoViewModel
+    batteryVM: BatteryInfoViewModel,
+    settingsVM: SettingsViewModel
 ) {
     val isRootMode by batteryVM.isRootMode.collectAsState()
     val showOnDash by batteryVM.showSwitchOnDashboard.collectAsState()
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val darkModeEnabled by settingsVM.darkModeEnabled.collectAsState()
+    val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
 
     Column(
         modifier = Modifier
@@ -46,7 +49,7 @@ fun SettingsContent(
             .verticalScroll(scrollState)
     ) {
         ListItem(
-            headlineContent = { Text(text = stringResource(R.string.use_root_mode), style = MaterialTheme.typography.bodyMedium) },
+            headlineContent = { Text(text = stringResource(R.string.use_root_mode), style = MaterialTheme.typography.bodyLarge) },
             trailingContent = {
                 Switch(
                     checked = isRootMode,
@@ -64,7 +67,7 @@ fun SettingsContent(
             }
         )
         ListItem(
-            headlineContent = { Text(text = stringResource(R.string.show_root_switch_on_dashboard), style = MaterialTheme.typography.bodyMedium) },
+            headlineContent = { Text(text = stringResource(R.string.show_root_switch_on_dashboard), style = MaterialTheme.typography.bodyLarge) },
             trailingContent = {
                 Switch(
                     checked = showOnDash,
@@ -73,8 +76,32 @@ fun SettingsContent(
             }
         )
         ListItem(
+            headlineContent = {
+                Text(text = stringResource(R.string.follow_system_theme), style = MaterialTheme.typography.bodyLarge)
+            },
+            trailingContent = {
+                Switch(
+                    checked = followSystemTheme,
+                    onCheckedChange = { settingsVM.setFollowSystem(it) }
+                )
+            }
+        )
+
+        ListItem(
+            headlineContent = {
+                Text(text = stringResource(R.string.enable_dark_mode), style = MaterialTheme.typography.bodyLarge)
+            },
+            trailingContent = {
+                Switch(
+                    checked = darkModeEnabled,
+                    onCheckedChange = { settingsVM.setDarkMode(it) },
+                    enabled = !followSystemTheme
+                )
+            }
+        )
+        ListItem(
             modifier = Modifier.clickable { navController.navigate("about") },
-            headlineContent = { Text(text = stringResource(R.string.about), style = MaterialTheme.typography.bodyMedium) }
+            headlineContent = { Text(text = stringResource(R.string.about), style = MaterialTheme.typography.bodyLarge) }
         )
     }
 }
