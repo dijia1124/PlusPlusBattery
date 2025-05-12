@@ -56,7 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private const val BATTERY_INFO_LIST_ROOT_SIZE = 17
+private const val BATTERY_INFO_LIST_ROOT_SIZE = 19
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

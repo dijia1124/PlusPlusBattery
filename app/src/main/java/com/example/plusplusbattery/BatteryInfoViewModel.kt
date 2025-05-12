@@ -173,6 +173,10 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                 ?: context.getString(R.string.unknown)
             val batManDate = readBatteryInfo("battery_manu_date")
                 ?: context.getString(R.string.unknown)
+            val battType = readBatteryInfo("battery_type")
+                ?: context.getString(R.string.unknown)
+            val designCapacity = readBatteryInfo("design_capacity")
+                ?: context.getString(R.string.unknown)
             val rawSoh = calcRawSoh(
                 soh.toIntOrNull() ?: 0,
                 vbatUv.toIntOrNull() ?: 0,
@@ -234,6 +238,14 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                 BatteryInfo(
                     context.getString(R.string.battery_manufacture_date_battery_manu_date),
                     batManDate
+                ),
+                BatteryInfo(
+                    context.getString(R.string.battery_type_battery_type),
+                    battType
+                ),
+                BatteryInfo(
+                    context.getString(R.string.design_capacity_design_capacity),
+                    "$designCapacity mAh"
                 ),
                 BatteryInfo(
                     context.getString(R.string.battery_qmax),
