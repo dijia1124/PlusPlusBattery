@@ -5,6 +5,10 @@ import android.os.BatteryManager
 import com.topjohnwu.superuser.Shell
 import java.nio.ByteBuffer
 import java.io.File
+import com.topjohnwu.superuser.io.SuFileInputStream
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.IOException
 
 private const val BCC_CURRENT_INDICES_LAST = 18
 private const val OPLUS_CHG_BATTERY_PATH = "/sys/class/oplus_chg/battery/"
@@ -28,56 +32,41 @@ fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
     false -> context.getString(R.string.no)
 }
 
-fun readBatteryInfo(field: String, context: Context): String? {
-    val basePath = OPLUS_CHG_BATTERY_PATH
-    val fullPath = basePath + field
-
-    return try {
-        val result = Shell.cmd("cat $fullPath").exec()
-        if (result.isSuccess && result.out.isNotEmpty()) {
-            result.out.joinToString()
-        } else {
-            null
-        }
-    } catch (e: Exception) {
+suspend fun readBatteryInfo(field: String): String? = withContext(Dispatchers.IO) {
+    try {
+        val basePath = OPLUS_CHG_BATTERY_PATH
+        SuFileInputStream.open(basePath + field).bufferedReader().use { it.readText().trim() }
+    } catch (e: IOException) {
         null
     }
 }
 
-fun readBatteryInfo(field: String, context: Context, index: Int): String? {
-    val basePath = OPLUS_CHG_BATTERY_PATH
-    val fullPath = basePath + field
-    return try {
-        val result = Shell.cmd("su -c cat $fullPath").exec()
-        if (result.isSuccess && result.out.isNotEmpty()) {
-            val line = result.out.joinToString("").trim()
-            val values = line.split(",")
-            // check bcc_parms file format
-            if (field == "bcc_parms" && values.indices.last != BCC_CURRENT_INDICES_LAST) {
-                return null
-            }
-            if (index in values.indices) {
-                values[index].trim()
-            } else {
-                null
-            }
-        } else {
+suspend fun readBatteryInfo(field: String, index: Int): String? = withContext(Dispatchers.IO) {
+    try {
+        val raw = SuFileInputStream
+            .open("$OPLUS_CHG_BATTERY_PATH$field")
+            .bufferedReader()
+            .use { it.readText().trim() }
+
+        val parts = raw.split(",")
+        if (field == "bcc_parms" && parts.size - 1 != BCC_CURRENT_INDICES_LAST) {
             null
+        } else {
+            parts.getOrNull(index)?.trim()
         }
-    } catch (e: Exception) {
+    } catch (e: IOException) {
         null
     }
 }
 
-
-fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> {
+suspend fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> = withContext(Dispatchers.IO) {
     // Make a temporary directory in the app's private storage to avoid extra permission
     val tmpDir = File(context.getExternalFilesDir(null), "read_term_coeff")
     if (!tmpDir.exists()) tmpDir.mkdirs()
     val targetFile = File(tmpDir, "term_coeff")
     val targetPath = targetFile.absolutePath
 
-    val battType = readBatteryInfo("battery_type", context)
+    val battType = readBatteryInfo("battery_type")
     val primaryPath = "/proc/device-tree/soc/oplus,mms_gauge/$battType/deep_spec,term_coeff"
     val fallbackPath = "/proc/device-tree/soc/oplus,mms_gauge/deep_spec,term_coeff"
     var sourcePath = primaryPath
@@ -88,16 +77,16 @@ fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> {
         if (checkFallback == "exists") {
             sourcePath = fallbackPath
         } else {
-            return emptyList()
+            emptyList<Triple<Int, Int, Int>>()
         }
     }
 
     val ddResult = Shell.cmd("su -c dd if=$sourcePath of=$targetPath").exec()
     if (!ddResult.isSuccess) {
-        return emptyList()
+        emptyList<Triple<Int, Int, Int>>()
     }
 
-    return try {
+    try {
         val bytes = targetFile.readBytes()
 
         val buffer = ByteBuffer.wrap(bytes)
@@ -147,28 +136,20 @@ fun calcRawFcc(
 }
 
 // usage: val logMap = readBatteryLogMap(context)
-//val qMax = logMap["batt_qmax"]
-fun readBatteryLogMap(
-    context: Context,
+// val qMax = logMap["batt_qmax"]
+suspend fun readBatteryLogMap(
     fields: Set<String>? = null
-): Map<String, String> {
+): Map<String, String> = withContext(Dispatchers.IO) {
     val base = OPLUS_CHG_BATTERY_PATH
-    fun shellCat(file: String): String? = try {
-        val res = Shell.cmd("su -c cat $base$file").exec()
-        if (res.isSuccess) res.out.joinToString("").trim() else null
-    } catch (_: Exception) { null }
 
-    val headLine = shellCat("battery_log_head") ?: return emptyMap()
-    val valueLine = shellCat("battery_log_content") ?: return emptyMap()
+    val headLine  = readBatteryInfo("battery_log_head") ?: return@withContext emptyMap<String, String>()
+    val valueLine = readBatteryInfo("battery_log_content") ?: return@withContext emptyMap<String, String>()
 
-    val heads  = headLine.split(',') // empty string at the first column
+    val heads  = headLine.split(',')
     val values = valueLine.split(',')
+    if (heads.size != values.size) return@withContext emptyMap<String, String>()
 
-    if (heads.size != values.size) return emptyMap()
-
-    // zip => Pair<field, value>
-    return heads.indices
-        .filter { it > 0 } // skip the first column
-        .filter { fields == null || heads[it] in fields }
+    heads.indices
+        .filter { it > 0 && (fields == null || heads[it] in fields) }
         .associate { idx -> heads[idx] to values[idx] }
 }

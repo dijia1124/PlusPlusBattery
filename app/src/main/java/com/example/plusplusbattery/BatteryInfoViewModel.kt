@@ -161,17 +161,17 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                         * (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
                     ?: 0) / 1000000.0)
             }
-            val rm = readBatteryInfo("battery_rm", context)
+            val rm = readBatteryInfo("battery_rm")
                 ?: context.getString(R.string.unknown)
-            val fcc = readBatteryInfo("battery_fcc", context)
+            val fcc = readBatteryInfo("battery_fcc")
                 ?: context.getString(R.string.unknown)
-            val soh = readBatteryInfo("battery_soh", context)
+            val soh = readBatteryInfo("battery_soh")
                 ?: context.getString(R.string.unknown)
-            val vbatUv = readBatteryInfo("vbat_uv", context)
+            val vbatUv = readBatteryInfo("vbat_uv")
                 ?: context.getString(R.string.unknown)
-            val sn = readBatteryInfo("battery_sn", context)
+            val sn = readBatteryInfo("battery_sn")
                 ?: context.getString(R.string.unknown)
-            val batManDate = readBatteryInfo("battery_manu_date", context)
+            val batManDate = readBatteryInfo("battery_manu_date")
                 ?: context.getString(R.string.unknown)
             val rawSoh = calcRawSoh(
                 soh.toIntOrNull() ?: 0,
@@ -188,7 +188,7 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
             ).let { resultValue ->
                 if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
             }
-            val logMap = readBatteryLogMap(context)
+            val logMap = readBatteryLogMap()
             val qMax = logMap["batt_qmax"] ?.let { "$it mAh"} ?: context.getString(R.string.unknown)
             listOf(
                 BatteryInfo(

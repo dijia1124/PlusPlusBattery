@@ -50,7 +50,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.rememberCoroutineScope
 import com.example.plusplusbattery.ui.components.AppScaffold
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val BATTERY_INFO_LIST_ROOT_SIZE = 17
 
@@ -153,6 +157,7 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewModel) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
@@ -238,18 +243,20 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             10 -> BatteryCardWithCoeffTable(
                                 info = info,
                                 onShowInfo = {
-                                    val list = readTermCoeff(context)
-                                    coeffDialogText = buildString {
-                                        append(context.getString(R.string.raw_fcc_soh_calc_intro))
-                                        append(context.getString(R.string.vbatuv_mv_fccoffset_mah_sohoffset))
-                                        list.forEach {
-                                            append("${it.first}, ${it.second}, ${it.third}\n")
+                                    coroutineScope.launch{
+                                        val list = readTermCoeff(context)
+                                        coeffDialogText = buildString {
+                                            append(context.getString(R.string.raw_fcc_soh_calc_intro))
+                                            append(context.getString(R.string.vbatuv_mv_fccoffset_mah_sohoffset))
+                                            list.forEach {
+                                                append("${it.first}, ${it.second}, ${it.third}\n")
+                                            }
+                                            if (list.isEmpty()) {
+                                                append(context.getString(R.string.offset_table_not_found))
+                                            }
                                         }
-                                        if (list.isEmpty()) {
-                                            append(context.getString(R.string.offset_table_not_found))
-                                        }
+                                        showCoeffDialog = true
                                     }
-                                    showCoeffDialog = true
                                 }
                             )
                             else -> NormalBatteryCard(info)
@@ -409,15 +416,15 @@ fun MultiplierSelector(
     }
 }
 
-fun safeRootReadInt(
+suspend fun safeRootReadInt(
     context: Context,
     path: String,
     index: Int,
     fallback: () -> Int,
     onFallback: () -> Unit
-): Int {
-    return try {
-        val valueStr = readBatteryInfo(path, context, index)
+): Int = withContext(Dispatchers.IO) {
+    try {
+        val valueStr = readBatteryInfo(path, index)
         val parsed = valueStr?.toIntOrNull()
         if (parsed != null) {
             parsed

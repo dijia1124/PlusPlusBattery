@@ -40,7 +40,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
+//        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
+        Shell.getShell()
         val settingsViewModel by lazy {
             ViewModelProvider(
                 this,
