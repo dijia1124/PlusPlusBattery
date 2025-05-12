@@ -228,6 +228,10 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                     "$rawSoh %"
                 ),
                 BatteryInfo(
+                    context.getString(R.string.battery_qmax),
+                    qMax ?: context.getString(R.string.unknown)
+                ),
+                BatteryInfo(
                     context.getString(R.string.battery_under_voltage_threshold_vbat_uv),
                     "$vbatUv mV"
                 ),
@@ -247,10 +251,6 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
                     context.getString(R.string.design_capacity_design_capacity),
                     "$designCapacity mAh"
                 ),
-                BatteryInfo(
-                    context.getString(R.string.battery_qmax),
-                    qMax ?: context.getString(R.string.unknown)
-                )
             )
         }
 
