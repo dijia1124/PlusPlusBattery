@@ -14,6 +14,8 @@ captures/
 .cxx/
 *.apk
 output.json
+/app/release/baselineProfiles/**/*.dm
+/app/release/output-metadata.json
 
 # IntelliJ
 *.iml
