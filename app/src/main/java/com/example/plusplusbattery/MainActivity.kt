@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
-    val hasRoot by settingsViewModel.hasRoot.collectAsState(initial = false)
+    val hasRoot by settingsViewModel.hasRoot.collectAsState()
     val historyRepo = remember { HistoryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
