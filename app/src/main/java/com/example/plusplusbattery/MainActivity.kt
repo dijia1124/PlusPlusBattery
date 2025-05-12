@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -35,6 +36,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.topjohnwu.superuser.Shell
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,7 +85,12 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
     }
 
     var hasRoot by remember { mutableStateOf(false) }
-    hasRoot = hasRootAccess()
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO){
+            hasRoot = hasRootAccess()
+        }
+    }
+
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
@@ -141,8 +149,8 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
     }
 }
 
-fun hasRootAccess(): Boolean {
-    return try {
+suspend fun hasRootAccess(): Boolean = withContext(Dispatchers.IO){
+    try {
         val result = Shell.cmd("su -c whoami").exec()
         result.isSuccess
     } catch (e: Exception) {
