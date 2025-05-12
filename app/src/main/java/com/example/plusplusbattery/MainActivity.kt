@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -28,23 +27,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.topjohnwu.superuser.Shell
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
-        Shell.getShell()
+
         val settingsViewModel by lazy {
             ViewModelProvider(
                 this,
@@ -56,6 +50,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
+            Shell.getShell()
+
             val darkModeEnabled   by settingsViewModel.darkModeEnabled.collectAsState()
             val followSystemTheme by settingsViewModel.followSystemTheme.collectAsState()
             val sysDark           = isSystemInDarkTheme()
@@ -71,6 +68,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
+    val hasRoot by settingsViewModel.hasRoot.collectAsState(initial = false)
     val historyRepo = remember { HistoryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
@@ -82,13 +80,6 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
                 }
             }
         )[BatteryInfoViewModel::class.java]
-    }
-
-    var hasRoot by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO){
-            hasRoot = hasRootAccess()
-        }
     }
 
     // Define the list of navigation routes using the data class
@@ -146,14 +137,5 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
             }
             composable("about")     { About(stringResource(R.string.about)) }
         }
-    }
-}
-
-suspend fun hasRootAccess(): Boolean = withContext(Dispatchers.IO){
-    try {
-        val result = Shell.cmd("su -c whoami").exec()
-        result.isSuccess
-    } catch (e: Exception) {
-        false
     }
 }
