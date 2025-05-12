@@ -18,6 +18,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    androidResources {
+        generateLocaleConfig = true
+    }
 
     buildTypes {
         release {
