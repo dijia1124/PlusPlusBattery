@@ -70,13 +70,14 @@ class MainActivity : ComponentActivity() {
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
     val hasRoot by settingsViewModel.hasRoot.collectAsState()
     val historyRepo = remember { HistoryInfoRepository(application) }
+    val batteryInfoRepository = remember { BatteryInfoRepository(application, historyRepo) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
         ViewModelProvider(
             viewModelStoreOwner,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application, historyRepo) as T
+                    return BatteryInfoViewModel(application, batteryInfoRepository, historyRepo) as T
                 }
             }
         )[BatteryInfoViewModel::class.java]

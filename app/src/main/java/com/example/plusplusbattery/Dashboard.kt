@@ -188,7 +188,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                     // use system battery manager api if root access is not available
                     val nonRootVCPList = batteryInfoViewModel.refreshNonRootVoltCurrPwr()
                     displayList.addAll(nonRootVCPList)
-                    val fccInfo = batteryInfoViewModel.getEstimatedFcc()
+                    val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
                     displayList.add(fccInfo)
                     lastSize = displayList.size
                 }
@@ -205,6 +205,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             }
             delay(1000)
         }
+    }
+
+    LaunchedEffect(Unit) {
+        batteryInfoViewModel.saveCycleCount()
     }
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
