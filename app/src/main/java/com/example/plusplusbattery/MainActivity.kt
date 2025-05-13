@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
     val hasRoot by settingsViewModel.hasRoot.collectAsState()
     val historyRepo = remember { HistoryInfoRepository(application) }
-    val batteryInfoRepository = remember { BatteryInfoRepository(application, historyRepo) }
+    val batteryInfoRepository = remember { BatteryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
         ViewModelProvider(

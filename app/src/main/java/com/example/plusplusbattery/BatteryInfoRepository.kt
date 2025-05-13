@@ -12,13 +12,9 @@ private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
 private const val BCC_CURRENT_INDEX = 8
 
-class BatteryInfoRepository(private val context: Context, private val historyInfoRepo: HistoryInfoRepository) {
+class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
         context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-
-    fun getHistoryRepository(): HistoryInfoRepository {
-        return historyInfoRepo
-    }
 
     suspend fun getBasicBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO){
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
