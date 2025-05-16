@@ -123,7 +123,7 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 context.getString(R.string.battery_current),
-                "${rootModeCurrent * calibMultiplier} mA"
+                (rootModeCurrent * calibMultiplier).formatWithUnit("mA")
             ),
             BatteryInfo(
                 context.getString(R.string.power),
