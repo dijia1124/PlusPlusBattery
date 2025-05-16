@@ -16,18 +16,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.combine
+import kotlin.math.pow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.pow
 
-private const val BCC_VOLTAGE_0_INDEX = 6
-private const val BCC_VOLTAGE_1_INDEX = 11
-private const val BCC_CURRENT_INDEX = 8
 private const val IS_DUAL_BATTERY = 2
 private const val IS_SINGLE_BATTERY = 1
 
-class BatteryInfoViewModel(application: Application, private val historyInfoRepo: HistoryInfoRepository) : AndroidViewModel(application) {
+class BatteryInfoViewModel(application: Application, private val batteryInfoRepository: BatteryInfoRepository, private val historyInfoRepository: HistoryInfoRepository) : AndroidViewModel(application) {
     private val context = application.applicationContext
     private val dataStore = context.dataStore
 
@@ -90,197 +87,32 @@ class BatteryInfoViewModel(application: Application, private val historyInfoRepo
 
     suspend fun refreshBatteryInfo(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
-            val temperature = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -999) ?: 0
-            val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-            val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
-            val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
-            val date = System.currentTimeMillis()
-            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(date))
-            val newInfo = HistoryInfo(date = date, dateString = dateString, cycleCount = cycleCount.toString())
-            historyInfoRepo.insertOrUpdate(newInfo)
-
-            listOf(
-                BatteryInfo(context.getString(R.string.battery_level), "$level%"),
-                BatteryInfo(
-                    context.getString(R.string.battery_temperature),
-                    "${temperature / 10.0}°C"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_status),
-                    getStatusString(status, context)
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_health),
-                    getHealthString(health, context)
-                ),
-                BatteryInfo(context.getString(R.string.battery_cycle_count), cycleCount.toString()),
-            )
+            batteryInfoRepository.getBasicBatteryInfo()
         }
 
     suspend fun refreshBatteryInfoWithRoot(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
-            var rootModeVoltage0 = 0
-            var rootModeVoltage1 = 0
-            var rootModeCurrent = 0
-            var rootModePower = 0.0
-            var rootReadFailed = false
-            // fall back to batteryManager if root read fails for rooted vot1,2 and current
-            rootModeVoltage0 =
-                safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_0_INDEX, {
-                    val intent = context.registerReceiver(
-                        null,
-                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-                    )
-                    intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
-                }) { rootReadFailed = true }
-
-            rootModeVoltage1 =
-                safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_1_INDEX, {
-                    // if root read fails, shows value 0, on the right side of Battery Voltage entry
-                    // e.g. 4000 / 0 mV
-                    0
-                }) { rootReadFailed = true }
-
-            rootModeCurrent =
-                safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
-                    (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.value).toInt()
-                }) { rootReadFailed = true }
-            rootModePower = if (!rootReadFailed) {
-                (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier.value / 1000000.0
-            } else {
-                val intent = context.registerReceiver(
-                    null,
-                    IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-                )
-
-                (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                        * dualBattMultiplier.value
-                        * calibMultiplier.value
-                        * (intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
-                    ?: 0) / 1000000.0)
-            }
-            val rm = readBatteryInfo("battery_rm", context)
-                ?: context.getString(R.string.unknown)
-            val fcc = readBatteryInfo("battery_fcc", context)
-                ?: context.getString(R.string.unknown)
-            val soh = readBatteryInfo("battery_soh", context)
-                ?: context.getString(R.string.unknown)
-            val vbatUv = readBatteryInfo("vbat_uv", context)
-                ?: context.getString(R.string.unknown)
-            val sn = readBatteryInfo("battery_sn", context)
-                ?: context.getString(R.string.unknown)
-            val batManDate = readBatteryInfo("battery_manu_date", context)
-                ?: context.getString(R.string.unknown)
-            val rawSoh = calcRawSoh(
-                soh.toIntOrNull() ?: 0,
-                vbatUv.toIntOrNull() ?: 0,
-                readTermCoeff(context)
-            ).let { resultValue ->
-                if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
-            }
-            val rawFcc = calcRawFcc(
-                fcc.toIntOrNull() ?: 0,
-                rawSoh.toFloatOrNull() ?: 0f,
-                vbatUv.toIntOrNull() ?: 0,
-                readTermCoeff(context)
-            ).let { resultValue ->
-                if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
-            }
-            listOf(
-                BatteryInfo(
-                    context.getString(R.string.battery_voltage),
-                    "$rootModeVoltage0 / $rootModeVoltage1 mV"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_current),
-                    "${rootModeCurrent * calibMultiplier.value} mA"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.power),
-                    String.format("%.2f W", rootModePower)
-                ),
-                BatteryInfo(
-                    context.getString(R.string.remaining_charge_counter),
-                    "$rm mAh"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.full_charge_capacity_battery_fcc),
-                    "$fcc mAh"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.raw_full_charge_capacity_before_compensation),
-                    "$rawFcc mAh"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_health_battery_soh),
-                    "$soh %"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.raw_battery_health_before_compensation),
-                    "$rawSoh %"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_under_voltage_threshold_vbat_uv),
-                    "$vbatUv mV"
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_serial_number_battery_sn),
-                    sn
-                ),
-                BatteryInfo(
-                    context.getString(R.string.battery_manufacture_date_battery_manu_date),
-                    batManDate
-                )
-            )
+            batteryInfoRepository.getRootBatteryInfo(calibMultiplier.value, dualBattMultiplier.value)
         }
 
     suspend fun refreshNonRootVoltCurrPwr(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
-            val current =
-                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier.value / 1000
-            // for pixel watch battery current / 1000
-            val power = current * voltage * dualBattMultiplier.value / 1_000_000.0
-
-            listOf(
-                BatteryInfo(context.getString(R.string.battery_voltage), "$voltage mV"),
-                BatteryInfo(context.getString(R.string.battery_current), "$current mA"),
-                BatteryInfo(context.getString(R.string.power), String.format("%.2f W", power))
-            )
+            batteryInfoRepository.getNonRootVoltCurrPwr(calibMultiplier.value, dualBattMultiplier.value)
         }
 
-    suspend fun getEstimatedFcc(): BatteryInfo =
+    suspend fun refreshEstimatedFcc(): BatteryInfo =
         withContext(Dispatchers.IO) {
-            val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-            val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
-
-            if (currentNow == 0 && batteryLevel == 100) {
-                val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-                val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
-                if (fullChargeCapacity > 0) {
-                    context.dataStore.edit { prefs ->
-                        prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
-                    }
-                }
-            }
-            var estimatedFcc = context.getString(R.string.estimating_full_charge_capacity)
-
-            if (savedEstimatedFcc.value.toString() != context.getString(R.string.estimating_full_charge_capacity)) {
-                estimatedFcc = savedEstimatedFcc.value.toString()
-                BatteryInfo(
-                    context.getString(R.string.full_charge_capacity),
-                    "$estimatedFcc mAh"
-                )
-            }
-            else{
-                BatteryInfo(
-                    context.getString(R.string.full_charge_capacity),
-                    estimatedFcc
-                )
-            }
+           batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value)
         }
+
+    suspend fun saveCycleCount(): Unit =
+        withContext(Dispatchers.IO) {
+            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+            val date = System.currentTimeMillis()
+            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(date))
+            val newInfo = HistoryInfo(date = date, dateString = dateString, cycleCount = cycleCount.toString())
+            historyInfoRepository.insertOrUpdate(newInfo)
+    }
 }
 

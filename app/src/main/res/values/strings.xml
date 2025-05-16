@@ -79,4 +79,6 @@
     <string name="battery_qmax">Maximum Chemical Capacity (batt_qmax)</string>
     <string name="follow_system_theme">Follow system theme</string>
     <string name="enable_dark_mode">Enable dark mode</string>
+    <string name="battery_type_battery_type">Battery Type (battery_type)</string>
+    <string name="design_capacity_design_capacity">Design Capacity (design_capacity)</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -64,6 +65,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
+            Shell.getShell()
+
             val darkModeEnabled   by settingsViewModel.darkModeEnabled.collectAsState()
             val followSystemTheme by settingsViewModel.followSystemTheme.collectAsState()
             val sysDark           = isSystemInDarkTheme()
@@ -125,14 +129,16 @@ fun WearNavigationBar(
 
 @Composable
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
+    val hasRoot by settingsViewModel.hasRoot.collectAsState()
     val historyRepo = remember { HistoryInfoRepository(application) }
+    val batteryInfoRepository = remember { BatteryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
     val batteryInfoViewModel = remember {
         ViewModelProvider(
             viewModelStoreOwner,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application, historyRepo) as T
+                    return BatteryInfoViewModel(application, batteryInfoRepository, historyRepo) as T
                 }
             }
         )[BatteryInfoViewModel::class.java]
@@ -140,8 +146,6 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
     val isWatch = LocalContext.current.packageManager
         .hasSystemFeature(PackageManager.FEATURE_WATCH)
 
-    var hasRoot by remember { mutableStateOf(false) }
-    hasRoot = hasRootAccess()
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
@@ -171,6 +175,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
                                         navRoute.label
                                 )
                             },
+                            label = { Text(navRoute.label) },
                             selected = currentDestination?.route == navRoute.route,
                             onClick = {
                                 navController.navigate(navRoute.route) {
@@ -207,14 +212,5 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
             }
             composable("about")     { About(stringResource(R.string.about)) }
         }
-    }
-}
-
-fun hasRootAccess(): Boolean {
-    return try {
-        val result = Shell.cmd("su -c whoami").exec()
-        result.isSuccess
-    } catch (e: Exception) {
-        false
     }
 }

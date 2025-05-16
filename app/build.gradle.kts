@@ -13,8 +13,8 @@ android {
         applicationId = "com.example.plusplusbattery"
         minSdk = 31
         targetSdk = 35
-        versionCode = 13
-        versionName = "2.1.10"
+        versionCode = 14
+        versionName = "2.1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.core)
+    implementation (libs.io)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
