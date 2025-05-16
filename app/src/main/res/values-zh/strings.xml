@@ -80,5 +80,8 @@
     <string name="enable_dark_mode">开启暗黑模式</string>
     <string name="battery_type_battery_type">电池类型 (battery_type)</string>
     <string name="design_capacity_design_capacity">电池设计容量 (design_capacity)</string>
+    <string name="notification_permission_denied">无法获取通知权限</string>
+    <string name="battery_monitor">电池监控</string>
+    <string name="initializing">初始化中…</string>
 
 </resources>
