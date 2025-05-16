@@ -127,7 +127,7 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 context.getString(R.string.power),
-                String.format("%.2f W", rootModePower)
+                rootModePower.formatWithUnit("W")
             ),
             BatteryInfo(
                 context.getString(R.string.remaining_charge_counter),
@@ -151,7 +151,7 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 context.getString(R.string.battery_qmax),
-                qMax ?: context.getString(R.string.unknown)
+                qMax
             ),
             BatteryInfo(
                 context.getString(R.string.battery_under_voltage_threshold_vbat_uv),
@@ -185,8 +185,8 @@ class BatteryInfoRepository(private val context: Context) {
 
         return listOf(
             BatteryInfo(context.getString(R.string.battery_voltage), "$voltage mV"),
-            BatteryInfo(context.getString(R.string.battery_current), "$current mA"),
-            BatteryInfo(context.getString(R.string.power), String.format("%.2f W", power))
+            BatteryInfo(context.getString(R.string.battery_current), current.formatWithUnit("mA")),
+            BatteryInfo(context.getString(R.string.power), power.formatWithUnit("W"))
         )
     }
 
