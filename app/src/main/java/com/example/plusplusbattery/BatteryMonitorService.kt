@@ -79,7 +79,7 @@ class BatteryMonitorService : Service() {
             .setContentTitle(getString(R.string.battery_monitor))
             .setContentText(content)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content)) // allow more lines
-            .addAction(R.drawable.speed_24dp_1f1f1f_fill0_wght400_grad200_opsz24,
+            .addAction(R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24,
                 getString(R.string.stop), stopPending)
             .setOngoing(true)            // ongoing notification
             .setOnlyAlertOnce(true)      // silently update the notification

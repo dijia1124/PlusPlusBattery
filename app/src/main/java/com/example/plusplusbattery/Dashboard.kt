@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import com.example.plusplusbattery.ui.components.AppScaffold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -110,7 +112,7 @@ fun BatteryCardWithCalibration(
                     )
                 }
                 IconButton(onClick = onToggleDualBat, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Default.Create, contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
+                    Icon(ImageVector.vectorResource(id = R.drawable.swap_horiz_24dp_1f1f1f_fill1_wght400_grad0_opsz24), contentDescription = "Toggle Dual Battery", modifier = Modifier.size(18.dp))
                 }
             }
         }

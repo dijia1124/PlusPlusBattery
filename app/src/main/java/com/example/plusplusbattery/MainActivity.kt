@@ -103,11 +103,11 @@ fun BottomNavigationBar(
 
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
-        NavRoute("dashboard", Icons.Default.Home, stringResource(R.string.nav_dashboard)),
-        NavRoute("battery_monitor", ImageVector.vectorResource(id = R.drawable.speed_24dp_1f1f1f_fill0_wght400_grad200_opsz24),
+        NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
+        NavRoute("battery_monitor", ImageVector.vectorResource(id = R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24),
             stringResource(R.string.monitor)
         ),
-        NavRoute("history", Icons.Filled.Star, stringResource(R.string.nav_history)),
+        NavRoute("history", ImageVector.vectorResource(id = R.drawable.library_books_24dp_1f1f1f_fill1_wght400_grad0_opsz24), stringResource(R.string.nav_history)),
         NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings)),
     )
     val navController = rememberNavController()
