@@ -1,6 +1,5 @@
 package com.example.plusplusbattery
 
-import android.app.Application
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,7 +15,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,13 +25,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.topjohnwu.superuser.Shell
 
 class MainActivity : ComponentActivity() {
@@ -61,6 +57,17 @@ class MainActivity : ComponentActivity() {
             )[BatteryMonitorSettingsViewModel::class.java]
         }
 
+        val batteryInfoViewModel by lazy {
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return BatteryInfoViewModel(application) as T
+                    }
+                }
+            )[BatteryInfoViewModel::class.java]
+        }
+
         setContent {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
             Shell.getShell()
@@ -72,7 +79,7 @@ class MainActivity : ComponentActivity() {
             val useDarkTheme = if (followSystemTheme) sysDark else darkModeEnabled
 
             PlusPlusBatteryTheme(darkTheme = useDarkTheme) {
-                BottomNavigationBar(HistoryInfoViewModel(application), application, settingsViewModel, battMonViewModel)
+                BottomNavigationBar(HistoryInfoViewModel(application), settingsViewModel, battMonViewModel, batteryInfoViewModel)
             }
         }
     }
@@ -81,25 +88,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar(
     historyInfoViewModel: HistoryInfoViewModel,
-    application: Application,
     settingsViewModel: SettingsViewModel,
-    batteryMonitorSettingsViewModel: BatteryMonitorSettingsViewModel
+    batteryMonitorSettingsViewModel: BatteryMonitorSettingsViewModel,
+    batteryInfoViewModel: BatteryInfoViewModel,
 ) {
     val hasRoot by settingsViewModel.hasRoot.collectAsState()
-    val prefsRepo = remember { PrefsRepository(application) }
-    val historyRepo = remember { HistoryInfoRepository(application) }
-    val batteryInfoRepository = remember { BatteryInfoRepository(application) }
-    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
-    val batteryInfoViewModel = remember {
-        ViewModelProvider(
-            viewModelStoreOwner,
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application, batteryInfoRepository, prefsRepo, historyRepo) as T
-                }
-            }
-        )[BatteryInfoViewModel::class.java]
-    }
 
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(

@@ -17,7 +17,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class BatteryInfoViewModel(application: Application, private val batteryInfoRepository: BatteryInfoRepository, private val prefsRepo: PrefsRepository, private val historyInfoRepository: HistoryInfoRepository) : AndroidViewModel(application) {
+class BatteryInfoViewModel(application: Application,
+                           private val batteryInfoRepository: BatteryInfoRepository = BatteryInfoRepository(application),
+                           private val prefsRepo: PrefsRepository = PrefsRepository(application),
+                           private val historyInfoRepository: HistoryInfoRepository = HistoryInfoRepository(application)
+) : AndroidViewModel(application) {
     private val context = application.applicationContext
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager

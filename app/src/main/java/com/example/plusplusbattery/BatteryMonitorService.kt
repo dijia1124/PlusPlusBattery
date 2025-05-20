@@ -115,6 +115,6 @@ class BatteryMonitorService : Service() {
             }
         }
     }
-    //todo: add a way to stop the service
     //todo: add prompt to disable battery optimization
+    //todo: stop at background
 }
