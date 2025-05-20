@@ -3,6 +3,7 @@ package com.example.plusplusbattery
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.util.Log
@@ -18,6 +19,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class BatteryMonitorService : Service() {
+    companion object {
+        private const val ACTION_STOP = "com.example.plusplusbattery.ACTION_STOP"
+    }
 
     private lateinit var batteryRepo: BatteryInfoRepository
     private val channelId = "battery_monitor"
@@ -34,6 +38,12 @@ class BatteryMonitorService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP) {
+            scope.cancel()
+            stopSelf()
+            return START_NOT_STICKY
+        }
+
         startForeground(notifId, buildNotification(getString(R.string.initializing)))
         startUpdating()
         return START_STICKY
@@ -57,11 +67,20 @@ class BatteryMonitorService : Service() {
     }
 
     private fun buildNotification(content: String): Notification {
+        val stopIntent = Intent(this, BatteryMonitorService::class.java).apply {
+            action = ACTION_STOP
+        }
+        val stopPending = PendingIntent.getService(
+            this, 0, stopIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
         return NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.baseline_battery_saver_24)
             .setContentTitle(getString(R.string.battery_monitor))
             .setContentText(content)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content)) // allow more lines
+            .addAction(R.drawable.speed_24dp_1f1f1f_fill0_wght400_grad200_opsz24,
+                getString(R.string.stop), stopPending)
             .setOngoing(true)            // ongoing notification
             .setOnlyAlertOnce(true)      // silently update the notification
             .build()

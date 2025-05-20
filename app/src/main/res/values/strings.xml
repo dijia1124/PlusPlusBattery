@@ -87,4 +87,5 @@
     <string name="battery_monitor_entry_settings">Battery Monitor Entry Settings</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
+    <string name="stop">Stop</string>
 </resources>
