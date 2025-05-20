@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,6 +24,7 @@ class BatteryMonitorService : Service() {
     private val notifId = 1001
     private lateinit var notificationManager: NotificationManager
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val prefsRepo by lazy { PrefsRepository(applicationContext) }
 
     override fun onCreate() {
         super.onCreate()
@@ -66,9 +68,14 @@ class BatteryMonitorService : Service() {
     }
 
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
-        val infos: List<BatteryInfo> = batteryRepo.getRootBatteryInfo()
-        //todo: testing purpose
-
+        val isRoot = prefsRepo.isRootModeFlow.first()
+        val infos: List<BatteryInfo> = if (isRoot) {
+            batteryRepo.getRootBatteryInfo()
+        } else {
+            val basic   = batteryRepo.getBasicBatteryInfo()
+            val nonRoot = batteryRepo.getNonRootVoltCurrPwr()
+            basic + nonRoot
+        }
         infos.joinToString(separator = "\n") { "${it.title}: ${it.value}" }
     }
 
