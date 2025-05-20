@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +29,12 @@ class BatteryMonitorService : Service() {
         batteryRepo = BatteryInfoRepository(applicationContext)
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         startForeground(notifId, buildNotification(getString(R.string.initializing)))
         startUpdating()
+        return START_STICKY
     }
 
     override fun onBind(intent: Intent?) = null
@@ -60,11 +65,6 @@ class BatteryMonitorService : Service() {
             .build()
     }
 
-    private fun updateNotification(content: String) {
-        val notif = buildNotification(content)
-        notificationManager.notify(notifId, notif)
-    }
-
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
         val infos: List<BatteryInfo> = batteryRepo.getRootBatteryInfo(1.0, 1)
         //todo: testing purpose
@@ -76,10 +76,10 @@ class BatteryMonitorService : Service() {
     private fun startUpdating() {
         scope.launch {
             while (isActive) {
+                Log.d("BatteryMonitorService", "Updating notification")
                 val statusText = fetchBatteryStatus()
                 withContext(Dispatchers.Main) {
-                    updateNotification(statusText)
-                }
+                    notificationManager.notify(notifId, buildNotification(statusText))}
                 delay(1000)
             }
         }
