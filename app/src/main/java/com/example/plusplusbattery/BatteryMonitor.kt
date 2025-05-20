@@ -58,6 +58,11 @@ fun BatteryMonitorContent(
         ListItem(
             headlineContent = {BatteryMonitorSwitch()}
         )
+        ListItem(
+            headlineContent = {
+                Text(text = stringResource(R.string.disable_battery_optimization), style = MaterialTheme.typography.bodySmall)
+            }
+        )
     }
 }
 
