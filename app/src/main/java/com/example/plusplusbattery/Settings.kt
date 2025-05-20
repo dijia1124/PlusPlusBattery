@@ -40,7 +40,7 @@ fun SettingsContent(
     navController: NavController,
     hasRoot: Boolean,
     batteryVM: BatteryInfoViewModel,
-    settingsVM: SettingsViewModel
+    settingsVM: SettingsViewModel,
 ) {
     val isRootMode by batteryVM.isRootMode.collectAsState()
     val showOnDash by batteryVM.showSwitchOnDashboard.collectAsState()
@@ -110,8 +110,6 @@ fun SettingsContent(
             modifier = Modifier.clickable { navController.navigate("about") },
             headlineContent = { Text(text = stringResource(R.string.about), style = MaterialTheme.typography.bodyLarge) }
         )
-        BatteryMonitorButton()
-        //todo testing purpose
     }
 }
 

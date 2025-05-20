@@ -9,6 +9,8 @@ class PrefsRepository(context: Context) {
 
     private val dataStore = context.dataStore
 
+    private val defaultVisibleEntries = emptySet<String>()
+
     val isRootModeFlow: Flow<Boolean> =
         dataStore.data.map { it[ROOT_MODE_KEY] == true }
 
@@ -17,6 +19,23 @@ class PrefsRepository(context: Context) {
 
     suspend fun setRootMode(enabled: Boolean) =
         dataStore.edit { it[ROOT_MODE_KEY] = enabled }
+
+    val visibleEntriesFlow: Flow<Set<String>> = dataStore.data
+        .map { prefs ->
+            prefs[MONITOR_VISIBLE_ENTRIES]
+                ?.takeIf { it.isNotBlank() }
+                ?.split(',')
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?.toSet()
+                ?: defaultVisibleEntries
+        }
+
+    suspend fun setVisibleEntries(keys: Set<String>) {
+        dataStore.edit { prefs ->
+            prefs[MONITOR_VISIBLE_ENTRIES] = keys.joinToString(",")
+        }
+    }
 
     suspend fun setShowSwitchOnDashboard(show: Boolean) =
         dataStore.edit { it[SHOW_SWITCH_ON_DASHBOARD] = show }

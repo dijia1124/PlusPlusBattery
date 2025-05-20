@@ -69,14 +69,17 @@ class BatteryMonitorService : Service() {
 
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
         val isRoot = prefsRepo.isRootModeFlow.first()
-        val infos: List<BatteryInfo> = if (isRoot) {
-            batteryRepo.getRootBatteryInfo()
+        val allInfos    = if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo()
+        else batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
+        val visibleEntries = prefsRepo.visibleEntriesFlow.first()
+        val filtered = if (visibleEntries.isEmpty()) {
+            allInfos
         } else {
-            val basic   = batteryRepo.getBasicBatteryInfo()
-            val nonRoot = batteryRepo.getNonRootVoltCurrPwr()
-            basic + nonRoot
+            allInfos.filter { info ->
+                visibleEntries.contains(info.title)
+            }
         }
-        infos.joinToString("\n") { info ->
+        filtered.joinToString("\n") { info ->
             val label = info.key ?: info.title
             "$label: ${info.value}"
         }

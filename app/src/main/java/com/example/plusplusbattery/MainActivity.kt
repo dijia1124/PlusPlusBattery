@@ -28,7 +28,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
@@ -49,6 +51,16 @@ class MainActivity : ComponentActivity() {
             )[SettingsViewModel::class.java]
         }
 
+        val battMonViewModel by lazy{
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                        BatteryMonitorSettingsViewModel(application) as T
+                }
+            )[BatteryMonitorSettingsViewModel::class.java]
+        }
+
         setContent {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
             Shell.getShell()
@@ -60,14 +72,19 @@ class MainActivity : ComponentActivity() {
             val useDarkTheme = if (followSystemTheme) sysDark else darkModeEnabled
 
             PlusPlusBatteryTheme(darkTheme = useDarkTheme) {
-                BottomNavigationBar(HistoryInfoViewModel(application), application, settingsViewModel)
+                BottomNavigationBar(HistoryInfoViewModel(application), application, settingsViewModel, battMonViewModel)
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
+fun BottomNavigationBar(
+    historyInfoViewModel: HistoryInfoViewModel,
+    application: Application,
+    settingsViewModel: SettingsViewModel,
+    batteryMonitorSettingsViewModel: BatteryMonitorSettingsViewModel
+) {
     val hasRoot by settingsViewModel.hasRoot.collectAsState()
     val prefsRepo = remember { PrefsRepository(application) }
     val historyRepo = remember { HistoryInfoRepository(application) }
@@ -86,9 +103,12 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
 
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
-        NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
+        NavRoute("dashboard", Icons.Default.Home, stringResource(R.string.nav_dashboard)),
+        NavRoute("battery_monitor", ImageVector.vectorResource(id = R.drawable.speed_24dp_1f1f1f_fill0_wght400_grad200_opsz24),
+            stringResource(R.string.monitor)
+        ),
         NavRoute("history", Icons.Filled.Star, stringResource(R.string.nav_history)),
-        NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings))
+        NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings)),
     )
     val navController = rememberNavController()
     Scaffold(
@@ -126,7 +146,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name),batteryInfoViewModel) }
+            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name), batteryInfoViewModel) }
             composable("history") { History(historyInfoViewModel, stringResource(R.string.history)) }
             composable("settings")  {
                 Settings(
@@ -138,6 +158,10 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
                 )
             }
             composable("about")     { About(stringResource(R.string.about)) }
+            composable("batt_mon_settings") {
+                BatteryMonitorSettings(batteryMonitorSettingsViewModel, stringResource(R.string.battery_monitor_entry_settings))
+            }
+            composable("battery_monitor") { BatteryMonitor(stringResource(R.string.battery_monitor), navController) }
         }
     }
 }

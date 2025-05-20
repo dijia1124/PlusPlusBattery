@@ -83,5 +83,8 @@
     <string name="notification_permission_denied">无法获取通知权限</string>
     <string name="battery_monitor">电池监控</string>
     <string name="initializing">初始化中…</string>
+    <string name="battery_monitor_entry_settings">电池监控条目设置</string>
+    <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">请选择你想要电池监控显示的条目:</string>
+    <string name="monitor">监控</string>
 
 </resources>
