@@ -76,7 +76,10 @@ class BatteryMonitorService : Service() {
             val nonRoot = batteryRepo.getNonRootVoltCurrPwr()
             basic + nonRoot
         }
-        infos.joinToString(separator = "\n") { "${it.title}: ${it.value}" }
+        infos.joinToString("\n") { info ->
+            val label = info.key ?: info.title
+            "$label: ${info.value}"
+        }
     }
 
     private fun startUpdating() {

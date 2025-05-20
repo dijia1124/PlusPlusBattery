@@ -173,47 +173,58 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 context.getString(R.string.remaining_charge_counter),
-                "$rm mAh"
+                "$rm mAh",
+                "battery_rm"
             ),
             BatteryInfo(
                 context.getString(R.string.full_charge_capacity_battery_fcc),
-                "$fcc mAh"
+                "$fcc mAh",
+                "battery_fcc"
             ),
             BatteryInfo(
                 context.getString(R.string.raw_full_charge_capacity_before_compensation),
-                "$rawFcc mAh"
+                "$rawFcc mAh",
+                "battery_fcc (raw)"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_health_battery_soh),
-                "$soh %"
+                "$soh %",
+                "battery_soh"
             ),
             BatteryInfo(
                 context.getString(R.string.raw_battery_health_before_compensation),
-                "$rawSoh %"
+                "$rawSoh %",
+                "battery_soh (raw)"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_qmax),
-                qMax
+                qMax,
+                "batt_qmax"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_under_voltage_threshold_vbat_uv),
-                "$vbatUv mV"
+                "$vbatUv mV",
+                "vbat_uv"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_serial_number_battery_sn),
-                sn
+                sn,
+                "battery_sn"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_manufacture_date_battery_manu_date),
-                batManDate
+                batManDate,
+                "battery_manu_date"
             ),
             BatteryInfo(
                 context.getString(R.string.battery_type_battery_type),
-                battType
+                battType,
+                "battery_type"
             ),
             BatteryInfo(
                 context.getString(R.string.design_capacity_design_capacity),
-                "$designCapacity mAh"
+                "$designCapacity mAh",
+                "design_capacity"
             ),
         )
     }
