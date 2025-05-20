@@ -6,7 +6,11 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlin.math.pow
 
 private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
@@ -15,6 +19,43 @@ private const val BCC_CURRENT_INDEX = 8
 class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
         context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+    private val settings by lazy { context.dataStore }
+
+    private val calibFlow = settings.data
+        .map { prefs ->
+            val isMult = prefs[MULTIPLY_KEY] != false
+            val mag    = prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0
+            if (isMult) 10.0.pow(mag.toDouble()) else 1/10.0.pow(mag.toDouble())
+        }
+
+    private val dualBattFlow: Flow<Int> = settings.data
+        .map { prefs -> if (prefs[DUAL_BATTERY_KEY] == true) 2 else 1 }
+
+    val isDualBattFlow: Flow<Boolean> = dualBattFlow
+        .map { it == 2 }
+
+    suspend fun setDualBatt(enabled: Boolean) {
+        settings.edit { it[DUAL_BATTERY_KEY] = enabled }
+    }
+
+    suspend fun setMultiplierPrefs(isMult: Boolean, mag: Int) {
+        settings.edit { prefs ->
+            prefs[MULTIPLY_KEY] = isMult
+            prefs[MULTIPLIER_MAGNITUDE_KEY] = mag
+        }
+    }
+
+    val isMultiplyFlow: Flow<Boolean> = settings.data
+        .map { prefs -> prefs[MULTIPLY_KEY] != false }
+
+    val selectedMagnitudeFlow: Flow<Int> = settings.data
+        .map { prefs -> prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0 }
+
+    val estimatedFccFlow: Flow<String> = settings.data
+        .map { prefs ->
+            prefs[ESTIMATED_FCC_KEY]?.toString()
+                ?: context.getString(R.string.estimating_full_charge_capacity)
+        }
 
     suspend fun getBasicBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO){
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -41,8 +82,9 @@ class BatteryInfoRepository(private val context: Context) {
         )
     }
 
-    suspend fun getRootBatteryInfo(calibMultiplier: Double, dualBattMultiplier: Int): List<BatteryInfo> =
-        withContext(Dispatchers.IO){
+    suspend fun getRootBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO){
+        val calibMultiplier = calibFlow.first()
+        val dualBattMultiplier  = dualBattFlow.first()
         var rootModeVoltage0 = 0
         var rootModeVoltage1 = 0
         var rootModeCurrent = 0
@@ -176,14 +218,16 @@ class BatteryInfoRepository(private val context: Context) {
         )
     }
 
-    fun getNonRootVoltCurrPwr(calibMultiplier: Double, dualBattMultiplier: Int): List<BatteryInfo> {
+    suspend fun getNonRootVoltCurrPwr(): List<BatteryInfo> = withContext(Dispatchers.IO){
+        val calibMultiplier = calibFlow.first()
+        val dualBattMultiplier  = dualBattFlow.first()
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
         val current =
             batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier
         val power = current * voltage * dualBattMultiplier / 1_000_000.0
 
-        return listOf(
+        listOf(
             BatteryInfo(context.getString(R.string.battery_voltage), "$voltage mV"),
             BatteryInfo(context.getString(R.string.battery_current), current.formatWithUnit("mA")),
             BatteryInfo(context.getString(R.string.power), power.formatWithUnit("W"))

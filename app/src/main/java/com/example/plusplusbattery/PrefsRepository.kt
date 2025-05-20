@@ -9,6 +9,18 @@ class PrefsRepository(context: Context) {
 
     private val dataStore = context.dataStore
 
+    val isRootModeFlow: Flow<Boolean> =
+        dataStore.data.map { it[ROOT_MODE_KEY] == true }
+
+    val showSwitchOnDashboardFlow: Flow<Boolean> =
+        dataStore.data.map { it[SHOW_SWITCH_ON_DASHBOARD] != false }
+
+    suspend fun setRootMode(enabled: Boolean) =
+        dataStore.edit { it[ROOT_MODE_KEY] = enabled }
+
+    suspend fun setShowSwitchOnDashboard(show: Boolean) =
+        dataStore.edit { it[SHOW_SWITCH_ON_DASHBOARD] = show }
+
     val darkModeEnabled: Flow<Boolean> =
         dataStore.data.map { it[DARK_MODE_KEY] == true }
 

@@ -241,7 +241,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                 isDualBatt = isDualBatt,
                                 isRootMode = isRootMode,
                                 context = context,
-                                onToggleDualBat = { batteryInfoViewModel.setDualBat(!isDualBatt) },
+                                onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }
                             )
                             10 -> BatteryCardWithCoeffTable(

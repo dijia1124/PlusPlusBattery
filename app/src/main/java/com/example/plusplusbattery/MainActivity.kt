@@ -69,6 +69,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application: Application, settingsViewModel: SettingsViewModel) {
     val hasRoot by settingsViewModel.hasRoot.collectAsState()
+    val prefsRepo = remember { PrefsRepository(application) }
     val historyRepo = remember { HistoryInfoRepository(application) }
     val batteryInfoRepository = remember { BatteryInfoRepository(application) }
     val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current)
@@ -77,7 +78,7 @@ fun BottomNavigationBar(historyInfoViewModel: HistoryInfoViewModel, application:
             viewModelStoreOwner,
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    return BatteryInfoViewModel(application, batteryInfoRepository, historyRepo) as T
+                    return BatteryInfoViewModel(application, batteryInfoRepository, prefsRepo, historyRepo) as T
                 }
             }
         )[BatteryInfoViewModel::class.java]

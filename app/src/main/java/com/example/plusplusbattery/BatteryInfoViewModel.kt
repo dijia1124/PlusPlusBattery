@@ -11,77 +11,54 @@ import kotlinx.coroutines.launch
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
-import androidx.datastore.preferences.core.edit
-import kotlinx.coroutines.flow.combine
-import kotlin.math.pow
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-private const val IS_DUAL_BATTERY = 2
-private const val IS_SINGLE_BATTERY = 1
-
-class BatteryInfoViewModel(application: Application, private val batteryInfoRepository: BatteryInfoRepository, private val historyInfoRepository: HistoryInfoRepository) : AndroidViewModel(application) {
+class BatteryInfoViewModel(application: Application, private val batteryInfoRepository: BatteryInfoRepository, private val prefsRepo: PrefsRepository, private val historyInfoRepository: HistoryInfoRepository) : AndroidViewModel(application) {
     private val context = application.applicationContext
-    private val dataStore = context.dataStore
 
     val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
 
-    val isRootMode: StateFlow<Boolean> = dataStore.data
-        .map { prefs -> prefs[ROOT_MODE_KEY] ?: false }
+    val isRootMode: StateFlow<Boolean> = prefsRepo.isRootModeFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     fun setRootMode(enabled: Boolean) = viewModelScope.launch {
-        dataStore.edit { prefs -> prefs[ROOT_MODE_KEY] = enabled }
+        prefsRepo.setRootMode(enabled)
     }
 
-    val showSwitchOnDashboard: StateFlow<Boolean> = dataStore.data
-        .map { it[SHOW_SWITCH_ON_DASHBOARD] != false }
+    val showSwitchOnDashboard: StateFlow<Boolean> = prefsRepo.showSwitchOnDashboardFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     fun setShowSwitchOnDashboard(show: Boolean) = viewModelScope.launch {
-        dataStore.edit { it[SHOW_SWITCH_ON_DASHBOARD] = show }
+        prefsRepo.setShowSwitchOnDashboard(show)
     }
 
-    val savedEstimatedFcc: StateFlow<String> = dataStore.data
-        .map { it[ESTIMATED_FCC_KEY]?.toString() ?: context.getString(R.string.estimating_full_charge_capacity) }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, context.getString(R.string.estimating_full_charge_capacity))
+    val savedEstimatedFcc: StateFlow<String> = batteryInfoRepository.estimatedFccFlow
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            getApplication<Application>().getString(R.string.estimating_full_charge_capacity)
+        )
 
-    val isDualBatt: StateFlow<Boolean> = dataStore.data
-        .map { it[DUAL_BATTERY_KEY] == true }
+    val isDualBatt: StateFlow<Boolean> = batteryInfoRepository.isDualBattFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    val dualBattMultiplier: StateFlow<Int> = isDualBatt
-        .map { if (it) IS_DUAL_BATTERY else IS_SINGLE_BATTERY }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, IS_SINGLE_BATTERY)
-
-    fun setDualBat(enabled: Boolean) {
-        viewModelScope.launch {
-            dataStore.edit { it[DUAL_BATTERY_KEY] = enabled }
-        }
+    fun setDualBatt(enabled: Boolean) = viewModelScope.launch {
+        batteryInfoRepository.setDualBatt(enabled)
     }
 
-    val isMultiply: StateFlow<Boolean> = dataStore.data
-        .map { it[MULTIPLY_KEY] != false }
+    val isMultiply: StateFlow<Boolean> = batteryInfoRepository.isMultiplyFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
-    val selectedMagnitude: StateFlow<Int> = dataStore.data
-        .map { it[MULTIPLIER_MAGNITUDE_KEY] ?: 0 }
+    val selectedMagnitude: StateFlow<Int> = batteryInfoRepository.selectedMagnitudeFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
-
-    val calibMultiplier: StateFlow<Double> = combine(isMultiply, selectedMagnitude) { isMult, mag ->
-        if (isMult) 10.0.pow(mag.toDouble()) else 1 / 10.0.pow(mag.toDouble())
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, 1.0)
 
     fun setMultiplierPrefs(isMultiply: Boolean, magnitude: Int) {
         viewModelScope.launch {
-            dataStore.edit {
-                it[MULTIPLY_KEY] = isMultiply
-                it[MULTIPLIER_MAGNITUDE_KEY] = magnitude
-            }
+            batteryInfoRepository.setMultiplierPrefs(isMultiply, magnitude)
         }
     }
 
@@ -92,12 +69,12 @@ class BatteryInfoViewModel(application: Application, private val batteryInfoRepo
 
     suspend fun refreshBatteryInfoWithRoot(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
-            batteryInfoRepository.getRootBatteryInfo(calibMultiplier.value, dualBattMultiplier.value)
+            batteryInfoRepository.getRootBatteryInfo()
         }
 
     suspend fun refreshNonRootVoltCurrPwr(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
-            batteryInfoRepository.getNonRootVoltCurrPwr(calibMultiplier.value, dualBattMultiplier.value)
+            batteryInfoRepository.getNonRootVoltCurrPwr()
         }
 
     suspend fun refreshEstimatedFcc(): BatteryInfo =

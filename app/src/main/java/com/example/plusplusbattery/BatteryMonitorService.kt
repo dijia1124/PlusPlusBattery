@@ -66,9 +66,8 @@ class BatteryMonitorService : Service() {
     }
 
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
-        val infos: List<BatteryInfo> = batteryRepo.getRootBatteryInfo(1.0, 1)
+        val infos: List<BatteryInfo> = batteryRepo.getRootBatteryInfo()
         //todo: testing purpose
-        //todo: use prefrepo
 
         infos.joinToString(separator = "\n") { "${it.title}: ${it.value}" }
     }
