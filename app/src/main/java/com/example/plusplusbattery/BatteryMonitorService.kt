@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -29,6 +30,7 @@ class BatteryMonitorService : Service() {
     private lateinit var notificationManager: NotificationManager
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val prefsRepo by lazy { PrefsRepository(applicationContext) }
+    private var updateJob: Job? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -39,9 +41,13 @@ class BatteryMonitorService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP) {
-            scope.cancel()
+            updateJob?.cancel()
             stopSelf()
             return START_NOT_STICKY
+        }
+
+        if (updateJob?.isActive == true) {
+            return START_STICKY
         }
 
         startForeground(notifId, buildNotification(getString(R.string.initializing)))
@@ -52,7 +58,7 @@ class BatteryMonitorService : Service() {
     override fun onBind(intent: Intent?) = null
 
     override fun onDestroy() {
-        scope.cancel()
+        updateJob?.cancel()
         super.onDestroy()
     }
 
@@ -105,7 +111,7 @@ class BatteryMonitorService : Service() {
     }
 
     private fun startUpdating() {
-        scope.launch {
+        updateJob = scope.launch {
             while (isActive) {
                 Log.d("BatteryMonitorService", "Updating notification")
                 val statusText = fetchBatteryStatus()
