@@ -154,7 +154,7 @@ fun BottomNavigationBar(
             composable("batt_mon_settings") {
                 BatteryMonitorSettings(batteryMonitorSettingsViewModel, stringResource(R.string.battery_monitor_entry_settings))
             }
-            composable("battery_monitor") { BatteryMonitor(stringResource(R.string.battery_monitor), navController) }
+            composable("battery_monitor") { BatteryMonitor(stringResource(R.string.battery_monitor), navController, batteryMonitorSettingsViewModel) }
         }
     }
 }

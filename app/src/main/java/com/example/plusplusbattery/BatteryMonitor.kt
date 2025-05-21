@@ -1,7 +1,5 @@
 package com.example.plusplusbattery
 
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
@@ -19,8 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,18 +27,18 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.plusplusbattery.ui.components.AppScaffold
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 @Composable
-fun BatteryMonitor(currentTitle: String, navController: NavController) {
+fun BatteryMonitor(currentTitle: String, navController: NavController, battMonVM: BatteryMonitorSettingsViewModel) {
     AppScaffold(currentTitle) {
-        BatteryMonitorContent(navController)
+        BatteryMonitorContent(navController, battMonVM)
     }
 }
 
 @Composable
 fun BatteryMonitorContent(
     navController: NavController,
+    battMonVM: BatteryMonitorSettingsViewModel
 ) {
     val scrollState = rememberScrollState()
 
@@ -56,7 +53,7 @@ fun BatteryMonitorContent(
             headlineContent = { Text(text = stringResource(R.string.battery_monitor_entry_settings), style = MaterialTheme.typography.bodyLarge) }
         )
         ListItem(
-            headlineContent = {BatteryMonitorSwitch()}
+            headlineContent = {BatteryMonitorSwitch(battMonVM)}
         )
         ListItem(
             headlineContent = {
@@ -67,23 +64,22 @@ fun BatteryMonitorContent(
 }
 
 @Composable
-fun BatteryMonitorSwitch() {
+fun BatteryMonitorSwitch(battMonVM: BatteryMonitorSettingsViewModel) {
     val context = LocalContext.current
-    var isMonitoring by remember { mutableStateOf(false) }
+    val isMonitoring by battMonVM.isMonitoring.collectAsState()
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted: Boolean ->
         if (granted) {
-            startMonitor(context)
-            isMonitoring = true
+            battMonVM.startMonitor()
         } else {
             Toast.makeText(
                 context,
                 context.getString(R.string.notification_permission_denied),
                 Toast.LENGTH_SHORT
             ).show()
-            isMonitoring = false
+            battMonVM.stopMonitor()
         }
     }
 
@@ -101,34 +97,19 @@ fun BatteryMonitorSwitch() {
                                 context,
                                 android.Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED -> {
-                                startMonitor(context)
-                                isMonitoring = true
+                                battMonVM.startMonitor()
                             }
                             else -> {
                                 permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                             }
                         }
                     } else {
-                        startMonitor(context)
-                        isMonitoring = true
+                        battMonVM.startMonitor()
                     }
                 } else {
-                    stopMonitor(context)
-                    isMonitoring = false
+                    battMonVM.stopMonitor()
                 }
             }
         )
-    }
-}
-
-private fun startMonitor(context: Context) {
-    Intent(context, BatteryMonitorService::class.java).also { intent ->
-        ContextCompat.startForegroundService(context, intent)
-    }
-}
-
-private fun stopMonitor(context: Context) {
-    Intent(context, BatteryMonitorService::class.java).also { intent ->
-        context.stopService(intent)
     }
 }
