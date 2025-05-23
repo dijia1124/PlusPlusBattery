@@ -94,7 +94,7 @@ suspend fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> = withC
         }
     }
 
-    val ddResult = Shell.cmd("su -c dd if=$sourcePath of=$targetPath").exec()
+    val ddResult = Shell.cmd("su -c 'dd if=$sourcePath of=$targetPath'").exec()
     if (!ddResult.isSuccess) {
         emptyList<Triple<Int, Int, Int>>()
     }
