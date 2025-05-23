@@ -109,7 +109,7 @@ class BatteryInfoRepository(private val context: Context) {
 
         rootModeCurrent =
             safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
-                (batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier).toInt()
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toInt()
             }) { rootReadFailed = true }
         rootModePower = if (!rootReadFailed) {
             (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
