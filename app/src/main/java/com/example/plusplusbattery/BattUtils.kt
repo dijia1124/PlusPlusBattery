@@ -90,13 +90,13 @@ suspend fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> = withC
         if (checkFallback == "exists") {
             sourcePath = fallbackPath
         } else {
-            emptyList<Triple<Int, Int, Int>>()
+            return@withContext emptyList<Triple<Int, Int, Int>>()
         }
     }
 
     val ddResult = Shell.cmd("su -c 'dd if=$sourcePath of=$targetPath'").exec()
     if (!ddResult.isSuccess) {
-        emptyList<Triple<Int, Int, Int>>()
+        return@withContext emptyList<Triple<Int, Int, Int>>()
     }
 
     try {
