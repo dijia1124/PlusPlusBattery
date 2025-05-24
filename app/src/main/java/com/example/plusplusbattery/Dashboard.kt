@@ -53,6 +53,9 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.plusplusbattery.ui.components.AppScaffold
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -170,43 +173,50 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     var lastSize by remember { mutableStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(isRootMode, hasRoot) {
+    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
         }
-        while (true) {
-            val basicList = batteryInfoViewModel.refreshBatteryInfo()
-            val displayList  = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
+        lifecycleOwner.lifecycle
+            .repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    val basicList = batteryInfoViewModel.refreshBatteryInfo()
+                    val displayList = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
 
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                    val intent = context.registerReceiver(
+                        null,
+                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+                    )
 
-            intent?.let {
-                if (isRootMode) {
-                    val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
-                    displayList.addAll(rootList)
+                    intent?.let {
+                        if (isRootMode) {
+                            val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
+                            displayList.addAll(rootList)
+                        } else {
+                            // use system battery manager api if root access is not available
+                            val nonRootVCPList =
+                                batteryInfoViewModel.refreshNonRootVoltCurrPwr()
+                            displayList.addAll(nonRootVCPList)
+                            val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
+                            displayList.add(fccInfo)
+                            lastSize = displayList.size
+                        }
+                        batteryInfoList.clear()
+                        batteryInfoList.addAll(displayList)
+                        // scroll to bottom if root mode is enabled
+                        if (isRootMode &&
+                            batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE &&
+                            batteryInfoList.size != lastSize
+                        ) {
+                            listState.scrollToItem(batteryInfoList.lastIndex)
+                        }
+                        lastSize = batteryInfoList.size
+                    }
+                    delay(1000)
                 }
-                else {
-                    // use system battery manager api if root access is not available
-                    val nonRootVCPList = batteryInfoViewModel.refreshNonRootVoltCurrPwr()
-                    displayList.addAll(nonRootVCPList)
-                    val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
-                    displayList.add(fccInfo)
-                    lastSize = displayList.size
-                }
-                batteryInfoList.clear()
-                batteryInfoList.addAll(displayList)
-                // scroll to bottom if root mode is enabled
-                if (isRootMode &&
-                    batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE &&
-                    batteryInfoList.size != lastSize
-                ) {
-                    listState.scrollToItem(batteryInfoList.lastIndex)
-                }
-                lastSize = batteryInfoList.size
             }
-            delay(1000)
-        }
     }
 
     LaunchedEffect(Unit) {
