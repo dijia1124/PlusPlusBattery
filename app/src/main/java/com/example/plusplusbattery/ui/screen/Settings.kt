@@ -1,5 +1,7 @@
 package com.example.plusplusbattery.ui.screen
 
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -23,6 +25,7 @@ import com.example.plusplusbattery.vm.BatteryInfoViewModel
 import com.example.plusplusbattery.R
 import com.example.plusplusbattery.vm.SettingsViewModel
 import com.example.plusplusbattery.ui.components.AppScaffold
+import androidx.core.net.toUri
 
 @Composable
 fun Settings(currentTitle: String, navController: NavController, hasRoot: Boolean, batteryVM: BatteryInfoViewModel, settingsVM: SettingsViewModel) {
@@ -99,6 +102,20 @@ fun SettingsContent(
                     checked = darkModeEnabled,
                     onCheckedChange = { settingsVM.setDarkMode(it) },
                     enabled = !followSystemTheme
+                )
+            }
+        )
+        ListItem(
+            modifier = Modifier.clickable {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = "https://github.com/dijia1124/PlusPlusBattery/releases".toUri()
+                }
+                context.startActivity(intent)
+            },
+            headlineContent = {
+                Text(
+                    text = stringResource(R.string.check_for_updates),
+                    style = MaterialTheme.typography.bodyLarge
                 )
             }
         )
