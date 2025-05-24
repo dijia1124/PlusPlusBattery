@@ -5,14 +5,15 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import android.util.Log
+import android.content.IntentFilter
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
@@ -32,8 +33,28 @@ class BatteryMonitorService : Service() {
     private val prefsRepo by lazy { PrefsRepository(applicationContext) }
     private var updateJob: Job? = null
 
+    // BroadcastReceiver to pause/resume updates
+    // Note: For ColorOS 15, auto-launch needs to be enabled for this app
+    // to receive screen on/off events.
+    // AOSP roms do not need extra setups.
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_OFF -> updateJob?.cancel()
+                Intent.ACTION_SCREEN_ON  ->
+                    if (updateJob?.isActive != true) startUpdating()
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
+        // Register for screen on/off
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+        }
+        registerReceiver(screenReceiver, filter)
         batteryRepo = BatteryInfoRepository(applicationContext)
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
@@ -59,6 +80,7 @@ class BatteryMonitorService : Service() {
 
     override fun onDestroy() {
         updateJob?.cancel()
+        unregisterReceiver(screenReceiver)
         super.onDestroy()
     }
 
@@ -113,7 +135,7 @@ class BatteryMonitorService : Service() {
     private fun startUpdating() {
         updateJob = scope.launch {
             while (isActive) {
-                Log.d("BatteryMonitorService", "Updating notification")
+//                Log.d("BatteryMonitorService", "Updating notification")
                 val statusText = fetchBatteryStatus()
                 withContext(Dispatchers.Main) {
                     notificationManager.notify(notifId, buildNotification(statusText))}
@@ -121,5 +143,4 @@ class BatteryMonitorService : Service() {
             }
         }
     }
-    //todo: stop at screen-off?
 }
