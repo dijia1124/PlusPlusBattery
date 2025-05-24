@@ -1,8 +1,10 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.vm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.plusplusbattery.data.model.HistoryInfo
+import com.example.plusplusbattery.data.repository.HistoryInfoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch

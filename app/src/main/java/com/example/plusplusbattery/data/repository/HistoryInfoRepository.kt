@@ -1,11 +1,14 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.repository
 
 import android.app.Application
+import com.example.plusplusbattery.data.local.HistoryInfoDao
+import com.example.plusplusbattery.data.local.HistoryInfoDatabase
+import com.example.plusplusbattery.data.model.HistoryInfo
 import kotlinx.coroutines.flow.Flow
 
 class HistoryInfoRepository (application: Application) {
     private var historyInfoDao: HistoryInfoDao =
-        HistoryInfoDatabase.getDatabase(application).historyInfoDao()
+        HistoryInfoDatabase.Companion.getDatabase(application).historyInfoDao()
     val allHistoryInfos: Flow<List<HistoryInfo>> = historyInfoDao.getAllHistoryInfos()
     suspend fun insert(historyInfo: HistoryInfo) {
         historyInfoDao.insertHistoryInfo(historyInfo)

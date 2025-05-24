@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.ui.screen
 
 import android.content.Context
 import android.content.Intent
@@ -56,10 +56,13 @@ import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.plusplusbattery.data.model.BatteryInfo
+import com.example.plusplusbattery.vm.BatteryInfoViewModel
+import com.example.plusplusbattery.R
+import com.example.plusplusbattery.data.util.getBoolString
+import com.example.plusplusbattery.data.util.readTermCoeff
 import com.example.plusplusbattery.ui.components.AppScaffold
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val BATTERY_INFO_LIST_ROOT_SIZE = 19
 
@@ -429,27 +432,5 @@ fun MultiplierSelector(
                 }
             }
         }
-    }
-}
-
-suspend fun safeRootReadInt(
-    context: Context,
-    path: String,
-    index: Int,
-    fallback: () -> Int,
-    onFallback: () -> Unit
-): Int = withContext(Dispatchers.IO) {
-    try {
-        val valueStr = readBatteryInfo(path, index)
-        val parsed = valueStr?.toIntOrNull()
-        if (parsed != null) {
-            parsed
-        } else {
-            onFallback()
-            fallback()
-        }
-    } catch (e: Exception) {
-        onFallback()
-        fallback()
     }
 }

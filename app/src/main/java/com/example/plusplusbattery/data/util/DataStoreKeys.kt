@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.util
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey

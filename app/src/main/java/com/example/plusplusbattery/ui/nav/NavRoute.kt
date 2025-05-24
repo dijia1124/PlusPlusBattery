@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.ui.nav
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

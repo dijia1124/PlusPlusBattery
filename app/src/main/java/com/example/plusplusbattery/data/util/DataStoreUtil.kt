@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.util
 
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore

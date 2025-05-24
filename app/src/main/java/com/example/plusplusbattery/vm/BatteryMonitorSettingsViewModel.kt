@@ -1,10 +1,13 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.vm
 
 import android.app.Application
 import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.plusplusbattery.data.repository.BatteryInfoRepository
+import com.example.plusplusbattery.data.repository.PrefsRepository
+import com.example.plusplusbattery.service.BatteryMonitorService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,7 +48,7 @@ class BatteryMonitorSettingsViewModel(
     // Holds the set of user-selected titles (entries) from preferences
     val visibleEntries: StateFlow<Set<String>> =
         prefsRepo.visibleEntriesFlow
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptySet())
+            .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, emptySet())
 
     init {
         viewModelScope.launch {

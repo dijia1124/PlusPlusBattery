@@ -1,8 +1,9 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.vm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.plusplusbattery.data.repository.PrefsRepository
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,10 +40,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     val darkModeEnabled = prefs.darkModeEnabled.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = false
+        viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), initialValue = false
     )
     val followSystemTheme = prefs.followSystemTheme.stateIn(
-        viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = true
+        viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), initialValue = true
     )
 
     fun setDarkMode(enabled: Boolean) = viewModelScope.launch {

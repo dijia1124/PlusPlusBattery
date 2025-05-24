@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -10,6 +10,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.app.NotificationCompat
+import com.example.plusplusbattery.data.repository.PrefsRepository
+import com.example.plusplusbattery.R
+import com.example.plusplusbattery.data.repository.BatteryInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -107,7 +110,8 @@ class BatteryMonitorService : Service() {
             .setContentTitle(getString(R.string.battery_monitor))
             .setContentText(content)
             .setStyle(NotificationCompat.BigTextStyle().bigText(content)) // allow more lines
-            .addAction(R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24,
+            .addAction(
+                R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24,
                 getString(R.string.stop), stopPending)
             .setOngoing(true)            // ongoing notification
             .setOnlyAlertOnce(true)      // silently update the notification
@@ -116,8 +120,9 @@ class BatteryMonitorService : Service() {
 
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
         val isRoot = prefsRepo.isRootModeFlow.first()
-        val allInfos    = if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo()
-        else batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
+        val allInfos =
+            if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo()
+            else batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
         val visibleEntries = prefsRepo.visibleEntriesFlow.first()
         val filtered = if (visibleEntries.isEmpty()) {
             allInfos
@@ -138,7 +143,8 @@ class BatteryMonitorService : Service() {
 //                Log.d("BatteryMonitorService", "Updating notification")
                 val statusText = fetchBatteryStatus()
                 withContext(Dispatchers.Main) {
-                    notificationManager.notify(notifId, buildNotification(statusText))}
+                    notificationManager.notify(notifId, buildNotification(statusText))
+                }
                 delay(1000)
             }
         }

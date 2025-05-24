@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable
@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.plusplusbattery.vm.BatteryInfoViewModel
+import com.example.plusplusbattery.R
+import com.example.plusplusbattery.vm.SettingsViewModel
 import com.example.plusplusbattery.ui.components.AppScaffold
 
 @Composable

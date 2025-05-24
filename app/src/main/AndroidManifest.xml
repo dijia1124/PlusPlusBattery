@@ -27,7 +27,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".BatteryMonitorService"
+            android:name=".service.BatteryMonitorService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
     </application>

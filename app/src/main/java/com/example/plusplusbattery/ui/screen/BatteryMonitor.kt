@@ -1,5 +1,6 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.ui.screen
 
+import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
@@ -27,6 +28,8 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.plusplusbattery.ui.components.AppScaffold
 import androidx.compose.runtime.getValue
+import com.example.plusplusbattery.vm.BatteryMonitorSettingsViewModel
+import com.example.plusplusbattery.R
 
 @Composable
 fun BatteryMonitor(currentTitle: String, navController: NavController, battMonVM: BatteryMonitorSettingsViewModel) {
@@ -95,12 +98,12 @@ fun BatteryMonitorSwitch(battMonVM: BatteryMonitorSettingsViewModel) {
                         when {
                             ContextCompat.checkSelfPermission(
                                 context,
-                                android.Manifest.permission.POST_NOTIFICATIONS
+                                Manifest.permission.POST_NOTIFICATIONS
                             ) == PackageManager.PERMISSION_GRANTED -> {
                                 battMonVM.startMonitor()
                             }
                             else -> {
-                                permissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                         }
                     } else {

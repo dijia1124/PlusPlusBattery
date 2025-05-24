@@ -30,6 +30,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.plusplusbattery.ui.nav.NavRoute
+import com.example.plusplusbattery.ui.screen.About
+import com.example.plusplusbattery.ui.screen.BatteryMonitor
+import com.example.plusplusbattery.ui.screen.BatteryMonitorSettings
+import com.example.plusplusbattery.ui.screen.Dashboard
+import com.example.plusplusbattery.ui.screen.History
+import com.example.plusplusbattery.ui.screen.Settings
+import com.example.plusplusbattery.vm.BatteryInfoViewModel
+import com.example.plusplusbattery.vm.BatteryMonitorSettingsViewModel
+import com.example.plusplusbattery.vm.HistoryInfoViewModel
+import com.example.plusplusbattery.vm.SettingsViewModel
 import com.topjohnwu.superuser.Shell
 
 class MainActivity : ComponentActivity() {
@@ -97,10 +108,16 @@ fun BottomNavigationBar(
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
-        NavRoute("battery_monitor", ImageVector.vectorResource(id = R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24),
+        NavRoute(
+            "battery_monitor",
+            ImageVector.vectorResource(id = R.drawable.speed_24dp_1f1f1f_fill1_wght400_grad0_opsz24),
             stringResource(R.string.monitor)
         ),
-        NavRoute("history", ImageVector.vectorResource(id = R.drawable.library_books_24dp_1f1f1f_fill1_wght400_grad0_opsz24), stringResource(R.string.nav_history)),
+        NavRoute(
+            "history",
+            ImageVector.vectorResource(id = R.drawable.library_books_24dp_1f1f1f_fill1_wght400_grad0_opsz24),
+            stringResource(R.string.nav_history)
+        ),
         NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings)),
     )
     val navController = rememberNavController()
@@ -139,22 +156,42 @@ fun BottomNavigationBar(
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            composable("dashboard") { Dashboard(hasRoot, stringResource(R.string.app_name), batteryInfoViewModel) }
-            composable("history") { History(historyInfoViewModel, stringResource(R.string.history)) }
+            composable("dashboard") {
+                Dashboard(
+                    hasRoot,
+                    stringResource(R.string.app_name),
+                    batteryInfoViewModel
+                )
+            }
+            composable("history") {
+                History(
+                    historyInfoViewModel,
+                    stringResource(R.string.history)
+                )
+            }
             composable("settings")  {
                 Settings(
                     currentTitle = stringResource(R.string.settings),
                     navController = navController,
                     hasRoot = hasRoot,
-                    batteryVM  = batteryInfoViewModel,
+                    batteryVM = batteryInfoViewModel,
                     settingsVM = settingsViewModel
                 )
             }
             composable("about")     { About(stringResource(R.string.about)) }
             composable("batt_mon_settings") {
-                BatteryMonitorSettings(batteryMonitorSettingsViewModel, stringResource(R.string.battery_monitor_entry_settings))
+                BatteryMonitorSettings(
+                    batteryMonitorSettingsViewModel,
+                    stringResource(R.string.battery_monitor_entry_settings)
+                )
             }
-            composable("battery_monitor") { BatteryMonitor(stringResource(R.string.battery_monitor), navController, batteryMonitorSettingsViewModel) }
+            composable("battery_monitor") {
+                BatteryMonitor(
+                    stringResource(R.string.battery_monitor),
+                    navController,
+                    batteryMonitorSettingsViewModel
+                )
+            }
         }
     }
 }

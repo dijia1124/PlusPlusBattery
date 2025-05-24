@@ -1,4 +1,4 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.model
 
 import androidx.room.Entity
 import androidx.room.Index

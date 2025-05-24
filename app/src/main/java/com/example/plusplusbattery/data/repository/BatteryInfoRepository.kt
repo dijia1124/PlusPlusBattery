@@ -1,10 +1,26 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.repository
 
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.datastore.preferences.core.edit
+import com.example.plusplusbattery.data.util.DUAL_BATTERY_KEY
+import com.example.plusplusbattery.data.util.ESTIMATED_FCC_KEY
+import com.example.plusplusbattery.data.util.MULTIPLIER_MAGNITUDE_KEY
+import com.example.plusplusbattery.data.util.MULTIPLY_KEY
+import com.example.plusplusbattery.R
+import com.example.plusplusbattery.data.util.calcRawFcc
+import com.example.plusplusbattery.data.util.calcRawSoh
+import com.example.plusplusbattery.data.model.BatteryInfo
+import com.example.plusplusbattery.data.util.dataStore
+import com.example.plusplusbattery.data.util.formatWithUnit
+import com.example.plusplusbattery.data.util.getHealthString
+import com.example.plusplusbattery.data.util.getStatusString
+import com.example.plusplusbattery.data.util.readBatteryInfo
+import com.example.plusplusbattery.data.util.readBatteryLogMap
+import com.example.plusplusbattery.data.util.readTermCoeff
+import com.example.plusplusbattery.data.util.safeRootReadInt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -57,7 +73,7 @@ class BatteryInfoRepository(private val context: Context) {
                 ?: context.getString(R.string.estimating_full_charge_capacity)
         }
 
-    suspend fun getBasicBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO){
+    suspend fun getBasicBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
         val temperature = intent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -999) ?: 0
@@ -82,9 +98,9 @@ class BatteryInfoRepository(private val context: Context) {
         )
     }
 
-    suspend fun getRootBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO){
+    suspend fun getRootBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
         val calibMultiplier = calibFlow.first()
-        val dualBattMultiplier  = dualBattFlow.first()
+        val dualBattMultiplier = dualBattFlow.first()
         var rootModeVoltage0 = 0
         var rootModeVoltage1 = 0
         var rootModeCurrent = 0
@@ -146,7 +162,8 @@ class BatteryInfoRepository(private val context: Context) {
             vbatUv.toIntOrNull() ?: 0,
             readTermCoeff(context)
         ).let { resultValue ->
-            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toDouble().formatWithUnit("%")
+            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toDouble()
+                .formatWithUnit("%")
         }
         val rawFcc = calcRawFcc(
             fcc.toIntOrNull() ?: 0,
@@ -157,7 +174,7 @@ class BatteryInfoRepository(private val context: Context) {
             if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
         }
         val logMap = readBatteryLogMap()
-        val qMax = logMap["batt_qmax"] ?.let { "$it mAh"} ?: context.getString(R.string.unknown)
+        val qMax = logMap["batt_qmax"]?.let { "$it mAh" } ?: context.getString(R.string.unknown)
         listOf(
             BatteryInfo(
                 context.getString(R.string.battery_voltage),
@@ -229,9 +246,9 @@ class BatteryInfoRepository(private val context: Context) {
         )
     }
 
-    suspend fun getNonRootVoltCurrPwr(): List<BatteryInfo> = withContext(Dispatchers.IO){
+    suspend fun getNonRootVoltCurrPwr(): List<BatteryInfo> = withContext(Dispatchers.IO) {
         val calibMultiplier = calibFlow.first()
-        val dualBattMultiplier  = dualBattFlow.first()
+        val dualBattMultiplier = dualBattFlow.first()
         val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
         val current =
@@ -246,33 +263,35 @@ class BatteryInfoRepository(private val context: Context) {
     }
 
     suspend fun getEstimatedFcc(savedEstimatedFcc: String): BatteryInfo =
-        withContext(Dispatchers.IO){
-        val currentNow = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-        val batteryLevel = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
+        withContext(Dispatchers.IO) {
+            val currentNow =
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+            val batteryLevel =
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-        if (currentNow == 0 && batteryLevel == 100) {
-            val chargeCounter = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
-            val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
-            if (fullChargeCapacity > 0) {
-                context.dataStore.edit { prefs ->
-                    prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
+            if (currentNow == 0 && batteryLevel == 100) {
+                val chargeCounter =
+                    batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
+                val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
+                if (fullChargeCapacity > 0) {
+                    context.dataStore.edit { prefs ->
+                        prefs[ESTIMATED_FCC_KEY] = fullChargeCapacity
+                    }
                 }
             }
-        }
-        var estimatedFcc = context.getString(R.string.estimating_full_charge_capacity)
+            var estimatedFcc = context.getString(R.string.estimating_full_charge_capacity)
 
-        if (savedEstimatedFcc != context.getString(R.string.estimating_full_charge_capacity)) {
-            estimatedFcc = savedEstimatedFcc
-            BatteryInfo(
-                context.getString(R.string.full_charge_capacity),
-                "$estimatedFcc mAh"
-            )
+            if (savedEstimatedFcc != context.getString(R.string.estimating_full_charge_capacity)) {
+                estimatedFcc = savedEstimatedFcc
+                BatteryInfo(
+                    context.getString(R.string.full_charge_capacity),
+                    "$estimatedFcc mAh"
+                )
+            } else {
+                BatteryInfo(
+                    context.getString(R.string.full_charge_capacity),
+                    estimatedFcc
+                )
+            }
         }
-        else{
-            BatteryInfo(
-                context.getString(R.string.full_charge_capacity),
-                estimatedFcc
-            )
-        }
-    }
 }

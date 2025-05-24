@@ -1,7 +1,8 @@
-package com.example.plusplusbattery
+package com.example.plusplusbattery.data.util
 
 import android.content.Context
 import android.os.BatteryManager
+import com.example.plusplusbattery.R
 import com.topjohnwu.superuser.Shell
 import java.nio.ByteBuffer
 import java.io.File
@@ -165,4 +166,27 @@ suspend fun readBatteryLogMap(
     heads.indices
         .filter { it > 0 && (fields == null || heads[it] in fields) }
         .associate { idx -> heads[idx] to values[idx] }
+}
+
+
+suspend fun safeRootReadInt(
+    context: Context,
+    path: String,
+    index: Int,
+    fallback: () -> Int,
+    onFallback: () -> Unit
+): Int = withContext(Dispatchers.IO) {
+    try {
+        val valueStr = readBatteryInfo(path, index)
+        val parsed = valueStr?.toIntOrNull()
+        if (parsed != null) {
+            parsed
+        } else {
+            onFallback()
+            fallback()
+        }
+    } catch (e: Exception) {
+        onFallback()
+        fallback()
+    }
 }
