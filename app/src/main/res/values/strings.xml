@@ -88,5 +88,5 @@
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
     <string name="stop">Stop</string>
-    <string name="disable_battery_optimization">Disable battery optimization to make the monitor service work properly. For ColorOS 15, enabling auto-launch for this app in system settings might also be necessary to pause the monitor service when screen-off and resume when screen-on</string>
+    <string name="disable_battery_optimization">Disable battery optimization to make the monitor service work properly. For ColorOS 15, enabling auto-launch for this app in system settings might also be necessary to pause the monitor service when screen-off and resume when screen-on.</string>
 </resources>
