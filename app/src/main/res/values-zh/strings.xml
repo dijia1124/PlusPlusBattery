@@ -87,6 +87,6 @@
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">请选择你想要电池监控显示的条目:</string>
     <string name="monitor">监控</string>
     <string name="stop">停止</string>
-    <string name="disable_battery_optimization">加入电池优化白名单以便电池监控服务正常运行。</string>
+    <string name="disable_battery_optimization">加入电池优化白名单以便电池监控服务正常运行。在 ColorOS 15 上也许需要在系统设置中为加加电池打开自启动权限以便熄屏暂停电池监控和亮屏继续电池监控正常运行。</string>
 
 </resources>
