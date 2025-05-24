@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -175,7 +176,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember { mutableStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
+    var lastSize by remember { mutableIntStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
     val lifecycleOwner = LocalLifecycleOwner.current
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {

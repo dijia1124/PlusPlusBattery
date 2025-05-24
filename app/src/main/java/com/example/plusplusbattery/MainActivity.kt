@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
 import com.example.plusplusbattery.ui.nav.NavRoute
 import com.example.plusplusbattery.ui.screen.About
 import com.example.plusplusbattery.ui.screen.BatteryMonitor
@@ -44,6 +45,12 @@ import com.example.plusplusbattery.vm.SettingsViewModel
 import com.topjohnwu.superuser.Shell
 
 class MainActivity : ComponentActivity() {
+
+    // This list contains the top-level routes that will show the bottom navigation bar
+    private val topLevelRoutes = listOf(
+        "dashboard", "battery_monitor", "history", "settings"
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -79,6 +86,17 @@ class MainActivity : ComponentActivity() {
             )[BatteryInfoViewModel::class.java]
         }
 
+        val historyInfoViewModel by lazy {
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return HistoryInfoViewModel(application) as T
+                    }
+                }
+            )[HistoryInfoViewModel::class.java]
+        }
+
         setContent {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
             Shell.getShell()
@@ -86,25 +104,73 @@ class MainActivity : ComponentActivity() {
             val darkModeEnabled   by settingsViewModel.darkModeEnabled.collectAsState()
             val followSystemTheme by settingsViewModel.followSystemTheme.collectAsState()
             val sysDark           = isSystemInDarkTheme()
-
             val useDarkTheme = if (followSystemTheme) sysDark else darkModeEnabled
-
             PlusPlusBatteryTheme(darkTheme = useDarkTheme) {
-                BottomNavigationBar(HistoryInfoViewModel(application), settingsViewModel, battMonViewModel, batteryInfoViewModel)
+                val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+                val hasRoot by settingsViewModel.hasRoot.collectAsState()
+                Scaffold(
+                    // Only show the top bar when on a top-level screen
+                    bottomBar = {
+                        if (currentRoute in topLevelRoutes) {
+                            BottomNavigationBar(navController)
+                        }
+                    }
+                )
+                { paddingValues ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "dashboard",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = paddingValues.calculateBottomPadding())
+                    ) {
+                        composable("dashboard") {
+                            Dashboard(
+                                hasRoot,
+                                stringResource(R.string.app_name),
+                                batteryInfoViewModel
+                            )
+                        }
+                        composable("history") {
+                            History(
+                                historyInfoViewModel,
+                                stringResource(R.string.history)
+                            )
+                        }
+                        composable("settings")  {
+                            Settings(
+                                currentTitle = stringResource(R.string.settings),
+                                navController = navController,
+                                hasRoot = hasRoot,
+                                batteryVM = batteryInfoViewModel,
+                                settingsVM = settingsViewModel
+                            )
+                        }
+                        composable("about")     { About(stringResource(R.string.about)) }
+                        composable("batt_mon_settings") {
+                            BatteryMonitorSettings(
+                                battMonViewModel,
+                                stringResource(R.string.battery_monitor_entry_settings)
+                            )
+                        }
+                        composable("battery_monitor") {
+                            BatteryMonitor(
+                                stringResource(R.string.battery_monitor),
+                                navController,
+                                battMonViewModel
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun BottomNavigationBar(
-    historyInfoViewModel: HistoryInfoViewModel,
-    settingsViewModel: SettingsViewModel,
-    batteryMonitorSettingsViewModel: BatteryMonitorSettingsViewModel,
-    batteryInfoViewModel: BatteryInfoViewModel,
-) {
-    val hasRoot by settingsViewModel.hasRoot.collectAsState()
-
+fun BottomNavigationBar(navController: NavController) {
     // Define the list of navigation routes using the data class
     val navRoutes = listOf(
         NavRoute("dashboard", Icons.Filled.Home, stringResource(R.string.nav_dashboard)),
@@ -120,78 +186,27 @@ fun BottomNavigationBar(
         ),
         NavRoute("settings", Icons.Filled.Settings, stringResource(R.string.settings)),
     )
-    val navController = rememberNavController()
-    Scaffold(
-        bottomBar = {
-            NavigationBar()
-            {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-
-                navRoutes.forEach { navRoute ->
-                    NavigationBarItem(
-                        alwaysShowLabel = false,
-                        icon = { Icon(navRoute.icon, contentDescription =
-                            navRoute.label) },
-                        label = { Text(navRoute.label) },
-                        selected = currentDestination?.route == navRoute.route,
-                        onClick = {
-                            navController.navigate(navRoute.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    inclusive = false
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    NavigationBar()
+    {
+        navRoutes.forEach { navRoute ->
+            NavigationBarItem(
+                alwaysShowLabel = false,
+                icon = { Icon(navRoute.icon, contentDescription =
+                    navRoute.label) },
+                label = { Text(navRoute.label) },
+                selected = currentDestination?.route == navRoute.route,
+                onClick = {
+                    navController.navigate(navRoute.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = false
                         }
-                    )
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
-            }
-        }
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = "dashboard",
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = paddingValues.calculateBottomPadding())
-        ) {
-            composable("dashboard") {
-                Dashboard(
-                    hasRoot,
-                    stringResource(R.string.app_name),
-                    batteryInfoViewModel
-                )
-            }
-            composable("history") {
-                History(
-                    historyInfoViewModel,
-                    stringResource(R.string.history)
-                )
-            }
-            composable("settings")  {
-                Settings(
-                    currentTitle = stringResource(R.string.settings),
-                    navController = navController,
-                    hasRoot = hasRoot,
-                    batteryVM = batteryInfoViewModel,
-                    settingsVM = settingsViewModel
-                )
-            }
-            composable("about")     { About(stringResource(R.string.about)) }
-            composable("batt_mon_settings") {
-                BatteryMonitorSettings(
-                    batteryMonitorSettingsViewModel,
-                    stringResource(R.string.battery_monitor_entry_settings)
-                )
-            }
-            composable("battery_monitor") {
-                BatteryMonitor(
-                    stringResource(R.string.battery_monitor),
-                    navController,
-                    batteryMonitorSettingsViewModel
-                )
-            }
+            )
         }
     }
 }

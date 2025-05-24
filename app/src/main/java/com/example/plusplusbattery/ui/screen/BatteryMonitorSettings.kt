@@ -42,7 +42,7 @@ fun BatteryMonitorSettingsContent(
 
     Column(
         Modifier
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
             .verticalScroll(scrollState)
     ) {
         Text(stringResource(R.string.please_select_the_entries_you_want_to_show_in_the_battery_monitor))
