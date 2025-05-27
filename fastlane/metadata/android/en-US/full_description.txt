@@ -1,0 +1,56 @@
+PlusPlus Battery gives you everything you ever wanted to know about your phone’s
+battery — from simple level and power readings to deep-dive metrics.
+It is designed and tested on modern OnePlus/Oppo/Realme devices,
+but also works on most recent AOSP-based ROMs.
+
+──────────────────────────
+■  KEY FEATURES
+──────────────────────────
+• Real-time dashboard
+  – Level, voltage, current, charge / discharge power
+  – Works with and without root
+
+• Battery-health estimation
+  – Without root access: Calculates Full-Charge-Capacity when the
+    battery is exactly 100 % and reaches 0 mA current
+
+• Cycle-count history
+  – Saves today’s cycle count to a local Room database each time you open the
+    app, and shows the trend in a timeline view
+
+• Persistent monitor notification
+  – Ongoing notification-area battery monitor with customizable metrics
+
+• Optional root mode
+  – Reads additional sysfs nodes under /sys/class/oplus_chg/battery and some other directories, including
+    • Current remaining capacity (battery_rm)
+    • FCC (battery_fcc) and SOH (battery_soh)
+    • Raw, uncompensated FCC/SOH values (especially for silicon batteries)
+    • Under-voltage shut-down threshold (vbat_uv)
+    • Battery serial number, manufacture date, Qmax, and more
+
+──────────────────────────
+■  INSTALLATION
+──────────────────────────
+1. Make sure your handset runs a recent OxygenOS / ColorOS build or another
+   up-to-date Android ROM.
+2. Install the APK (or via F-Droid once this package is published).
+3. Launch and grant the requested permissions.
+4. (Optional) Grant root to unlock advanced metrics.
+5. (Optional) To make the monitor service work as intended, disable battery optimisation for
+   PlusPlusBattery and, on ColorOS 15, enable “Auto-launch”.
+
+──────────────────────────
+■  PRIVACY & OPEN SOURCE
+──────────────────────────
+There are **no ads, no trackers, no internet permissions**.
+• Application source code ─ MIT Licence
+• Material Icons (Google Fonts) ─ Apache Licence 2.0
+
+See the LICENSE and THIRD_PARTY_NOTICES files in the repository for full texts.
+
+Special thanks to github user @shminer for the original FCC/SOH compensation research and
+algorithm contributions.
+
+GitHub  ➜  https://github.com/dijia1124/plusplusbattery
+Issues  ➜  https://github.com/dijia1124/plusplusbattery/issues
