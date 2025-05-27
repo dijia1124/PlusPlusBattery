@@ -162,8 +162,7 @@ class BatteryInfoRepository(private val context: Context) {
             vbatUv.toIntOrNull() ?: 0,
             readTermCoeff(context)
         ).let { resultValue ->
-            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toDouble()
-                .formatWithUnit("%")
+            if (resultValue < 0.0001f) context.getString(R.string.unknown) else resultValue.toString()
         }
         val rawFcc = calcRawFcc(
             fcc.toIntOrNull() ?: 0,
@@ -210,7 +209,10 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 context.getString(R.string.raw_battery_health_before_compensation),
-                rawSoh,
+                rawSoh
+                    .toDoubleOrNull()
+                    ?.formatWithUnit("%")
+                    ?: rawSoh,
                 "battery_soh (raw)"
             ),
             BatteryInfo(
