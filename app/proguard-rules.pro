@@ -23,7 +23,7 @@
 -keep class androidx.compose.runtime.Composable { *; }
 -keep class androidx.compose.ui.graphics.vector.VectorPainter { *; }
 
--keep class com.example.plusplusbattery.navigation.** { *; }
+-keep class com.dijia1124.plusplusbattery.navigation.** { *; }
 
 -keep class * extends androidx.room.RoomDatabase { *; }
 -keepclassmembers class * extends androidx.room.RoomDatabase {

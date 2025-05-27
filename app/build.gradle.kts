@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.plusplusbattery"
+    namespace = "com.dijia1124.plusplusbattery"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.plusplusbattery"
+        applicationId = "com.dijia1124.plusplusbattery"
         minSdk = 31
         targetSdk = 35
         versionCode = 19
