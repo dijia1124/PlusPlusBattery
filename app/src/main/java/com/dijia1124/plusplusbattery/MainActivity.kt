@@ -130,7 +130,8 @@ class MainActivity : ComponentActivity() {
                             Dashboard(
                                 hasRoot,
                                 stringResource(R.string.app_name),
-                                batteryInfoViewModel
+                                batteryInfoViewModel,
+                                settingsViewModel
                             )
                         }
                         composable("history") {

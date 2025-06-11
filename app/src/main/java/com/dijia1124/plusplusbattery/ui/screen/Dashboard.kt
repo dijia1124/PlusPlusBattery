@@ -63,15 +63,16 @@ import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
 
 private const val BATTERY_INFO_LIST_ROOT_SIZE = 19
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel) {
+fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
     AppScaffold(currentTitle) {
-        DashBoardContent(hasRoot, batteryInfoViewModel)
+        DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
     }
 }
 
@@ -163,7 +164,7 @@ fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewModel) {
+fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
     val listState = rememberLazyListState()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -218,7 +219,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         }
                         lastSize = batteryInfoList.size
                     }
-                    delay(1000)
+                    delay(settingsViewModel.refreshInterval.value.toLong())
                 }
             }
     }

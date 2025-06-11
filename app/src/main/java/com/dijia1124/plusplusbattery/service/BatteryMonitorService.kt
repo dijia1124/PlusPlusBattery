@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
@@ -27,7 +28,7 @@ class BatteryMonitorService : Service() {
     companion object {
         private const val ACTION_STOP = "com.dijia1124.plusplusbattery.ACTION_STOP"
     }
-
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private lateinit var batteryRepo: BatteryInfoRepository
     private val channelId = "battery_monitor"
     private val notifId = 1001
@@ -35,6 +36,8 @@ class BatteryMonitorService : Service() {
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private val prefsRepo by lazy { PrefsRepository(applicationContext) }
     private var updateJob: Job? = null
+
+    @Volatile private var currentIntervalMs: Int = 1000
 
     // BroadcastReceiver to pause/resume updates
     // Note: For ColorOS 15, auto-launch needs to be enabled for this app
@@ -52,6 +55,13 @@ class BatteryMonitorService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        serviceScope.launch {
+            prefsRepo.refreshInterval
+                .collect { newInterval ->
+                    // update once the value changes
+                    currentIntervalMs = newInterval
+                }
+        }
         // Register for screen on/off
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
@@ -84,6 +94,7 @@ class BatteryMonitorService : Service() {
     override fun onDestroy() {
         updateJob?.cancel()
         unregisterReceiver(screenReceiver)
+        serviceScope.cancel()
         super.onDestroy()
     }
 
@@ -145,7 +156,7 @@ class BatteryMonitorService : Service() {
                 withContext(Dispatchers.Main) {
                     notificationManager.notify(notifId, buildNotification(statusText))
                 }
-                delay(1000)
+                delay(currentIntervalMs.toLong())
             }
         }
     }

@@ -4,19 +4,27 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavController
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -26,6 +34,7 @@ import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
 import androidx.core.net.toUri
+import kotlin.math.roundToInt
 
 @Composable
 fun Settings(currentTitle: String, navController: NavController, hasRoot: Boolean, batteryVM: BatteryInfoViewModel, settingsVM: SettingsViewModel) {
@@ -93,7 +102,6 @@ fun SettingsContent(
                 )
             }
         )
-
         ListItem(
             headlineContent = {
                 Text(text = stringResource(R.string.enable_dark_mode), style = MaterialTheme.typography.bodyLarge)
@@ -104,6 +112,12 @@ fun SettingsContent(
                     onCheckedChange = { settingsVM.setDarkMode(it) },
                     enabled = !followSystemTheme
                 )
+            }
+        )
+        RefreshIntervalListItem(
+            refreshInterval = refreshInterval,
+            onIntervalChange = { newRate ->
+                settingsVM.setRefreshInterval(newRate)
             }
         )
         ListItem(
@@ -124,11 +138,90 @@ fun SettingsContent(
             modifier = Modifier.clickable { navController.navigate("about") },
             headlineContent = { Text(text = stringResource(R.string.about), style = MaterialTheme.typography.bodyLarge) }
         )
-        ListItem(
-            // on click: pop up a dialog to set the refresh interval
-//            modifier = Modifier.clickable(),
-            headlineContent = { Text(text = stringResource(R.string.refresh_interval), style = MaterialTheme.typography.bodyLarge) },
-        )
+    }
+}
 
+@Composable
+fun RefreshIntervalListItem(
+    refreshInterval: Int,
+    onIntervalChange: (Int) -> Unit,
+) {
+    var showDialog by remember { mutableStateOf(false) }
+    val tickValues = listOf(200, 500, 800, 1000, 2000, 3000, 5000, 10000)
+    val defaultIndex = tickValues.indexOf(1000).coerceAtLeast(0)
+
+    // current slider index
+    var sliderIndex by remember(refreshInterval) {
+        mutableIntStateOf(
+            tickValues.indexOfFirst { it >= refreshInterval }
+                .let { if (it == -1) tickValues.lastIndex else it }
+        )
+    }
+
+    ListItem(
+        modifier = Modifier
+            .clickable { showDialog = true },
+        headlineContent = {
+            Text(
+                text = stringResource(R.string.set_refresh_interval_ms),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        supportingContent = {
+            Text(
+                text = "${tickValues[sliderIndex]}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = {
+                Text(stringResource(R.string.set_refresh_interval_ms))
+            },
+            text = {
+                Column {
+                    Text(
+                        text = stringResource(R.string.current_value, tickValues[sliderIndex]),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.oem_refresh_interval_limitation_description),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        text = stringResource(R.string.refresh_interval_battery_drain_description),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    Slider(
+                        value = sliderIndex.toFloat(),
+                        onValueChange = { pos ->
+                            val idx = pos.roundToInt().coerceIn(0, tickValues.lastIndex)
+                            sliderIndex = idx
+                            onIntervalChange(tickValues[idx])
+                        },
+                        valueRange = 0f..(tickValues.lastIndex).toFloat(),
+                        steps = tickValues.size - 2
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(stringResource(R.string.close))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    sliderIndex = defaultIndex
+                    onIntervalChange(tickValues[defaultIndex])
+                    showDialog = false
+                }) {
+                    Text(stringResource(R.string.reset))
+                }
+            }
+        )
     }
 }

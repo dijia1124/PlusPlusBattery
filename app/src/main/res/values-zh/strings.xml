@@ -89,6 +89,9 @@
     <string name="stop">停止</string>
     <string name="disable_battery_optimization">加入电池优化白名单以便电池监控服务正常运行。在 ColorOS 15 上也许需要在系统设置中为加加电池打开自启动权限以便熄屏暂停电池监控和亮屏继续电池监控正常运行。</string>
     <string name="check_for_updates">检查更新</string>
-    <string name="refresh_interval">刷新间隔</string>
+    <string name="set_refresh_interval_ms">设置刷新间隔 (毫秒)</string>
+    <string name="current_value">当前数值: %1$s</string>
+    <string name="oem_refresh_interval_limitation_description">仅对Root模式生效。非Root模式受OEM限制无法短于系统设定值。</string>
+    <string name="refresh_interval_battery_drain_description">刷新间隔设置过短可能导致多余耗电。</string>
 
 </resources>
