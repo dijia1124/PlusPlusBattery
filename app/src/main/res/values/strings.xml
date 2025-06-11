@@ -90,4 +90,5 @@
     <string name="stop">Stop</string>
     <string name="disable_battery_optimization">Disable battery optimization to make the monitor service work properly. For ColorOS 15, enabling auto-launch for this app in system settings might also be necessary to pause the monitor service when screen-off and resume when screen-on.</string>
     <string name="check_for_updates">Check for updates</string>
+    <string name="refresh_interval">Refresh Interval</string>
 </resources>

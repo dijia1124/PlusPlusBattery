@@ -14,3 +14,4 @@ val SHOW_SWITCH_ON_DASHBOARD = booleanPreferencesKey("show_root_switch_dashboard
 val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
 val FOLLOW_SYSTEM_THEME_KEY = booleanPreferencesKey("follow_system_theme")
 val MONITOR_VISIBLE_ENTRIES = stringPreferencesKey("monitor_visible_entries")
+val REFRESH_INTERVAL_KEY = intPreferencesKey("refresh_rate")

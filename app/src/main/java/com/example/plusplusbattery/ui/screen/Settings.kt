@@ -1,7 +1,6 @@
 package com.example.plusplusbattery.ui.screen
 
 import android.content.Intent
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -11,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,6 +47,7 @@ fun SettingsContent(
     val scrollState = rememberScrollState()
     val darkModeEnabled by settingsVM.darkModeEnabled.collectAsState()
     val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
+    val refreshInterval by settingsVM.refreshInterval.collectAsState()
 
     Column(
         modifier = Modifier
@@ -123,5 +124,11 @@ fun SettingsContent(
             modifier = Modifier.clickable { navController.navigate("about") },
             headlineContent = { Text(text = stringResource(R.string.about), style = MaterialTheme.typography.bodyLarge) }
         )
+        ListItem(
+            // on click: pop up a dialog to set the refresh interval
+//            modifier = Modifier.clickable(),
+            headlineContent = { Text(text = stringResource(R.string.refresh_interval), style = MaterialTheme.typography.bodyLarge) },
+        )
+
     }
 }

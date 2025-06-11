@@ -38,6 +38,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             false
         }
     }
+    val refreshInterval = prefs.refreshInterval.stateIn(
+        viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), initialValue = 1000
+    )
 
     val darkModeEnabled = prefs.darkModeEnabled.stateIn(
         viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), initialValue = false
@@ -45,6 +48,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     val followSystemTheme = prefs.followSystemTheme.stateIn(
         viewModelScope, SharingStarted.Companion.WhileSubscribed(5000), initialValue = true
     )
+
+    fun setRefreshInterval(rate: Int) = viewModelScope.launch {
+        prefs.setRefreshInterval(rate)
+    }
 
     fun setDarkMode(enabled: Boolean) = viewModelScope.launch {
         prefs.setDarkMode(enabled)
