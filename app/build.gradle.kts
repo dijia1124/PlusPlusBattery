@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "com.example.plusplusbattery"
+    namespace = "com.dijia1124.plusplusbattery"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.plusplusbattery"
+        applicationId = "com.dijia1124.plusplusbattery"
         minSdk = 31
         targetSdk = 35
-        versionCode = 19
-        versionName = "2.2.4"
+        versionCode = 20
+        versionName = "2.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -38,6 +38,15 @@ android {
     buildFeatures {
         compose = true
     }
+    android {
+        dependenciesInfo {
+            // Disables dependency metadata when building APKs.
+            includeInApk = false
+            // Disables dependency metadata when building Android App Bundles.
+            includeInBundle = false
+        }
+    }
+
 }
 
 dependencies {
