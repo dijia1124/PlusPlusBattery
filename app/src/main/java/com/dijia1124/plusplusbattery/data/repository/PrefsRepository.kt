@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
+import com.dijia1124.plusplusbattery.data.util.REFRESH_INTERVAL_KEY
 import com.dijia1124.plusplusbattery.data.util.ROOT_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.SHOW_SWITCH_ON_DASHBOARD
 import com.dijia1124.plusplusbattery.data.util.dataStore
@@ -16,6 +17,13 @@ class PrefsRepository(context: Context) {
     private val dataStore = context.dataStore
 
     private val defaultVisibleEntries = emptySet<String>()
+
+    val refreshInterval: Flow<Int> =
+        dataStore.data.map { it[REFRESH_INTERVAL_KEY] ?: 1000 }
+
+    suspend fun setRefreshInterval(rate: Int) {
+        dataStore.edit { it[REFRESH_INTERVAL_KEY] = rate }
+    }
 
     val isRootModeFlow: Flow<Boolean> =
         dataStore.data.map { it[ROOT_MODE_KEY] == true }
