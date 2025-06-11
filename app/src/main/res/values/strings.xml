@@ -14,8 +14,8 @@
         - Charge Cycle Count: The number of charge cycles the battery has gone through.\n
         - Battery Current: The instantaneous battery current in milliamperes.\n
         - Full Charge Capacity: The estimated full charge capacity of the battery in milliampere-hours.\n
-          The Full Charge Capacity is calculated when the battery is fully charged.\n
-          Charge complete only happens when the current is 0 and battery level is 100%.\n
+          The Full Charge Capacity is calculated when charge complete.\n
+          Charge complete only happens when Battery Level is charged to 100% and Battery Current equals 0 mA or very close to 0 mA.\n
         - Root Mode (OnePlus + ColorOS15/OxygenOS15 exclusive):\n
         - Full Charge Capacity (battery_fcc): Value read by cat /sys/class/oplus_chg/battery/battery_fcc.\n
         - Battery Health (battery_soh): Value read by cat /sys/class/oplus_chg/battery/battery_soh.\n

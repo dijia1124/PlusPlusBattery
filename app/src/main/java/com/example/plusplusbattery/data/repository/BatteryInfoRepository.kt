@@ -31,6 +31,7 @@ import kotlin.math.pow
 private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
 private const val BCC_CURRENT_INDEX = 8
+private const val CURRENT_FULL_IN_MA = 25
 
 class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
@@ -271,7 +272,7 @@ class BatteryInfoRepository(private val context: Context) {
             val batteryLevel =
                 batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
-            if (currentNow == 0 && batteryLevel == 100) {
+            if (kotlin.math.abs(currentNow) <= CURRENT_FULL_IN_MA && batteryLevel == 100) {
                 val chargeCounter =
                     batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
                 val fullChargeCapacity = (chargeCounter / (batteryLevel / 100.0)).toInt() / 1000
