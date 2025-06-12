@@ -84,7 +84,7 @@
     <string name="notification_permission_denied">Notification permission denied</string>
     <string name="battery_monitor">Battery Monitor</string>
     <string name="initializing">Initializing…</string>
-    <string name="battery_monitor_entry_settings">Battery Monitor Entry Settings</string>
+    <string name="battery_monitor_entry_settings">Monitor Entry Settings</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
     <string name="stop">Stop</string>

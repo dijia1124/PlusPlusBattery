@@ -149,9 +149,10 @@ class MainActivity : ComponentActivity() {
                                 settingsVM = settingsViewModel
                             )
                         }
-                        composable("about")     { About(stringResource(R.string.about)) }
+                        composable("about")     { About(stringResource(R.string.about), navController) }
                         composable("batt_mon_settings") {
                             BatteryMonitorSettings(
+                                navController,
                                 battMonViewModel,
                                 stringResource(R.string.battery_monitor_entry_settings)
                             )

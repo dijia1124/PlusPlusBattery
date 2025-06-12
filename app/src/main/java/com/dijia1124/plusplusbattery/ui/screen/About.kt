@@ -12,14 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import com.dijia1124.plusplusbattery.ui.components.BackIcon
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun About(currentTitle: String) {
-    AppScaffold(currentTitle) {
+fun About(currentTitle: String, navController: NavController) {
+    AppScaffold(currentTitle,
+        navigationIcon = { BackIcon(navController)
+        },) {
         AboutScreen()
     }
 }

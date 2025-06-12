@@ -18,16 +18,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
 import com.dijia1124.plusplusbattery.vm.BatteryMonitorSettingsViewModel
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import com.dijia1124.plusplusbattery.ui.components.BackIcon
 
 @Composable
 fun BatteryMonitorSettings(
+    navController: NavController,
     batteryMonVM: BatteryMonitorSettingsViewModel,
     currentTitle: String,
 ) {
-    AppScaffold(currentTitle) {
+    AppScaffold(currentTitle,
+        navigationIcon = { BackIcon(navController)
+        },
+    ) {
         BatteryMonitorSettingsContent(batteryMonVM)
     }
 }
