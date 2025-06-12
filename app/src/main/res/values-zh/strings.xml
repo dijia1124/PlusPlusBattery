@@ -14,8 +14,8 @@
     - 循环计数：电池充放电的次数。\n
     - 电流：当前电池的瞬时电流（毫安）。\n
     - 完全充满时的容量：估算的电池完全充满时的容量（毫安时）。\n
-    完全充满时的容量会在电池充满时进行计算：\n
-    仅当电量为100%且电流等于0或极为接近0时，才视为电池充满。\n
+    完全充满时的容量会在电池充满时显示：\n
+    仅当电量为 100% 且电流在 0-20 mA 之间时，才视为电池充满。\n
     - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
