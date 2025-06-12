@@ -1,10 +1,10 @@
-# PlusPlusBattery - 一加电池信息查看工具
+# PlusPlusBattery - 加加电池 （第三方欧加手机电池信息查看工具）
 
 简体中文 | [English](./README.md)
 
 ## 简介
 
-`PlusPlusBattery` 是一款适合一加宝宝体质的简单电池信息显示和电池寿命估算应用，提供实时电池状态监测，并能在特定条件下评估电池的完全充电容量和硅碳负极电池未经补偿的相对真实的容量和健康度。Oppo和Realme机型也适用。
+`加加电池` 是一款适合一加宝宝体质的简单电池信息显示和电池寿命估算应用，提供实时电池状态监测，并能在特定条件下评估电池的完全充电容量和硅碳负极电池未经补偿的相对真实的容量和健康度。Oppo和Realme机型也适用。
 
 ## 特性
 
@@ -23,7 +23,7 @@
 - **电池生产日期（battery_manu_date）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。
 - **Qmax (batt_qmax) （Root模式）**: Qmax 指的是电池的化学容量。该容量的值与负载无关。这是电池在极低负载电流下能够释放的容量，通常以 mAh 表示。在系统中，此值会因某些条件而发生变化。
 
-## Downloads
+## 下载
 
 - [F-Droid Release](https://f-droid.org/en/packages/com.dijia1124.plusplusbattery/)
 - [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)

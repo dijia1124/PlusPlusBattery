@@ -1,4 +1,4 @@
-# PlusPlusBattery - OnePlus Battery Info Viewer
+# PlusPlusBattery - Battery Info Viewer for OPlus Devices
 
 [简体中文](./README.zh.md) | English
 
