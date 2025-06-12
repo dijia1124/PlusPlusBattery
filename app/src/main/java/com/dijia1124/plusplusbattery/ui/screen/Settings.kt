@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -209,12 +210,12 @@ fun RefreshIntervalListItem(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showDialog = false }) {
+                Button(onClick = { showDialog = false }) {
                     Text(stringResource(R.string.close))
                 }
             },
             dismissButton = {
-                TextButton(onClick = {
+                Button(onClick = {
                     sliderIndex = defaultIndex
                     onIntervalChange(tickValues[defaultIndex])
                     showDialog = false
