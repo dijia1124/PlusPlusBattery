@@ -23,6 +23,11 @@
 - **Battery Manufacture Date (battery_manu_date) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_manu_date`.
 - **Qmax (batt_qmax) (Root Mode)**: Qmax refers to the chemical capacity of the battery. The value of this capacity is load independent. This is the capacity that can be released by a battery under very low load current, usually expressed in mAh. In the system, this value changes triggered by some conditions.
 
+## Downloads
+
+- [F-Droid Release](https://f-droid.org/en/packages/com.dijia1124.plusplusbattery/)
+- [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)
+
 ## Installation
 
 1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 15), or a relatively new AOSP-based ROM.

@@ -23,6 +23,11 @@
 - **电池生产日期（battery_manu_date）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。
 - **Qmax (batt_qmax) （Root模式）**: Qmax 指的是电池的化学容量。该容量的值与负载无关。这是电池在极低负载电流下能够释放的容量，通常以 mAh 表示。在系统中，此值会因某些条件而发生变化。
 
+## Downloads
+
+- [F-Droid Release](https://f-droid.org/en/packages/com.dijia1124.plusplusbattery/)
+- [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)
+
 ## 安装
 
 1. 确保您的一加设备运行较新的ColorOS或OxygenOS（比如ColorOS 15)，或是较新的类原生系统。
