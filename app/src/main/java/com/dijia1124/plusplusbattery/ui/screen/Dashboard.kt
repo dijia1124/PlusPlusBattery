@@ -60,6 +60,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
+import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
@@ -252,8 +253,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             .padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        when (index) {
-                            6 -> BatteryCardWithCalibration(
+                        when (batteryInfoList[index].type) {
+                            BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
                                 info = info,
                                 isDualBatt = isDualBatt,
                                 isRootMode = isRootMode,
@@ -261,7 +262,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                 onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }
                             )
-                            10 -> BatteryCardWithCoeffTable(
+                            BatteryInfoType.RAW_FCC, BatteryInfoType.RAW_SOH -> BatteryCardWithCoeffTable(
                                 info = info,
                                 onShowInfo = {
                                     coroutineScope.launch{
