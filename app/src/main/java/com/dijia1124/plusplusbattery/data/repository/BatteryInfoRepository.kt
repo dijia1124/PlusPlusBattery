@@ -13,6 +13,7 @@ import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.util.calcRawFcc
 import com.dijia1124.plusplusbattery.data.util.calcRawSoh
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
+import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -82,20 +83,31 @@ class BatteryInfoRepository(private val context: Context) {
         val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
         val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
         listOf(
-            BatteryInfo(context.getString(R.string.battery_level), "$level %"),
             BatteryInfo(
-                context.getString(R.string.battery_temperature),
-                "${temperature / 10.0} °C"
+                BatteryInfoType.LEVEL,
+                "$level %",
+                false
             ),
             BatteryInfo(
-                context.getString(R.string.battery_status),
-                getStatusString(status, context)
+                BatteryInfoType.TEMP,
+                "${temperature / 10.0} °C",
+                false
             ),
             BatteryInfo(
-                context.getString(R.string.battery_health),
-                getHealthString(health, context)
+                BatteryInfoType.STATUS,
+                getStatusString(status, context),
+                false
             ),
-            BatteryInfo(context.getString(R.string.battery_cycle_count), cycleCount.toString()),
+            BatteryInfo(
+                BatteryInfoType.HEALTH,
+                getHealthString(health, context),
+                false
+            ),
+            BatteryInfo(
+                BatteryInfoType.CYCLE_COUNT,
+                cycleCount.toString(),
+                false
+            ),
         )
     }
 
@@ -177,74 +189,66 @@ class BatteryInfoRepository(private val context: Context) {
         val qMax = logMap["batt_qmax"]?.let { "$it mAh" } ?: context.getString(R.string.unknown)
         listOf(
             BatteryInfo(
-                context.getString(R.string.battery_voltage),
-                "$rootModeVoltage0 / $rootModeVoltage1 mV"
+                BatteryInfoType.VOLTAGE,
+                "$rootModeVoltage0 / $rootModeVoltage1 mV",
+                false
             ),
             BatteryInfo(
-                context.getString(R.string.battery_current),
-                (rootModeCurrent * calibMultiplier).formatWithUnit("mA")
+                BatteryInfoType.CURRENT,
+                (rootModeCurrent * calibMultiplier).formatWithUnit("mA"),
+                false
             ),
             BatteryInfo(
-                context.getString(R.string.power),
-                rootModePower.formatWithUnit("W")
+                BatteryInfoType.POWER,
+                rootModePower.formatWithUnit("W"),
+                false
             ),
             BatteryInfo(
-                context.getString(R.string.remaining_charge_counter),
-                "$rm mAh",
-                "battery_rm"
+                BatteryInfoType.RM,
+                "$rm mAh"
             ),
             BatteryInfo(
-                context.getString(R.string.full_charge_capacity_battery_fcc),
-                "$fcc mAh",
-                "battery_fcc"
+                BatteryInfoType.FCC,
+                "$fcc mAh"
             ),
             BatteryInfo(
-                context.getString(R.string.raw_full_charge_capacity_before_compensation),
-                "$rawFcc mAh",
-                "battery_fcc (raw)"
+                BatteryInfoType.RAW_FCC,
+                "$rawFcc mAh"
             ),
             BatteryInfo(
-                context.getString(R.string.battery_health_battery_soh),
-                "$soh %",
-                "battery_soh"
+                BatteryInfoType.SOH,
+                "$soh %"
             ),
             BatteryInfo(
-                context.getString(R.string.raw_battery_health_before_compensation),
+                BatteryInfoType.RAW_SOH,
                 rawSoh
                     .toDoubleOrNull()
                     ?.formatWithUnit("%")
-                    ?: rawSoh,
-                "battery_soh (raw)"
+                    ?: rawSoh
             ),
             BatteryInfo(
-                context.getString(R.string.battery_qmax),
-                qMax,
-                "batt_qmax"
+                BatteryInfoType.QMAX,
+                qMax
             ),
             BatteryInfo(
-                context.getString(R.string.battery_under_voltage_threshold_vbat_uv),
-                "$vbatUv mV",
-                "vbat_uv"
+                BatteryInfoType.VBAT_UV,
+                "$vbatUv mV"
             ),
             BatteryInfo(
-                context.getString(R.string.battery_serial_number_battery_sn),
-                sn,
-                "battery_sn"
+                BatteryInfoType.SN,
+                sn
             ),
             BatteryInfo(
-                context.getString(R.string.battery_manufacture_date_battery_manu_date),
-                batManDate,
-                "battery_manu_date"
+                BatteryInfoType.MANU_DATE,
+                batManDate
             ),
             BatteryInfo(
-                context.getString(R.string.battery_type_battery_type),
-                battType,
-                "battery_type"
+                BatteryInfoType.BATTERY_TYPE,
+                battType
             ),
             BatteryInfo(
-                context.getString(R.string.design_capacity_design_capacity),
+                BatteryInfoType.DESIGN_CAPACITY,
                 "$designCapacity mAh",
-                "design_capacity"
             ),
         )
     }
@@ -259,9 +263,9 @@ class BatteryInfoRepository(private val context: Context) {
         val power = current * voltage * dualBattMultiplier / 1_000_000.0
 
         listOf(
-            BatteryInfo(context.getString(R.string.battery_voltage), "$voltage mV"),
-            BatteryInfo(context.getString(R.string.battery_current), current.formatWithUnit("mA")),
-            BatteryInfo(context.getString(R.string.power), power.formatWithUnit("W"))
+            BatteryInfo(BatteryInfoType.VOLTAGE, "$voltage mV", false),
+            BatteryInfo(BatteryInfoType.CURRENT, current.formatWithUnit("mA"), false),
+            BatteryInfo(BatteryInfoType.POWER, power.formatWithUnit("W"), false)
         )
     }
 
@@ -287,13 +291,15 @@ class BatteryInfoRepository(private val context: Context) {
             if (savedEstimatedFcc != context.getString(R.string.estimating_full_charge_capacity)) {
                 estimatedFcc = savedEstimatedFcc
                 BatteryInfo(
-                    context.getString(R.string.full_charge_capacity),
-                    "$estimatedFcc mAh"
+                    BatteryInfoType.EST_FCC,
+                    "$estimatedFcc mAh",
+                    false
                 )
             } else {
                 BatteryInfo(
-                    context.getString(R.string.full_charge_capacity),
-                    estimatedFcc
+                    BatteryInfoType.EST_FCC,
+                    estimatedFcc,
+                    false
                 )
             }
         }

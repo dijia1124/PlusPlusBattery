@@ -51,7 +51,7 @@
     <string name="no">No</string>
     <string name="unknown">Unknown</string>
     <string name="not_charging">Not Charging</string>
-    <string name="power">Power</string>
+    <string name="battery_power">Battery Power</string>
     <string name="multiply">Multiply</string>
     <string name="divide">Divide</string>
     <string name="multiplier">%1$sMultiplier</string>

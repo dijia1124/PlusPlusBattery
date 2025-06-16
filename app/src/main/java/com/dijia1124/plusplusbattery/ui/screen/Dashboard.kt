@@ -79,7 +79,7 @@ fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: Batt
 @Composable
 fun NormalBatteryCard(info: BatteryInfo) {
     Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-        Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+        Text(text = stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
         Text(
             text = info.value,
             style = MaterialTheme.typography.bodyLarge,
@@ -99,7 +99,7 @@ fun BatteryCardWithCalibration(
 ) {
     Row {
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(id = info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
             Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
         }
         if (isRootMode) {
@@ -134,7 +134,7 @@ fun BatteryCardWithCoeffTable(
 ) {
     Row {
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(id = info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
             Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.weight(1f))

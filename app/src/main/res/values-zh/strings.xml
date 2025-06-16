@@ -50,7 +50,7 @@
     <string name="no">否</string>
     <string name="unknown">未知</string>
     <string name="not_charging">非充电中</string>
-    <string name="power">功率</string>
+    <string name="battery_power">电池功率</string>
     <string name="multiply">乘以</string>
     <string name="divide">除以</string>
     <string name="multiplier">%1$s倍率</string>
