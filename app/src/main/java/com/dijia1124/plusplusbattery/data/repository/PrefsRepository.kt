@@ -17,7 +17,7 @@ class PrefsRepository(context: Context) {
 
     private val dataStore = context.dataStore
 
-    private val defaultVisibleEntries = emptySet<String>()
+    private val defaultVisibleEntries = emptySet<BatteryInfoType>()
 
     val refreshInterval: Flow<Int> =
         dataStore.data.map { it[REFRESH_INTERVAL_KEY] ?: 1000 }
@@ -44,7 +44,7 @@ class PrefsRepository(context: Context) {
                 ?.split(',')
                 ?.mapNotNull { raw -> keyToType[ raw.trim() ] }
                 ?.toSet()
-                ?: defaultVisibleEntries) as Set<BatteryInfoType>  // this is Set<BatteryInfoType>, not strings
+                ?: defaultVisibleEntries)
         }
 
     suspend fun setVisibleEntries(keys: Set<BatteryInfoType>) {
