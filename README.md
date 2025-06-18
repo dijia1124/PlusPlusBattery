@@ -25,11 +25,11 @@
 
 ## Downloads
 
-- [<img src="https://f-droid.org/badge/get-it-on.png"
+[<img src="https://f-droid.org/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/en/packages/com.dijia1124.plusplusbattery/)
 
-- [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)
+Or download the APK from [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)
 
 ## Installation
 

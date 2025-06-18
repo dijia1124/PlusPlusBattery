@@ -25,10 +25,11 @@
 
 ## 下载
 
-- [<img src="https://f-droid.org/badge/get-it-on-zh-hans.png"
+[<img src="https://f-droid.org/badge/get-it-on-zh-hans.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/en/packages/com.dijia1124.plusplusbattery/)
-- [Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)
+
+或从[Github Release](https://github.com/dijia1124/PlusPlusBattery/releases)页下载APK
 
 ## 安装
 
