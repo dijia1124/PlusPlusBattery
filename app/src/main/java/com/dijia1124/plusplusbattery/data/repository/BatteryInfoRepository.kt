@@ -204,50 +204,50 @@ class BatteryInfoRepository(private val context: Context) {
                 false
             ),
             BatteryInfo(
-                BatteryInfoType.RM,
+                BatteryInfoType.OPLUS_RM,
                 "$rm mAh"
             ),
             BatteryInfo(
-                BatteryInfoType.FCC,
+                BatteryInfoType.OPLUS_FCC,
                 "$fcc mAh"
             ),
             BatteryInfo(
-                BatteryInfoType.RAW_FCC,
+                BatteryInfoType.OPLUS_RAW_FCC,
                 "$rawFcc mAh"
             ),
             BatteryInfo(
-                BatteryInfoType.SOH,
+                BatteryInfoType.OPLUS_SOH,
                 "$soh %"
             ),
             BatteryInfo(
-                BatteryInfoType.RAW_SOH,
+                BatteryInfoType.OPLUS_RAW_SOH,
                 rawSoh
                     .toDoubleOrNull()
                     ?.formatWithUnit("%")
                     ?: rawSoh
             ),
             BatteryInfo(
-                BatteryInfoType.QMAX,
+                BatteryInfoType.OPLUS_QMAX,
                 qMax
             ),
             BatteryInfo(
-                BatteryInfoType.VBAT_UV,
+                BatteryInfoType.OPLUS_VBAT_UV,
                 "$vbatUv mV"
             ),
             BatteryInfo(
-                BatteryInfoType.SN,
+                BatteryInfoType.OPLUS_SN,
                 sn
             ),
             BatteryInfo(
-                BatteryInfoType.MANU_DATE,
+                BatteryInfoType.OPLUS_MANU_DATE,
                 batManDate
             ),
             BatteryInfo(
-                BatteryInfoType.BATTERY_TYPE,
+                BatteryInfoType.OPLUS_BATTERY_TYPE,
                 battType
             ),
             BatteryInfo(
-                BatteryInfoType.DESIGN_CAPACITY,
+                BatteryInfoType.OPLUS_DESIGN_CAPACITY,
                 "$designCapacity mAh",
             ),
         )

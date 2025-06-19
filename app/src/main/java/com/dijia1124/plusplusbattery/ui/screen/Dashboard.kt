@@ -262,7 +262,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                 onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }
                             )
-                            BatteryInfoType.RAW_FCC, BatteryInfoType.RAW_SOH -> BatteryCardWithCoeffTable(
+                            BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_RAW_SOH -> BatteryCardWithCoeffTable(
                                 info = info,
                                 onShowInfo = {
                                     coroutineScope.launch{
