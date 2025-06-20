@@ -60,6 +60,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
+import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
@@ -79,7 +80,7 @@ fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: Batt
 @Composable
 fun NormalBatteryCard(info: BatteryInfo) {
     Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-        Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+        Text(text = stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
         Text(
             text = info.value,
             style = MaterialTheme.typography.bodyLarge,
@@ -99,7 +100,7 @@ fun BatteryCardWithCalibration(
 ) {
     Row {
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(id = info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
             Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
         }
         if (isRootMode) {
@@ -134,7 +135,7 @@ fun BatteryCardWithCoeffTable(
 ) {
     Row {
         Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Text(text = info.title, style = MaterialTheme.typography.bodyMedium)
+            Text(text = stringResource(id = info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
             Text(text = info.value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -252,8 +253,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             .padding(6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        when (index) {
-                            6 -> BatteryCardWithCalibration(
+                        when (batteryInfoList[index].type) {
+                            BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
                                 info = info,
                                 isDualBatt = isDualBatt,
                                 isRootMode = isRootMode,
@@ -261,7 +262,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                 onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
                                 onShowMultiplierDialog = { showMultiplierDialog = true }
                             )
-                            10 -> BatteryCardWithCoeffTable(
+                            BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_RAW_SOH -> BatteryCardWithCoeffTable(
                                 info = info,
                                 onShowInfo = {
                                     coroutineScope.launch{

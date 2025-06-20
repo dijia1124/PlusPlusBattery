@@ -73,7 +73,7 @@ fun BatteryMonitorSettingsContent(
                     }
                 )
                 Spacer(Modifier.width(8.dp))
-                Text(text = entry)
+                Text(text = stringResource(entry.titleRes))
             }
         }
     }

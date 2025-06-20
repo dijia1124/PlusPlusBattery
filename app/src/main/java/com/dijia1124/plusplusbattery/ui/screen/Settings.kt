@@ -114,6 +114,10 @@ fun SettingsContent(
                 )
             }
         )
+        ListItem(
+            modifier = Modifier.clickable { navController.navigate("battery_logcat_experiment") },
+            headlineContent = { Text(text = stringResource(R.string.get_from_logcat), style = MaterialTheme.typography.bodyLarge) }
+        )
         RefreshIntervalListItem(
             refreshInterval = refreshInterval,
             onIntervalChange = { newRate ->

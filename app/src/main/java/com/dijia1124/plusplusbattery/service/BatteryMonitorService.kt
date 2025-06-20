@@ -12,6 +12,7 @@ import android.content.IntentFilter
 import androidx.core.app.NotificationCompat
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.R
+import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -134,16 +135,22 @@ class BatteryMonitorService : Service() {
         val allInfos =
             if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo()
             else batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
-        val visibleEntries = prefsRepo.visibleEntriesFlow.first()
-        val filtered = if (visibleEntries.isEmpty()) {
+        val visibleTypes = prefsRepo.visibleEntriesFlow.first()
+        val filtered = if (visibleTypes.isEmpty()) {
             allInfos
         } else {
             allInfos.filter { info ->
-                visibleEntries.contains(info.title)
+                info.type in visibleTypes
             }
         }
         filtered.joinToString("\n") { info ->
-            val label = info.key ?: info.title
+            // if this entry is from the root‐only list, show the short key;
+            // otherwise always show the localized title
+            val label = if (info.isShowKeyInMonitor) {
+                info.type.key
+            } else {
+                getString(info.type.titleRes)
+            }
             "$label: ${info.value}"
         }
     }

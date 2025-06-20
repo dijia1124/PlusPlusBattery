@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.service.BatteryMonitorService
@@ -42,11 +43,11 @@ class BatteryMonitorSettingsViewModel(
 
 
     // Holds the list of all available BatteryInfo titles for selection
-    private val _availableEntries = MutableStateFlow<List<String>>(emptyList())
-    val availableEntries: StateFlow<List<String>> = _availableEntries
+    private val _availableEntries = MutableStateFlow<List<BatteryInfoType>>(emptyList())
+    val availableEntries: StateFlow<List<BatteryInfoType>> = _availableEntries
 
     // Holds the set of user-selected titles (entries) from preferences
-    val visibleEntries: StateFlow<Set<String>> =
+    val visibleEntries: StateFlow<Set<BatteryInfoType>> =
         prefsRepo.visibleEntriesFlow
             .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, emptySet())
 
@@ -59,7 +60,7 @@ class BatteryMonitorSettingsViewModel(
 
             // Combine and extract unique titles
             val allTitles = (basicInfos + nonRootInfos + rootInfos)
-                .map { it.title }
+                .map { it.type }
                 .distinct()
 
             _availableEntries.value = allTitles
@@ -67,7 +68,7 @@ class BatteryMonitorSettingsViewModel(
     }
 
     // Update the set of visible entries in DataStore
-    fun setVisibleEntries(newEntries: Set<String>) {
+    fun setVisibleEntries(newEntries: Set<BatteryInfoType>) {
         viewModelScope.launch {
             prefsRepo.setVisibleEntries(newEntries)
         }
