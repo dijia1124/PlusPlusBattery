@@ -93,5 +93,6 @@
     <string name="current_value">当前数值: %1$s</string>
     <string name="oem_refresh_interval_limitation_description">仅对Root模式生效。非Root模式受OEM限制无法短于系统设定值。</string>
     <string name="refresh_interval_battery_drain_description">刷新间隔设置过短可能导致多余耗电。</string>
-
+    <string name="get_from_logcat">logcat电池数据</string>
+    <string name="waiting_for_battery_data_from_logcat">请把设备插上充电器，并保持电量不要到达100%…</string>
 </resources>

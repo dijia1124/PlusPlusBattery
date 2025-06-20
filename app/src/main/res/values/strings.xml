@@ -94,4 +94,6 @@
     <string name="current_value">Current value: %1$s</string>
     <string name="oem_refresh_interval_limitation_description">Only takes effect in root mode. Non-root mode is limited to no shorter than the oem-set interval.</string>
     <string name="refresh_interval_battery_drain_description">Setting the refresh interval too low may cause unnecessary battery drain.</string>
+    <string name="get_from_logcat">Logcat Battery Data</string>
+    <string name="waiting_for_battery_data_from_logcat">Please connect your device to a charger while the battery level is not full (less than 100%)…</string>
 </resources>
