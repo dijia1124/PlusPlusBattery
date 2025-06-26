@@ -34,16 +34,32 @@ fun UniversalSupportLogcat(navController: NavController,
 fun UniversalSupportLogcatScreen(
     batteryLogViewModel: BatteryLogViewModel
 ) {
+    val deviceInfo by batteryLogViewModel.deviceInfo.collectAsState()
     val logMap by batteryLogViewModel.latestLog.collectAsState()
     Column(Modifier
         .fillMaxSize()
         .padding(16.dp)) {
-        logMap?.let { map ->
-            map.forEach { (key, value) ->
+        // device info
+        Text(
+            "Manufacturer: ${deviceInfo.manufacturer}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            "Model: ${deviceInfo.model}",
+            style = MaterialTheme.typography.bodyMedium
+        )
+
+        androidx.compose.foundation.layout.Spacer(Modifier.padding(vertical = 8.dp))
+        // logcat entries
+        if (logMap.isNullOrEmpty()) {
+            Text(
+                stringResource(R.string.waiting_for_battery_data_from_logcat),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        } else {
+            logMap!!.forEach { (key, value) ->
                 Text("$key: $value", style = MaterialTheme.typography.bodyMedium)
             }
-        } ?: Text(
-            stringResource(R.string.waiting_for_battery_data_from_logcat),
-            style = MaterialTheme.typography.bodyMedium)
+        }
     }
 }
