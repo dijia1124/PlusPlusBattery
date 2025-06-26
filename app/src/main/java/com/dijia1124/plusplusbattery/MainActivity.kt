@@ -38,7 +38,9 @@ import com.dijia1124.plusplusbattery.ui.screen.BatteryMonitorSettings
 import com.dijia1124.plusplusbattery.ui.screen.Dashboard
 import com.dijia1124.plusplusbattery.ui.screen.History
 import com.dijia1124.plusplusbattery.ui.screen.Settings
+import com.dijia1124.plusplusbattery.ui.screen.UniversalSupportLogcat
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
+import com.dijia1124.plusplusbattery.vm.BatteryLogViewModel
 import com.dijia1124.plusplusbattery.vm.BatteryMonitorSettingsViewModel
 import com.dijia1124.plusplusbattery.vm.HistoryInfoViewModel
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
@@ -95,6 +97,17 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             )[HistoryInfoViewModel::class.java]
+        }
+
+        val batteryLogViewModel by lazy {
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return BatteryLogViewModel(application) as T
+                    }
+                }
+            )[BatteryLogViewModel::class.java]
         }
 
         setContent {
@@ -162,6 +175,13 @@ class MainActivity : ComponentActivity() {
                                 stringResource(R.string.battery_monitor),
                                 navController,
                                 battMonViewModel
+                            )
+                        }
+                        composable("battery_logcat_experiment") {
+                            UniversalSupportLogcat(
+                                navController,
+                                batteryLogViewModel,
+                                stringResource(R.string.get_from_logcat)
                             )
                         }
                     }
