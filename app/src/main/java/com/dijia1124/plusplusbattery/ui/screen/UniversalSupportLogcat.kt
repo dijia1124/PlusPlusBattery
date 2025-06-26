@@ -1,8 +1,11 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,20 +39,23 @@ fun UniversalSupportLogcatScreen(
 ) {
     val deviceInfo by batteryLogViewModel.deviceInfo.collectAsState()
     val logMap by batteryLogViewModel.latestLog.collectAsState()
+    val scrollState = rememberScrollState()
     Column(Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .padding(16.dp)
+        .verticalScroll(scrollState)
+    ) {
         // device info
         Text(
-            "Manufacturer: ${deviceInfo.manufacturer}",
+            stringResource(R.string.manufacturer, deviceInfo.manufacturer),
             style = MaterialTheme.typography.bodyMedium
         )
         Text(
-            "Model: ${deviceInfo.model}",
+            stringResource(R.string.model, deviceInfo.model),
             style = MaterialTheme.typography.bodyMedium
         )
 
-        androidx.compose.foundation.layout.Spacer(Modifier.padding(vertical = 8.dp))
+        Spacer(Modifier.padding(vertical = 8.dp))
         // logcat entries
         if (logMap.isNullOrEmpty()) {
             Text(
