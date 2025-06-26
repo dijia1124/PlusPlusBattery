@@ -42,7 +42,7 @@ fun UniversalSupportLogcatScreen(
     val scrollState = rememberScrollState()
     Column(Modifier
         .fillMaxSize()
-        .padding(16.dp)
+        .padding(horizontal = 16.dp)
         .verticalScroll(scrollState)
     ) {
         // device info
