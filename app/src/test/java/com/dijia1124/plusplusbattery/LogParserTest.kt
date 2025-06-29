@@ -5,6 +5,7 @@ import com.dijia1124.plusplusbattery.data.parser.FallbackLogParser
 import com.dijia1124.plusplusbattery.data.parser.LogParser
 import com.dijia1124.plusplusbattery.data.parser.MotoLogParser
 import com.dijia1124.plusplusbattery.data.parser.OPlusLogParser
+import com.dijia1124.plusplusbattery.data.parser.XiaomiLogParser
 import kotlin.test.*                   // assertEquals, assertTrue…
 import org.junit.jupiter.params.*
 import org.junit.jupiter.params.provider.MethodSource
@@ -34,6 +35,12 @@ class LogParserTest {
                 parser = MotoLogParser(),
                 resource = "logcats/moto_sample",
                 keyToAssert = "POWER_SUPPLY_VOLTAGE_NOW"
+            ),
+            Sample(
+                name = "Xiaomi",
+                parser = XiaomiLogParser(),
+                resource = "logcats/xiaomi_sample",
+                keyToAssert = "batteryLevel"
             ),
 //            Sample(
 //                name = "Fallback",

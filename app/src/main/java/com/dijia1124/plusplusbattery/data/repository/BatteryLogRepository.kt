@@ -6,6 +6,7 @@ import com.dijia1124.plusplusbattery.data.parser.FallbackLogParser
 import com.dijia1124.plusplusbattery.data.parser.LogParser
 import com.dijia1124.plusplusbattery.data.parser.MotoLogParser
 import com.dijia1124.plusplusbattery.data.parser.OPlusLogParser
+import com.dijia1124.plusplusbattery.data.parser.XiaomiLogParser
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,6 +19,7 @@ class BatteryLogRepository {
         "oneplus" to oplusParsers,
         "oppo" to oplusParsers,
         "realme" to oplusParsers,
+        "xiaomi" to listOf(XiaomiLogParser(), FallbackLogParser()),
         // add more OEMs here as needed
     )
 
