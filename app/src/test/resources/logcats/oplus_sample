@@ -1,0 +1,9 @@
+06-16 08:51:51.884  5785  5785 D RadioMessenger: handleMessage Request msgid 162
+06-16 08:51:51.911  2526  8370 D charge_time: force write 5079s(01:24:39) to ttf, rc=12
+06-16 08:51:51.911  2526  8370 D charge_time: type=cdp/dcp,reserve_soc=0,soc=47,ui_soc=47,current=-969,avg=1100,not_chg_cnt=0,stable_cnt=1,fcc=5296,fcc_ratio=88,delta=0,debug=0,region=12,ttf=5079(01:24:39),ui_ttf=5079(01:24:39)
+06-16 08:51:51.917  2342  2342 D healthd : system healthd: battery l=47 v=3917 t=29.3 h=2 st=2 c=969 fc=5920000 cc=151 chg=u
+06-16 08:51:51.924  2526  2526 D vendor.oplus.hardware.charger-V7-service: get_ui_charge_icon_type 0 0 0 0 0
+06-16 08:51:51.925  2526 11318 D vendor.oplus.hardware.charger-V7-service: oplus_chg_get_cpa_power 10000 charge_online 1 retention_topic 0
+06-16 08:51:51.925  2526 11318 D vendor.oplus.hardware.charger-V7-service: oplus_chg_get_cpa_power 10000 charge_online 1 retention_topic 0
+06-16 08:51:51.925  2526 11318 D vendor.oplus.hardware.charger-V7-service: getIsSingleHyperSupport=2, cpa_power=10
+06-16 08:51:51.935 21488  9144 W ONET_NetMonitor: RecvResp seq: 24406 retry: 0 code: 1 httpCode: 200 contentLength: 10223 costtime: 535 msg: null
