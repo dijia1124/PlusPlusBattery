@@ -46,9 +46,8 @@ fun Double.formatClean(fractionDigits: Int = 2): String {
 fun Double.formatWithUnit(unit: String, fractionDigits: Int = 2): String =
     "${this.formatClean(fractionDigits)} $unit"
 
-suspend fun readBatteryInfo(field: String): String? = withContext(Dispatchers.IO) {
+suspend fun readBatteryInfo(field: String, basePath: String = OPLUS_CHG_BATTERY_PATH): String? = withContext(Dispatchers.IO) {
     try {
-        val basePath = OPLUS_CHG_BATTERY_PATH
         SuFileInputStream.open(basePath + field).bufferedReader().use { it.readText().trim() }
     } catch (e: IOException) {
         null
