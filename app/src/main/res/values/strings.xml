@@ -98,4 +98,5 @@
     <string name="waiting_for_battery_data_from_logcat">Please connect your device to a charger while the battery level is not full (less than 100%)…</string>
     <string name="manufacturer">Manufacturer: %1$s</string>
     <string name="model">Model: %1$s</string>
+    <string name="custom_battery_info">Custom Battery Info</string>
 </resources>

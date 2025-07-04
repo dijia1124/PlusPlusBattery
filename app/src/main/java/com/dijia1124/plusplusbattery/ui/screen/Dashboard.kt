@@ -80,7 +80,7 @@ fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: Batt
 @Composable
 fun NormalBatteryCard(info: BatteryInfo) {
     Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-        Text(text = stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
+        Text(text = info.customTitle ?: stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
         Text(
             text = info.value,
             style = MaterialTheme.typography.bodyLarge,
@@ -180,6 +180,15 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     var lastSize by remember { mutableIntStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
+    val OPLUS_TYPES = setOf(
+        BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+        BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+        BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+        BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+        BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+        BatteryInfoType.OPLUS_DESIGN_CAPACITY
+    )
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
@@ -200,6 +209,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         if (isRootMode) {
                             val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
                             displayList.addAll(rootList)
+                            // filter out OPLUS types if showOplusFields is false
+                            if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
                         } else {
                             // use system battery manager api if root access is not available
                             val nonRootVCPList =
