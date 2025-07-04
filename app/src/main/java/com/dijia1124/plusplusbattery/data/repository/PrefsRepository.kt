@@ -8,6 +8,7 @@ import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
 import com.dijia1124.plusplusbattery.data.util.REFRESH_INTERVAL_KEY
 import com.dijia1124.plusplusbattery.data.util.ROOT_MODE_KEY
+import com.dijia1124.plusplusbattery.data.util.SHOW_OPLUS_FIELDS
 import com.dijia1124.plusplusbattery.data.util.SHOW_SWITCH_ON_DASHBOARD
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import kotlinx.coroutines.flow.Flow
@@ -67,4 +68,11 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFollowSystemTheme(enabled: Boolean) =
         dataStore.edit { it[FOLLOW_SYSTEM_THEME_KEY] = enabled }
+
+    // show oplus fields by default
+    val showOplusFields: Flow<Boolean> =
+        dataStore.data.map { it[SHOW_OPLUS_FIELDS] != false }
+
+    suspend fun setShowOplusFields(enabled: Boolean) =
+        dataStore.edit { it[SHOW_OPLUS_FIELDS] = enabled }
 }

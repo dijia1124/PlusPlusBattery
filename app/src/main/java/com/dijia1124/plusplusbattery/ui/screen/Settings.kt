@@ -57,6 +57,8 @@ fun SettingsContent(
     val darkModeEnabled by settingsVM.darkModeEnabled.collectAsState()
     val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
     val refreshInterval by settingsVM.refreshInterval.collectAsState()
+    val showOplusFields by settingsVM.showOplusFields.collectAsState()
+
 
     Column(
         modifier = Modifier
@@ -111,6 +113,17 @@ fun SettingsContent(
                     checked = darkModeEnabled,
                     onCheckedChange = { settingsVM.setDarkMode(it) },
                     enabled = !followSystemTheme
+                )
+            }
+        )
+        ListItem(
+            headlineContent = {
+                Text(text = "Enable Oplus fields", style = MaterialTheme.typography.bodyLarge)
+            },
+            trailingContent = {
+                Switch(
+                    checked = showOplusFields,
+                    onCheckedChange = { settingsVM.setShowOplusFields(it) }
                 )
             }
         )

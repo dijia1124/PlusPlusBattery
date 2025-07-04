@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
@@ -32,6 +33,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +52,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,13 +64,12 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
+import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository.CustomField
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
-
-private const val BATTERY_INFO_LIST_ROOT_SIZE = 19
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,7 +82,7 @@ fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: Batt
 @Composable
 fun NormalBatteryCard(info: BatteryInfo) {
     Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-        Text(text = stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
+        Text(text = info.customTitle ?: stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
         Text(
             text = info.value,
             style = MaterialTheme.typography.bodyLarge,
@@ -178,8 +180,18 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember { mutableIntStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
+    var lastSize by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
+    val OPLUS_TYPES = setOf(
+        BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+        BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+        BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+        BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+        BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+        BatteryInfoType.OPLUS_DESIGN_CAPACITY
+    )
+    var showAddDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
@@ -200,6 +212,11 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         if (isRootMode) {
                             val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
                             displayList.addAll(rootList)
+                            // add custom fields if root access is available
+                            val customList = batteryInfoViewModel.readCustomFields()
+                            displayList.addAll(customList)
+                            // filter out OPLUS types if showOplusFields is false
+                            if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
                         } else {
                             // use system battery manager api if root access is not available
                             val nonRootVCPList =
@@ -212,10 +229,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         batteryInfoList.clear()
                         batteryInfoList.addAll(displayList)
                         // scroll to bottom if root mode is enabled
-                        if (isRootMode &&
-                            batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE &&
-                            batteryInfoList.size != lastSize
-                        ) {
+                        if (isRootMode && batteryInfoList.size != lastSize) {
                             listState.scrollToItem(batteryInfoList.lastIndex)
                         }
                         lastSize = batteryInfoList.size
@@ -291,6 +305,23 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             RootSwitch(hasRoot, isRootMode , context, onToggle = {
                 batteryInfoViewModel.setRootMode(it)
             })
+        }
+        Button(
+            onClick = { showAddDialog = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "Add custom node")
+        }
+
+        if (showAddDialog) {
+            AddFieldDialog(
+                onAdd = { path, title, unit ->
+                    batteryInfoViewModel.addCustomField(
+                        CustomField(path, title, unit)
+                    )
+                },
+                onDismiss = { showAddDialog = false }
+            )
         }
     }
 
@@ -436,4 +467,35 @@ fun MultiplierSelector(
             }
         }
     }
+}
+
+@Composable
+fun AddFieldDialog(
+    onAdd: (String,String,String) -> Unit, onDismiss: () -> Unit
+) {
+    var path by remember { mutableStateOf("") }
+    var title by remember { mutableStateOf("") }
+    var unit by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add custom sysfs node") },
+        text = {
+            Column {
+                OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
+                OutlinedTextField(title, { title = it }, label = { Text("Title") })
+                OutlinedTextField(unit,  { unit  = it }, label = { Text("Unit (optional)") })
+            }
+        },
+        confirmButton = {
+            Button(
+                enabled = path.isNotBlank(),
+                onClick = {
+                    onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit)
+                    onDismiss()
+                }
+            ) { Text("Add") }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+    )
 }
