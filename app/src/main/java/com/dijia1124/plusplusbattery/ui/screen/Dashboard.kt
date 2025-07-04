@@ -30,7 +30,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -71,9 +70,6 @@ import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
-
-private const val BATTERY_INFO_LIST_ROOT_SIZE = 19
-//todo: scrolling to bottom is broken after adding custom fields, need to fix it
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -184,7 +180,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember { mutableIntStateOf(BATTERY_INFO_LIST_ROOT_SIZE) }
+    var lastSize by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
     val OPLUS_TYPES = setOf(
@@ -233,10 +229,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         batteryInfoList.clear()
                         batteryInfoList.addAll(displayList)
                         // scroll to bottom if root mode is enabled
-                        if (isRootMode &&
-                            batteryInfoList.size == BATTERY_INFO_LIST_ROOT_SIZE &&
-                            batteryInfoList.size != lastSize
-                        ) {
+                        if (isRootMode && batteryInfoList.size != lastSize) {
                             listState.scrollToItem(batteryInfoList.lastIndex)
                         }
                         lastSize = batteryInfoList.size
