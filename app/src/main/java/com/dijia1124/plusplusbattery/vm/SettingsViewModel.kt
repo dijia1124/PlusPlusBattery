@@ -61,4 +61,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         prefs.setFollowSystemTheme(enabled)
         if (enabled) prefs.setDarkMode(false)
     }
+
+    val showOplusFields: StateFlow<Boolean> = prefs.showOplusFields
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    fun setShowOplusFields(enabled: Boolean) = viewModelScope.launch {
+        prefs.setShowOplusFields(enabled)
+    }
 }

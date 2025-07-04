@@ -6,4 +6,5 @@ data class BatteryInfo(
     val value: String,
     // Default is true, can be used to show key in notification-area monitor
     val isShowKeyInMonitor: Boolean = true,
+    val customTitle: String? = null
 )

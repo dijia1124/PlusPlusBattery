@@ -26,5 +26,6 @@ enum class BatteryInfoType(
     OPLUS_SN                 ("battery_sn",                R.string.battery_serial_number_battery_sn),
     OPLUS_MANU_DATE          ("battery_manu_date",         R.string.battery_manufacture_date_battery_manu_date),
     OPLUS_BATTERY_TYPE       ("battery_type",              R.string.battery_type_battery_type),
-    OPLUS_DESIGN_CAPACITY    ("design_capacity",           R.string.design_capacity_design_capacity)
+    OPLUS_DESIGN_CAPACITY    ("design_capacity",           R.string.design_capacity_design_capacity),
+    CUSTOM                   ("custom",                    R.string.custom_battery_info)
 }

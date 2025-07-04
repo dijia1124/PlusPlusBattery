@@ -96,4 +96,7 @@
     <string name="refresh_interval_battery_drain_description">Setting the refresh interval too low may cause unnecessary battery drain.</string>
     <string name="get_from_logcat">Logcat Battery Data</string>
     <string name="waiting_for_battery_data_from_logcat">Please connect your device to a charger while the battery level is not full (less than 100%)…</string>
+    <string name="manufacturer">Manufacturer: %1$s</string>
+    <string name="model">Model: %1$s</string>
+    <string name="custom_battery_info">Custom Battery Info</string>
 </resources>

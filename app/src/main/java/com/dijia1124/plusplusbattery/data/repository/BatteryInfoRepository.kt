@@ -23,9 +23,14 @@ import com.dijia1124.plusplusbattery.data.util.readBatteryLogMap
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.data.util.safeRootReadInt
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlin.math.pow
 
@@ -303,4 +308,29 @@ class BatteryInfoRepository(private val context: Context) {
                 )
             }
         }
+
+    data class CustomField(
+        val path: String,
+        val title: String,
+        val unit: String
+    )
+
+    private val customFields = MutableStateFlow<List<CustomField>>(emptyList())
+
+    fun addCustomField(field: CustomField) {
+        customFields.update { it + field }
+    }
+
+    suspend fun readCustomFields(): List<BatteryInfo> = coroutineScope {
+        customFields.value.map { f ->
+            async(Dispatchers.IO) {
+                val raw = readBatteryInfo("", f.path) ?: "N/A"
+                BatteryInfo(
+                    type = BatteryInfoType.CUSTOM,
+                    value = buildString { append(raw); if (f.unit.isNotBlank()) append(' ').append(f.unit) },
+                    customTitle = f.title,
+                )
+            }
+        }.awaitAll()
+    }
 }
