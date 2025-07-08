@@ -22,7 +22,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -74,8 +76,21 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
-    AppScaffold(currentTitle) {
+    var showMgr by remember { mutableStateOf(false) }
+    AppScaffold(
+        title = currentTitle,
+        actions = {
+            IconButton(onClick = { showMgr = true }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "Manage entries")
+            }
+        }) {
         DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
+    }
+    if (showMgr) {
+        ManageEntriesDialog(
+            viewModel = batteryInfoViewModel,
+            onDismiss = { showMgr = false }
+        )
     }
 }
 
@@ -191,7 +206,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
         BatteryInfoType.OPLUS_DESIGN_CAPACITY
     )
-    var showAddDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
@@ -305,25 +319,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             RootSwitch(hasRoot, isRootMode , context, onToggle = {
                 batteryInfoViewModel.setRootMode(it)
             })
-        }
-        Button(
-            onClick = { showAddDialog = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add custom node")
-        }
-
-        if (showAddDialog) {
-            AddFieldDialog(
-                onAdd = { path, title, unit ->
-                    coroutineScope.launch {
-                        batteryInfoViewModel.addCustomField(
-                            CustomField(path, title, unit)
-                        )
-                    }
-                },
-                onDismiss = { showAddDialog = false }
-            )
         }
     }
 
@@ -481,7 +476,7 @@ fun AddFieldDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add custom sysfs node") },
+        title = { Text("Add custom entry") },
         text = {
             Column {
                 OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
@@ -500,4 +495,68 @@ fun AddFieldDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+@Composable
+fun ManageEntriesDialog(
+    viewModel: BatteryInfoViewModel,
+    onDismiss: () -> Unit
+) {
+    val coroutineScope = rememberCoroutineScope()
+    val entries by viewModel.customFields.collectAsState()
+    var showAdd by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Manage custom entries") },
+        text = {
+            LazyColumn {
+                items(count = entries.size, key = { entries[it].path }) { index ->
+                    val f = entries[index]
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(f.title, style = MaterialTheme.typography.bodyMedium)
+                            Text(f.path, style = MaterialTheme.typography.bodySmall)
+                        }
+                        IconButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModel.removeCustomField(f.path)
+                                }
+                            }
+                        ) {
+                            Icon(Icons.Default.Delete, contentDescription = "Remove")
+                        }
+                    }
+                }
+                if (entries.isEmpty()) {
+                    item { Text("No custom entries.") }
+                }
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { showAdd = true }
+            ) {
+                Text("Add")
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        }
+    )
+    if (showAdd) {
+        AddFieldDialog(
+            onAdd = { path, title, unit ->
+                coroutineScope.launch {
+                    viewModel.addCustomField(CustomField(path, title, unit))
+                }
+            },
+            onDismiss = { showAdd = false }
+        )
+    }
 }

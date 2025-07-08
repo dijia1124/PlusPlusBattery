@@ -77,6 +77,10 @@ class BatteryInfoViewModel(application: Application,
         }
     }
 
+    val customFields: StateFlow<List<CustomField>> =
+        batteryInfoRepository.customFields
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     suspend fun addCustomField(field: CustomField) =
         batteryInfoRepository.addCustomField(field)
 
