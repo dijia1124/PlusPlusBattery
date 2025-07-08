@@ -14,6 +14,8 @@ import com.dijia1124.plusplusbattery.data.util.calcRawFcc
 import com.dijia1124.plusplusbattery.data.util.calcRawSoh
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
+import com.dijia1124.plusplusbattery.data.model.CustomField
+import com.dijia1124.plusplusbattery.data.util.CUSTOM_FIELDS
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -27,11 +29,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlin.collections.map
 import kotlin.math.pow
 
 private const val BCC_VOLTAGE_0_INDEX = 6
@@ -309,26 +311,31 @@ class BatteryInfoRepository(private val context: Context) {
             }
         }
 
-    data class CustomField(
-        val path: String,
-        val title: String,
-        val unit: String
-    )
+    val customFields: Flow<List<CustomField>> = settings.data
+        .map { prefs ->
+            prefs[CUSTOM_FIELDS]
+                ?.let { Json.decodeFromString<List<CustomField>>(it) }
+                ?: emptyList()
+        }
 
-    private val customFields = MutableStateFlow<List<CustomField>>(emptyList())
+    suspend fun addCustomField(field: CustomField) = settings.edit { prefs ->
+        val current = customFields.first()
+        prefs[CUSTOM_FIELDS] = Json.encodeToString(current + field)
+    }
 
-    fun addCustomField(field: CustomField) {
-        customFields.update { it + field }
+    suspend fun removeCustomField(path: String) = settings.edit { prefs ->
+        val current = customFields.first().filterNot { it.path == path }
+        prefs[CUSTOM_FIELDS] = Json.encodeToString(current)
     }
 
     suspend fun readCustomFields(): List<BatteryInfo> = coroutineScope {
-        customFields.value.map { f ->
+        customFields.first().map { f ->
             async(Dispatchers.IO) {
                 val raw = readBatteryInfo("", f.path) ?: "N/A"
                 BatteryInfo(
-                    type = BatteryInfoType.CUSTOM,
-                    value = buildString { append(raw); if (f.unit.isNotBlank()) append(' ').append(f.unit) },
-                    customTitle = f.title,
+                    type         = BatteryInfoType.CUSTOM,
+                    value        = buildString { append(raw); if (f.unit.isNotBlank()) append(' ').append(f.unit) },
+                    customTitle  = f.title,
                 )
             }
         }.awaitAll()

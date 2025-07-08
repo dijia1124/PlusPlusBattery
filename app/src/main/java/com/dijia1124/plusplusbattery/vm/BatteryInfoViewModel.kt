@@ -9,9 +9,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
+import com.dijia1124.plusplusbattery.data.model.CustomField
 import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
-import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository.CustomField
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import kotlinx.coroutines.Dispatchers
@@ -77,9 +77,11 @@ class BatteryInfoViewModel(application: Application,
         }
     }
 
-    fun addCustomField(f: CustomField) = viewModelScope.launch {
-        batteryInfoRepository.addCustomField(f)
-    }
+    suspend fun addCustomField(field: CustomField) =
+        batteryInfoRepository.addCustomField(field)
+
+    suspend fun removeCustomField(path: String) =
+        batteryInfoRepository.removeCustomField(path)
 
     suspend fun readCustomFields(): List<BatteryInfo> =
         batteryInfoRepository.readCustomFields()
