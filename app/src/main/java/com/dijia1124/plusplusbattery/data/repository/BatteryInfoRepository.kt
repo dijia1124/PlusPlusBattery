@@ -14,8 +14,8 @@ import com.dijia1124.plusplusbattery.data.util.calcRawFcc
 import com.dijia1124.plusplusbattery.data.util.calcRawSoh
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
-import com.dijia1124.plusplusbattery.data.model.CustomField
-import com.dijia1124.plusplusbattery.data.util.CUSTOM_FIELDS
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
+import com.dijia1124.plusplusbattery.data.util.CUSTOM_ENTRIES
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -311,31 +311,31 @@ class BatteryInfoRepository(private val context: Context) {
             }
         }
 
-    val customFields: Flow<List<CustomField>> = settings.data
+    val customEntries: Flow<List<CustomEntry>> = settings.data
         .map { prefs ->
-            prefs[CUSTOM_FIELDS]
-                ?.let { Json.decodeFromString<List<CustomField>>(it) }
+            prefs[CUSTOM_ENTRIES]
+                ?.let { Json.decodeFromString<List<CustomEntry>>(it) }
                 ?: emptyList()
         }
 
-    suspend fun addCustomField(field: CustomField) = settings.edit { prefs ->
-        val current = customFields.first()
-        prefs[CUSTOM_FIELDS] = Json.encodeToString(current + field)
+    suspend fun addCustomEntry(entry: CustomEntry) = settings.edit { prefs ->
+        val current = customEntries.first()
+        prefs[CUSTOM_ENTRIES] = Json.encodeToString(current + entry)
     }
 
-    suspend fun removeCustomField(path: String) = settings.edit { prefs ->
-        val current = customFields.first().filterNot { it.path == path }
-        prefs[CUSTOM_FIELDS] = Json.encodeToString(current)
+    suspend fun removeCustomEntry(path: String) = settings.edit { prefs ->
+        val current = customEntries.first().filterNot { it.path == path }
+        prefs[CUSTOM_ENTRIES] = Json.encodeToString(current)
     }
 
-    suspend fun readCustomFields(): List<BatteryInfo> = coroutineScope {
-        customFields.first().map { f ->
+    suspend fun readCustomEntries(): List<BatteryInfo> = coroutineScope {
+        customEntries.first().map { entry ->
             async(Dispatchers.IO) {
-                val raw = readBatteryInfo("", f.path) ?: "N/A"
+                val raw = readBatteryInfo("", entry.path) ?: R.string.unknown
                 BatteryInfo(
                     type         = BatteryInfoType.CUSTOM,
-                    value        = buildString { append(raw); if (f.unit.isNotBlank()) append(' ').append(f.unit) },
-                    customTitle  = f.title,
+                    value        = buildString { append(raw); if (entry.unit.isNotBlank()) append(' ').append(entry.unit) },
+                    customTitle  = entry.title,
                 )
             }
         }.awaitAll()

@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -66,7 +65,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
-import com.dijia1124.plusplusbattery.data.model.CustomField
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
@@ -227,7 +226,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
                             displayList.addAll(rootList)
                             // add custom fields if root access is available
-                            val customList = batteryInfoViewModel.readCustomFields()
+                            val customList = batteryInfoViewModel.readCustomEntries()
                             displayList.addAll(customList)
                             // filter out OPLUS types if showOplusFields is false
                             if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
@@ -503,7 +502,7 @@ fun ManageEntriesDialog(
     onDismiss: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val entries by viewModel.customFields.collectAsState()
+    val entries by viewModel.customEntries.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -511,7 +510,7 @@ fun ManageEntriesDialog(
         text = {
             LazyColumn {
                 items(count = entries.size, key = { entries[it].path }) { index ->
-                    val f = entries[index]
+                    val entry = entries[index]
                     Row(
                         Modifier
                             .fillMaxWidth()
@@ -519,13 +518,13 @@ fun ManageEntriesDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(Modifier.weight(1f)) {
-                            Text(f.title, style = MaterialTheme.typography.bodyMedium)
-                            Text(f.path, style = MaterialTheme.typography.bodySmall)
+                            Text(entry.title, style = MaterialTheme.typography.bodyMedium)
+                            Text(entry.path, style = MaterialTheme.typography.bodySmall)
                         }
                         IconButton(
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModel.removeCustomField(f.path)
+                                    viewModel.removeCustomEntry(entry.path)
                                 }
                             }
                         ) {
@@ -553,7 +552,7 @@ fun ManageEntriesDialog(
         AddFieldDialog(
             onAdd = { path, title, unit ->
                 coroutineScope.launch {
-                    viewModel.addCustomField(CustomField(path, title, unit))
+                    viewModel.addCustomEntry(CustomEntry(path, title, unit))
                 }
             },
             onDismiss = { showAdd = false }

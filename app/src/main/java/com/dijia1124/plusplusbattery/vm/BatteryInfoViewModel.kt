@@ -9,7 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
-import com.dijia1124.plusplusbattery.data.model.CustomField
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
@@ -77,18 +77,18 @@ class BatteryInfoViewModel(application: Application,
         }
     }
 
-    val customFields: StateFlow<List<CustomField>> =
-        batteryInfoRepository.customFields
+    val customEntries: StateFlow<List<CustomEntry>> =
+        batteryInfoRepository.customEntries
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    suspend fun addCustomField(field: CustomField) =
-        batteryInfoRepository.addCustomField(field)
+    suspend fun addCustomEntry(entry: CustomEntry) =
+        batteryInfoRepository.addCustomEntry(entry)
 
-    suspend fun removeCustomField(path: String) =
-        batteryInfoRepository.removeCustomField(path)
+    suspend fun removeCustomEntry(path: String) =
+        batteryInfoRepository.removeCustomEntry(path)
 
-    suspend fun readCustomFields(): List<BatteryInfo> =
-        batteryInfoRepository.readCustomFields()
+    suspend fun readCustomEntries(): List<BatteryInfo> =
+        batteryInfoRepository.readCustomEntries()
 
     suspend fun refreshBatteryInfo(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
