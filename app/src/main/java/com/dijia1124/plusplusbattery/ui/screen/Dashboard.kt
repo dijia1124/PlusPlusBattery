@@ -64,7 +64,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
-import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository.CustomField
+import com.dijia1124.plusplusbattery.data.model.CustomField
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
@@ -316,9 +316,11 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         if (showAddDialog) {
             AddFieldDialog(
                 onAdd = { path, title, unit ->
-                    batteryInfoViewModel.addCustomField(
-                        CustomField(path, title, unit)
-                    )
+                    coroutineScope.launch {
+                        batteryInfoViewModel.addCustomField(
+                            CustomField(path, title, unit)
+                        )
+                    }
                 },
                 onDismiss = { showAddDialog = false }
             )
