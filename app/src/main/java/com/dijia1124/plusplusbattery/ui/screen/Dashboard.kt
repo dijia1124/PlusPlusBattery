@@ -212,7 +212,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         BatteryInfoType.OPLUS_DESIGN_CAPACITY
     )
 
-
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
@@ -474,7 +473,9 @@ fun MultiplierSelector(
 
 @Composable
 fun AddFieldDialog(
-    onAdd: (String,String,String,Int) -> Unit, onDismiss: () -> Unit
+    existingPaths: Set<String>,
+    onAdd: (String,String,String,Int) -> Unit,
+    onDismiss: () -> Unit
 ) {
     var path by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
@@ -483,6 +484,8 @@ fun AddFieldDialog(
 
     val scaleOptions = listOf(0, -3, 3)
     val scaleLabel   = "×10^$scale"
+
+    val pathIsDuplicate = path in existingPaths
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -509,12 +512,12 @@ fun AddFieldDialog(
         },
         confirmButton = {
             Button(
-                enabled = path.isNotBlank(),
+                enabled = path.isNotBlank() && !pathIsDuplicate,
                 onClick = {
                     onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit, scale)
                     onDismiss()
                 }
-            ) { Text("Add") }
+            ) { Text(if (pathIsDuplicate) "Existed" else "Add") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
@@ -610,6 +613,7 @@ fun ManageEntriesDialog(
     )
     if (showAdd) {
         AddFieldDialog(
+            existingPaths = entries.mapTo(mutableSetOf()) { it.path },
             onAdd = { path, title, unit, scale ->
                 coroutineScope.launch {
                     viewModel.addCustomEntry(CustomEntry(path, title, unit, scale))

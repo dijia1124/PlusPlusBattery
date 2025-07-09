@@ -394,7 +394,7 @@ class BatteryInfoRepository(private val context: Context) {
                 ?.let { Json.decodeFromString<List<CustomEntry>>(it) }
                 .orEmpty()
 
-            val merged = (current + incoming).distinctBy { it.path }
+            val merged = (current + incoming).associateBy { it.path }.values.toList()
 
             prefs[CUSTOM_ENTRIES] = Json.encodeToString(merged)
         }
