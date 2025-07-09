@@ -1,9 +1,13 @@
 package com.dijia1124.plusplusbattery.data.repository
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.BatteryManager
+import android.os.Build
+import android.provider.MediaStore
 import androidx.datastore.preferences.core.edit
 import com.dijia1124.plusplusbattery.data.util.DUAL_BATTERY_KEY
 import com.dijia1124.plusplusbattery.data.util.ESTIMATED_FCC_KEY
@@ -33,6 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import kotlin.collections.map
 import kotlin.math.pow
 
@@ -340,4 +345,30 @@ class BatteryInfoRepository(private val context: Context) {
             }
         }.awaitAll()
     }
+
+    suspend fun exportEntriesToDownloads(
+        ctx: Context,
+        fileName: String = "battery_entries_${System.currentTimeMillis()}.json"
+    ): Uri = withContext(Dispatchers.IO) {
+
+        val json = Json.encodeToString(customEntries.first())
+
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+            put(MediaStore.Downloads.MIME_TYPE, "application/json")
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+
+        val resolver = ctx.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IOException("Cannot create download entry")
+
+        resolver.openOutputStream(uri).use { it?.write(json.toByteArray()) }
+
+        values.clear(); values.put(MediaStore.Downloads.IS_PENDING, 0)
+        resolver.update(uri, values, null, null)
+
+        uri
+    }
+
 }

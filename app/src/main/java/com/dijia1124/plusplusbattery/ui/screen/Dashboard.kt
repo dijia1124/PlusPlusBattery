@@ -3,6 +3,7 @@ package com.dijia1124.plusplusbattery.ui.screen
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -205,6 +207,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
         BatteryInfoType.OPLUS_DESIGN_CAPACITY
     )
+
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
@@ -538,6 +541,17 @@ fun ManageEntriesDialog(
             }
         },
         dismissButton = {
+            var context = LocalContext.current
+            Button(onClick = {
+                viewModel.exportEntries(context) { uri ->
+                    if (uri != Uri.EMPTY)
+                        Toast.makeText(context, "Saved to Downloads", Toast.LENGTH_SHORT).show()
+                    else
+                        Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                Icon(Icons.Filled.Share, "Export")
+            }
             Button(
                 onClick = { showAdd = true }
             ) {

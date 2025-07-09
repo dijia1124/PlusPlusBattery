@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.BatteryManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -122,5 +123,15 @@ class BatteryInfoViewModel(application: Application,
                 cycleCount = cycleCount.toString()
             )
             historyInfoRepository.insertOrUpdate(newInfo)
+        }
+
+    fun exportEntries(context: Context, onDone: (Uri) -> Unit) =
+        viewModelScope.launch {
+            try {
+                val uri = batteryInfoRepository.exportEntriesToDownloads(context)
+                onDone(uri)
+            } catch (e: Exception) {
+                onDone(Uri.EMPTY)
+            }
         }
 }
