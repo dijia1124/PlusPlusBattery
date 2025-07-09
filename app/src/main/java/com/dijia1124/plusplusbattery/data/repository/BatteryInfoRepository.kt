@@ -337,9 +337,15 @@ class BatteryInfoRepository(private val context: Context) {
         customEntries.first().map { entry ->
             async(Dispatchers.IO) {
                 val raw = readBatteryInfo("", entry.path) ?: R.string.unknown
+                val scaled = raw.toString().toDoubleOrNull()?.let { value ->
+                    value * 10.0.pow(entry.scale)
+                }?.let { "%.0f".format(it) } ?: raw
                 BatteryInfo(
-                    type         = BatteryInfoType.CUSTOM,
-                    value        = buildString { append(raw); if (entry.unit.isNotBlank()) append(' ').append(entry.unit) },
+                    type = BatteryInfoType.CUSTOM,
+                    value = buildString {
+                        append(scaled)
+                        if (entry.unit.isNotBlank()) append(' ').append(entry.unit)
+                    },
                     customTitle  = entry.title,
                 )
             }

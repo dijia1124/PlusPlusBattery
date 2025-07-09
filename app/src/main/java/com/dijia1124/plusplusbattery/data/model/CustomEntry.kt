@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class CustomEntry(
     val path: String,
     val title: String,
-    val unit: String
+    val unit: String,
+    val scale: Int = 0
 )
 

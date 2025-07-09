@@ -36,6 +36,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -473,11 +474,15 @@ fun MultiplierSelector(
 
 @Composable
 fun AddFieldDialog(
-    onAdd: (String,String,String) -> Unit, onDismiss: () -> Unit
+    onAdd: (String,String,String,Int) -> Unit, onDismiss: () -> Unit
 ) {
     var path by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("") }
+    var scale by remember { mutableIntStateOf(0) }
+
+    val scaleOptions = listOf(0, -3, 3)
+    val scaleLabel   = "×10^$scale"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -487,13 +492,26 @@ fun AddFieldDialog(
                 OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
                 OutlinedTextField(title, { title = it }, label = { Text("Title") })
                 OutlinedTextField(unit,  { unit  = it }, label = { Text("Unit (optional)") })
+
+                Spacer(Modifier.height(12.dp))
+                Text("Scale:", style = MaterialTheme.typography.bodyMedium)
+                Row {
+                    scaleOptions.forEach {
+                        FilterChip(
+                            selected = (scale == it),
+                            onClick  = { scale = it },
+                            label    = { Text("10^$it") }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
                 enabled = path.isNotBlank(),
                 onClick = {
-                    onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit)
+                    onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit, scale)
                     onDismiss()
                 }
             ) { Text("Add") }
@@ -592,9 +610,9 @@ fun ManageEntriesDialog(
     )
     if (showAdd) {
         AddFieldDialog(
-            onAdd = { path, title, unit ->
+            onAdd = { path, title, unit, scale ->
                 coroutineScope.launch {
-                    viewModel.addCustomEntry(CustomEntry(path, title, unit))
+                    viewModel.addCustomEntry(CustomEntry(path, title, unit, scale))
                 }
             },
             onDismiss = { showAdd = false }
