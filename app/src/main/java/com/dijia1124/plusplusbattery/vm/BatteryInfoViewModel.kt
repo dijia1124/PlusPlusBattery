@@ -134,4 +134,9 @@ class BatteryInfoViewModel(application: Application,
                 onDone(Uri.EMPTY)
             }
         }
+
+    fun importJsonFromUri(uri: Uri) = viewModelScope.launch {
+        batteryInfoRepository.importFromUri(getApplication(), uri)
+    }
+
 }

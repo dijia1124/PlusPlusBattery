@@ -371,4 +371,27 @@ class BatteryInfoRepository(private val context: Context) {
         uri
     }
 
+    suspend fun importFromUri(ctx: Context, uri: Uri) = withContext(Dispatchers.IO) {
+        val jsonText = ctx.contentResolver.openInputStream(uri)
+            ?.bufferedReader()
+            ?.readText()
+            ?: throw IOException("Cannot read JSON")
+
+        val incoming = Json.decodeFromString<List<CustomEntry>>(jsonText)
+
+        mergeAndSave(incoming)
+    }
+
+    private suspend fun mergeAndSave(incoming: List<CustomEntry>) {
+        settings.edit { prefs ->
+            val current = prefs[CUSTOM_ENTRIES]
+                ?.let { Json.decodeFromString<List<CustomEntry>>(it) }
+                .orEmpty()
+
+            val merged = (current + incoming).distinctBy { it.path }
+
+            prefs[CUSTOM_ENTRIES] = Json.encodeToString(merged)
+        }
+    }
+
 }

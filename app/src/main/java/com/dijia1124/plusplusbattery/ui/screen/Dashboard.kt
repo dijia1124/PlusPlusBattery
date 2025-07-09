@@ -5,6 +5,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -504,9 +507,27 @@ fun ManageEntriesDialog(
     viewModel: BatteryInfoViewModel,
     onDismiss: () -> Unit
 ) {
+    var context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val entries by viewModel.customEntries.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                coroutineScope.launch {
+                    try {
+                        viewModel.importJsonFromUri(it)
+                        Toast.makeText(context, "Imported!", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+    )
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Manage custom entries") },
@@ -541,7 +562,14 @@ fun ManageEntriesDialog(
             }
         },
         dismissButton = {
-            var context = LocalContext.current
+            Button(
+                onClick = { launcher.launch(arrayOf("application/json")) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.Search, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Import JSON")
+            }
             Button(onClick = {
                 viewModel.exportEntries(context) { uri ->
                     if (uri != Uri.EMPTY)
