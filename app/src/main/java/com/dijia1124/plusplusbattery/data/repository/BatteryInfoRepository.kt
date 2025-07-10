@@ -346,7 +346,7 @@ class BatteryInfoRepository(private val context: Context) {
                         append(scaled)
                         if (entry.unit.isNotBlank()) append(' ').append(entry.unit)
                     },
-                    customTitle  = entry.title,
+                    customTitle  = resolveTitle(context, entry.title),
                 )
             }
         }.awaitAll()
@@ -398,6 +398,22 @@ class BatteryInfoRepository(private val context: Context) {
 
             prefs[CUSTOM_ENTRIES] = Json.encodeToString(merged)
         }
+    }
+
+    private val titleResMap = mapOf(
+        "title_cycle_count"        to R.string.cycle_counts,
+        "title_charge_full"        to R.string.full_charge_capacity,
+        "title_charge_full_design" to R.string.design_capacity_design_capacity,
+        // modify this after presets are changed
+    )
+
+    private fun resolveTitle(ctx: Context, key: String): String =
+        titleResMap[key]?.let(ctx::getString) ?: key
+
+    suspend fun importPreset(ctx: Context, name: String) = withContext(Dispatchers.IO) {
+        val json = ctx.assets.open("profiles/$name.json").bufferedReader().readText()
+        val list = Json.decodeFromString<List<CustomEntry>>(json)
+        mergeAndSave(list)
     }
 
 }

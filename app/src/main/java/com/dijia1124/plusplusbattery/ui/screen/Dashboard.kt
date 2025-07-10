@@ -523,6 +523,7 @@ fun AddFieldDialog(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageEntriesDialog(
     viewModel: BatteryInfoViewModel,
@@ -532,6 +533,8 @@ fun ManageEntriesDialog(
     val coroutineScope = rememberCoroutineScope()
     val entries by viewModel.customEntries.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
+    val presets = listOf("generic", "empty")
+    var expanded by remember { mutableStateOf(false) }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
@@ -551,64 +554,106 @@ fun ManageEntriesDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Manage custom entries") },
-        text = {
-            LazyColumn {
-                items(count = entries.size, key = { entries[it].path }) { index ->
-                    val entry = entries[index]
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(Modifier.weight(1f)) {
-                            Text(entry.title, style = MaterialTheme.typography.bodyMedium)
-                            Text(entry.path, style = MaterialTheme.typography.bodySmall)
-                        }
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    viewModel.removeCustomEntry(entry.path)
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Delete, contentDescription = "Remove")
-                        }
-                    }
-                }
-                if (entries.isEmpty()) {
-                    item { Text("No custom entries.") }
-                }
-            }
-        },
         dismissButton = {
             Button(
                 onClick = { launcher.launch(arrayOf("application/json")) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Filled.Search, null)
-                Spacer(Modifier.width(8.dp))
-                Text("Import JSON")
+                Text("Import profile")
             }
-            Button(onClick = {
+            Button(
+                onClick = {
                 viewModel.exportEntries(context) { uri ->
                     if (uri != Uri.EMPTY)
                         Toast.makeText(context, "Saved to Downloads", Toast.LENGTH_SHORT).show()
                     else
                         Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
                 }
-            }) {
-                Icon(Icons.Filled.Share, "Export")
+            },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Export profile")
             }
             Button(
-                onClick = { showAdd = true }
+                onClick = { showAdd = true },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Add")
             }
         },
         confirmButton = {
             Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        },
+        title = { Text("Manage custom entries") },
+        text = {
+            Column {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    TextField(
+                        value = "Choose from presets",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        presets.forEach { preset ->
+                            DropdownMenuItem(
+                                text = { Text(preset.replaceFirstChar(Char::titlecase)) },
+                                onClick = {
+                                    expanded = false
+                                    coroutineScope.launch {
+                                        viewModel.importPreset(preset)
+                                        Toast.makeText(
+                                            context,
+                                            "Preset $preset imported",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                LazyColumn {
+                    items(count = entries.size, key = { entries[it].path }) { index ->
+                        val entry = entries[index]
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(entry.title, style = MaterialTheme.typography.bodyMedium)
+                                Text(entry.path, style = MaterialTheme.typography.bodySmall)
+                            }
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.removeCustomEntry(entry.path)
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Remove")
+                            }
+                        }
+                    }
+                    if (entries.isEmpty()) {
+                        item { Text("No custom entries.") }
+                    }
+                }
+            }
         }
     )
     if (showAdd) {

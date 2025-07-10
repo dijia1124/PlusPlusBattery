@@ -139,4 +139,7 @@ class BatteryInfoViewModel(application: Application,
         batteryInfoRepository.importFromUri(getApplication(), uri)
     }
 
+    fun importPreset(name: String) = viewModelScope.launch {
+        batteryInfoRepository.importPreset(getApplication(), name)
+    }
 }
