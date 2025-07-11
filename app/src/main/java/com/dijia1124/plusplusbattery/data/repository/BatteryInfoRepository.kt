@@ -24,6 +24,7 @@ import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
 import com.dijia1124.plusplusbattery.data.util.getStatusString
+import com.dijia1124.plusplusbattery.data.util.isDualBattery
 import com.dijia1124.plusplusbattery.data.util.readBatteryInfo
 import com.dijia1124.plusplusbattery.data.util.readBatteryLogMap
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
@@ -153,7 +154,12 @@ class BatteryInfoRepository(private val context: Context) {
                 batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toInt()
             }) { rootReadFailed = true }
         rootModePower = if (!rootReadFailed) {
-            (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
+            if (isDualBattery() == true) {
+                (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
+            }
+            else {
+                rootModeVoltage0 * rootModeCurrent * calibMultiplier * dualBattMultiplier / 1000000.0
+            }
         } else {
             val intent = context.registerReceiver(
                 null,

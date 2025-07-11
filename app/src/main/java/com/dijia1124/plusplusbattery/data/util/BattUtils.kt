@@ -189,3 +189,18 @@ suspend fun safeRootReadInt(
         fallback()
     }
 }
+
+suspend fun isDualBattery(): Boolean = withContext(Dispatchers.IO) {
+    // detect battery cells with root access
+    val line = readBatteryInfo("aging_ffc_data") ?: return@withContext false
+
+    // expected format: 0,2,0,0,186,4550,4490,4520,4475
+    val parts = line.split(',').map { it.trim() }
+    if (parts.size > 1) {
+        when (parts[1]) {
+            "2" -> true
+            "1" -> false
+            else -> false
+        }
+    } else false
+}
