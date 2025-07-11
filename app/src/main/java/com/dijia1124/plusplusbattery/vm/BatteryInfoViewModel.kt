@@ -4,12 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.BatteryManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
-import com.dijia1124.plusplusbattery.data.model.CustomField
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
@@ -77,14 +78,18 @@ class BatteryInfoViewModel(application: Application,
         }
     }
 
-    suspend fun addCustomField(field: CustomField) =
-        batteryInfoRepository.addCustomField(field)
+    val customEntries: StateFlow<List<CustomEntry>> =
+        batteryInfoRepository.customEntries
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    suspend fun removeCustomField(path: String) =
-        batteryInfoRepository.removeCustomField(path)
+    suspend fun addCustomEntry(entry: CustomEntry) =
+        batteryInfoRepository.addCustomEntry(entry)
 
-    suspend fun readCustomFields(): List<BatteryInfo> =
-        batteryInfoRepository.readCustomFields()
+    suspend fun removeCustomEntry(path: String) =
+        batteryInfoRepository.removeCustomEntry(path)
+
+    suspend fun readCustomEntries(): List<BatteryInfo> =
+        batteryInfoRepository.readCustomEntries()
 
     suspend fun refreshBatteryInfo(): List<BatteryInfo> =
         withContext(Dispatchers.IO) {
@@ -119,4 +124,22 @@ class BatteryInfoViewModel(application: Application,
             )
             historyInfoRepository.insertOrUpdate(newInfo)
         }
+
+    fun exportEntries(context: Context, onDone: (Uri) -> Unit) =
+        viewModelScope.launch {
+            try {
+                val uri = batteryInfoRepository.exportEntriesToDownloads(context)
+                onDone(uri)
+            } catch (e: Exception) {
+                onDone(Uri.EMPTY)
+            }
+        }
+
+    fun importJsonFromUri(uri: Uri) = viewModelScope.launch {
+        batteryInfoRepository.importFromUri(getApplication(), uri)
+    }
+
+    fun importPreset(name: String) = viewModelScope.launch {
+        batteryInfoRepository.importPreset(getApplication(), name)
+    }
 }

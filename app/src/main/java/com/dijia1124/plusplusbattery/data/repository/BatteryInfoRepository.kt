@@ -1,9 +1,13 @@
 package com.dijia1124.plusplusbattery.data.repository
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.BatteryManager
+import android.os.Build
+import android.provider.MediaStore
 import androidx.datastore.preferences.core.edit
 import com.dijia1124.plusplusbattery.data.util.DUAL_BATTERY_KEY
 import com.dijia1124.plusplusbattery.data.util.ESTIMATED_FCC_KEY
@@ -14,8 +18,8 @@ import com.dijia1124.plusplusbattery.data.util.calcRawFcc
 import com.dijia1124.plusplusbattery.data.util.calcRawSoh
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
-import com.dijia1124.plusplusbattery.data.model.CustomField
-import com.dijia1124.plusplusbattery.data.util.CUSTOM_FIELDS
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
+import com.dijia1124.plusplusbattery.data.util.CUSTOM_ENTRIES
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -33,6 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.IOException
 import kotlin.collections.map
 import kotlin.math.pow
 
@@ -311,33 +316,104 @@ class BatteryInfoRepository(private val context: Context) {
             }
         }
 
-    val customFields: Flow<List<CustomField>> = settings.data
+    val customEntries: Flow<List<CustomEntry>> = settings.data
         .map { prefs ->
-            prefs[CUSTOM_FIELDS]
-                ?.let { Json.decodeFromString<List<CustomField>>(it) }
+            prefs[CUSTOM_ENTRIES]
+                ?.let { Json.decodeFromString<List<CustomEntry>>(it) }
                 ?: emptyList()
         }
 
-    suspend fun addCustomField(field: CustomField) = settings.edit { prefs ->
-        val current = customFields.first()
-        prefs[CUSTOM_FIELDS] = Json.encodeToString(current + field)
+    suspend fun addCustomEntry(entry: CustomEntry) = settings.edit { prefs ->
+        val current = customEntries.first()
+        prefs[CUSTOM_ENTRIES] = Json.encodeToString(current + entry)
     }
 
-    suspend fun removeCustomField(path: String) = settings.edit { prefs ->
-        val current = customFields.first().filterNot { it.path == path }
-        prefs[CUSTOM_FIELDS] = Json.encodeToString(current)
+    suspend fun removeCustomEntry(path: String) = settings.edit { prefs ->
+        val current = customEntries.first().filterNot { it.path == path }
+        prefs[CUSTOM_ENTRIES] = Json.encodeToString(current)
     }
 
-    suspend fun readCustomFields(): List<BatteryInfo> = coroutineScope {
-        customFields.first().map { f ->
+    suspend fun readCustomEntries(): List<BatteryInfo> = coroutineScope {
+        customEntries.first().map { entry ->
             async(Dispatchers.IO) {
-                val raw = readBatteryInfo("", f.path) ?: "N/A"
+                val raw = readBatteryInfo("", entry.path) ?: R.string.unknown
+                val scaled = raw.toString().toDoubleOrNull()?.let { value ->
+                    value * 10.0.pow(entry.scale)
+                }?.let { "%.0f".format(it) } ?: raw
                 BatteryInfo(
-                    type         = BatteryInfoType.CUSTOM,
-                    value        = buildString { append(raw); if (f.unit.isNotBlank()) append(' ').append(f.unit) },
-                    customTitle  = f.title,
+                    type = BatteryInfoType.CUSTOM,
+                    value = buildString {
+                        append(scaled)
+                        if (entry.unit.isNotBlank()) append(' ').append(entry.unit)
+                    },
+                    customTitle  = resolveTitle(context, entry.title),
                 )
             }
         }.awaitAll()
     }
+
+    suspend fun exportEntriesToDownloads(
+        ctx: Context,
+        fileName: String = "battery_entries_${System.currentTimeMillis()}.json"
+    ): Uri = withContext(Dispatchers.IO) {
+
+        val json = Json.encodeToString(customEntries.first())
+
+        val values = ContentValues().apply {
+            put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+            put(MediaStore.Downloads.MIME_TYPE, "application/json")
+            put(MediaStore.Downloads.IS_PENDING, 1)
+        }
+
+        val resolver = ctx.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IOException("Cannot create download entry")
+
+        resolver.openOutputStream(uri).use { it?.write(json.toByteArray()) }
+
+        values.clear(); values.put(MediaStore.Downloads.IS_PENDING, 0)
+        resolver.update(uri, values, null, null)
+
+        uri
+    }
+
+    suspend fun importFromUri(ctx: Context, uri: Uri) = withContext(Dispatchers.IO) {
+        val jsonText = ctx.contentResolver.openInputStream(uri)
+            ?.bufferedReader()
+            ?.readText()
+            ?: throw IOException("Cannot read JSON")
+
+        val incoming = Json.decodeFromString<List<CustomEntry>>(jsonText)
+
+        mergeAndSave(incoming)
+    }
+
+    private suspend fun mergeAndSave(incoming: List<CustomEntry>) {
+        settings.edit { prefs ->
+            val current = prefs[CUSTOM_ENTRIES]
+                ?.let { Json.decodeFromString<List<CustomEntry>>(it) }
+                .orEmpty()
+
+            val merged = (current + incoming).associateBy { it.path }.values.toList()
+
+            prefs[CUSTOM_ENTRIES] = Json.encodeToString(merged)
+        }
+    }
+
+    private val titleResMap = mapOf(
+        "title_cycle_count"        to R.string.cycle_counts,
+        "title_charge_full"        to R.string.full_charge_capacity,
+        "title_charge_full_design" to R.string.design_capacity_design_capacity,
+        // modify this after presets are changed
+    )
+
+    private fun resolveTitle(ctx: Context, key: String): String =
+        titleResMap[key]?.let(ctx::getString) ?: key
+
+    suspend fun importPreset(ctx: Context, name: String) = withContext(Dispatchers.IO) {
+        val json = ctx.assets.open("profiles/$name.json").bufferedReader().readText()
+        val list = Json.decodeFromString<List<CustomEntry>>(json)
+        mergeAndSave(list)
+    }
+
 }
