@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/sys/class/power_supply/battery/cycle_count",
+    "title": "title_cycle_count",
+    "unit": ""
+  },
+  {
+    "path": "/sys/class/power_supply/battery/charge_full",
+    "title": "title_charge_full",
+    "unit": "mAh"
+  },
+  {
+    "path": "/sys/class/power_supply/battery/charge_full_design",
+    "title": "title_charge_full_design",
+    "unit": "mAh"
+  }
+]

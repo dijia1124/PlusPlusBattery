@@ -3,7 +3,10 @@ package com.dijia1124.plusplusbattery.ui.screen
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,9 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -30,6 +36,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -64,7 +71,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
-import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository.CustomField
+import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
@@ -74,8 +81,21 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
-    AppScaffold(currentTitle) {
+    var showMgr by remember { mutableStateOf(false) }
+    AppScaffold(
+        title = currentTitle,
+        actions = {
+            IconButton(onClick = { showMgr = true }) {
+                Icon(Icons.Default.MoreVert, contentDescription = "Manage entries")
+            }
+        }) {
         DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
+    }
+    if (showMgr) {
+        ManageEntriesDialog(
+            viewModel = batteryInfoViewModel,
+            onDismiss = { showMgr = false }
+        )
     }
 }
 
@@ -191,7 +211,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
         BatteryInfoType.OPLUS_DESIGN_CAPACITY
     )
-    var showAddDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
         if (!hasRoot && isRootMode) {
@@ -213,7 +232,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
                             displayList.addAll(rootList)
                             // add custom fields if root access is available
-                            val customList = batteryInfoViewModel.readCustomFields()
+                            val customList = batteryInfoViewModel.readCustomEntries()
                             displayList.addAll(customList)
                             // filter out OPLUS types if showOplusFields is false
                             if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
@@ -305,23 +324,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             RootSwitch(hasRoot, isRootMode , context, onToggle = {
                 batteryInfoViewModel.setRootMode(it)
             })
-        }
-        Button(
-            onClick = { showAddDialog = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Icon(Icons.Default.Add, contentDescription = "Add custom node")
-        }
-
-        if (showAddDialog) {
-            AddFieldDialog(
-                onAdd = { path, title, unit ->
-                    batteryInfoViewModel.addCustomField(
-                        CustomField(path, title, unit)
-                    )
-                },
-                onDismiss = { showAddDialog = false }
-            )
         }
     }
 
@@ -471,31 +473,198 @@ fun MultiplierSelector(
 
 @Composable
 fun AddFieldDialog(
-    onAdd: (String,String,String) -> Unit, onDismiss: () -> Unit
+    existingPaths: Set<String>,
+    onAdd: (String,String,String,Int) -> Unit,
+    onDismiss: () -> Unit
 ) {
     var path by remember { mutableStateOf("") }
     var title by remember { mutableStateOf("") }
     var unit by remember { mutableStateOf("") }
+    var scale by remember { mutableIntStateOf(0) }
+
+    val scaleOptions = listOf(0, -3, 3)
+    val scaleLabel   = "×10^$scale"
+
+    val pathIsDuplicate = path in existingPaths
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add custom sysfs node") },
+        title = { Text("Add custom entry") },
         text = {
             Column {
                 OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
                 OutlinedTextField(title, { title = it }, label = { Text("Title") })
                 OutlinedTextField(unit,  { unit  = it }, label = { Text("Unit (optional)") })
+
+                Spacer(Modifier.height(12.dp))
+                Text("Scale:", style = MaterialTheme.typography.bodyMedium)
+                Row {
+                    scaleOptions.forEach {
+                        FilterChip(
+                            selected = (scale == it),
+                            onClick  = { scale = it },
+                            label    = { Text("10^$it") }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                    }
+                }
             }
         },
         confirmButton = {
             Button(
-                enabled = path.isNotBlank(),
+                enabled = path.isNotBlank() && !pathIsDuplicate,
                 onClick = {
-                    onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit)
+                    onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit, scale)
                     onDismiss()
                 }
-            ) { Text("Add") }
+            ) { Text(if (pathIsDuplicate) "Existed" else "Add") }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageEntriesDialog(
+    viewModel: BatteryInfoViewModel,
+    onDismiss: () -> Unit
+) {
+    var context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val entries by viewModel.customEntries.collectAsState()
+    var showAdd by remember { mutableStateOf(false) }
+    val presets = listOf("generic", "empty")
+    var expanded by remember { mutableStateOf(false) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let {
+                coroutineScope.launch {
+                    try {
+                        viewModel.importJsonFromUri(it)
+                        Toast.makeText(context, "Imported!", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        dismissButton = {
+            Button(
+                onClick = { launcher.launch(arrayOf("application/json")) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Import profile")
+            }
+            Button(
+                onClick = {
+                viewModel.exportEntries(context) { uri ->
+                    if (uri != Uri.EMPTY)
+                        Toast.makeText(context, "Saved to Downloads", Toast.LENGTH_SHORT).show()
+                    else
+                        Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                }
+            },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Export profile")
+            }
+            Button(
+                onClick = { showAdd = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Add")
+            }
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+        },
+        title = { Text("Manage custom entries") },
+        text = {
+            Column {
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded }
+                ) {
+                    TextField(
+                        value = "Choose from presets",
+                        onValueChange = {},
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        presets.forEach { preset ->
+                            DropdownMenuItem(
+                                text = { Text(preset.replaceFirstChar(Char::titlecase)) },
+                                onClick = {
+                                    expanded = false
+                                    coroutineScope.launch {
+                                        viewModel.importPreset(preset)
+                                        Toast.makeText(
+                                            context,
+                                            "Preset $preset imported",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                LazyColumn {
+                    items(count = entries.size, key = { entries[it].path }) { index ->
+                        val entry = entries[index]
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(entry.title, style = MaterialTheme.typography.bodyMedium)
+                                Text(entry.path, style = MaterialTheme.typography.bodySmall)
+                            }
+                            IconButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        viewModel.removeCustomEntry(entry.path)
+                                    }
+                                }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Remove")
+                            }
+                        }
+                    }
+                    if (entries.isEmpty()) {
+                        item { Text("No custom entries.") }
+                    }
+                }
+            }
+        }
+    )
+    if (showAdd) {
+        AddFieldDialog(
+            existingPaths = entries.mapTo(mutableSetOf()) { it.path },
+            onAdd = { path, title, unit, scale ->
+                coroutineScope.launch {
+                    viewModel.addCustomEntry(CustomEntry(path, title, unit, scale))
+                }
+            },
+            onDismiss = { showAdd = false }
+        )
+    }
 }
