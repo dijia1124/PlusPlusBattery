@@ -58,7 +58,7 @@ fun SettingsContent(
     val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
     val refreshInterval by settingsVM.refreshInterval.collectAsState()
     val showOplusFields by settingsVM.showOplusFields.collectAsState()
-
+    var showMgr by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -127,6 +127,21 @@ fun SettingsContent(
                 )
             }
         )
+        ListItem(
+            modifier = Modifier.clickable { showMgr = true },
+            headlineContent = {
+                Text(
+                    text = stringResource(R.string.manage_custom_entries),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        )
+        if (showMgr) {
+            ManageEntriesDialog(
+                viewModel = batteryVM,
+                onDismiss = { showMgr = false }
+            )
+        }
         ListItem(
             modifier = Modifier.clickable { navController.navigate("battery_logcat_experiment") },
             headlineContent = { Text(text = stringResource(R.string.get_from_logcat), style = MaterialTheme.typography.bodyLarge) }
