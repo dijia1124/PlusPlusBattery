@@ -181,7 +181,7 @@ class MainActivity : ComponentActivity() {
                             UniversalSupportLogcat(
                                 navController,
                                 batteryLogViewModel,
-                                stringResource(R.string.get_from_logcat)
+                                stringResource(R.string.get_from_logcat_title)
                             )
                         }
                     }

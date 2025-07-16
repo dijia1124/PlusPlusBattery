@@ -58,7 +58,7 @@ fun SettingsContent(
     val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
     val refreshInterval by settingsVM.refreshInterval.collectAsState()
     val showOplusFields by settingsVM.showOplusFields.collectAsState()
-
+    var showMgr by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -118,7 +118,7 @@ fun SettingsContent(
         )
         ListItem(
             headlineContent = {
-                Text(text = "Enable Oplus fields", style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(R.string.enable_oplus_fields), style = MaterialTheme.typography.bodyLarge)
             },
             trailingContent = {
                 Switch(
@@ -128,14 +128,29 @@ fun SettingsContent(
             }
         )
         ListItem(
-            modifier = Modifier.clickable { navController.navigate("battery_logcat_experiment") },
-            headlineContent = { Text(text = stringResource(R.string.get_from_logcat), style = MaterialTheme.typography.bodyLarge) }
+            modifier = Modifier.clickable { showMgr = true },
+            headlineContent = {
+                Text(
+                    text = stringResource(R.string.manage_custom_entries),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         )
+        if (showMgr) {
+            ManageEntriesDialog(
+                viewModel = batteryVM,
+                onDismiss = { showMgr = false }
+            )
+        }
         RefreshIntervalListItem(
             refreshInterval = refreshInterval,
             onIntervalChange = { newRate ->
                 settingsVM.setRefreshInterval(newRate)
             }
+        )
+        ListItem(
+            modifier = Modifier.clickable { navController.navigate("battery_logcat_experiment") },
+            headlineContent = { Text(text = stringResource(R.string.get_from_logcat), style = MaterialTheme.typography.bodyLarge) }
         )
         ListItem(
             modifier = Modifier.clickable {

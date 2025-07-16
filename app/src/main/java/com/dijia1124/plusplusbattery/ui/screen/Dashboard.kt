@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,13 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
@@ -32,6 +36,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -62,6 +67,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.Lifecycle
@@ -81,12 +87,31 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
-    var showMgr by remember { mutableStateOf(false) }
+    var showMgr       by remember { mutableStateOf(false) }
+    var menuExpanded  by remember { mutableStateOf(false) }
     AppScaffold(
         title = currentTitle,
         actions = {
-            IconButton(onClick = { showMgr = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "Manage entries")
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(
+                        Icons.Default.MoreVert,
+                        contentDescription = "Menu"
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.manage_custom_entries)) },
+                        onClick = {
+                            menuExpanded = false
+                            showMgr = true
+                        }
+                    )
+                }
             }
         }) {
         DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
@@ -475,29 +500,34 @@ fun MultiplierSelector(
 fun AddFieldDialog(
     existingPaths: Set<String>,
     onAdd: (String,String,String,Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    defaultPath:  String = "",
+    defaultTitle: String = "",
+    defaultUnit:  String = "",
+    defaultScale: Int    = 0
 ) {
-    var path by remember { mutableStateOf("") }
-    var title by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("") }
-    var scale by remember { mutableIntStateOf(0) }
+    var path  by rememberSaveable { mutableStateOf(defaultPath)  }
+    var title by rememberSaveable { mutableStateOf(defaultTitle) }
+    var unit  by rememberSaveable { mutableStateOf(defaultUnit)  }
+    var scale by rememberSaveable { mutableIntStateOf(defaultScale) }
 
+    val editing         = defaultPath.isNotEmpty()
+    val pathIsDuplicate = path in existingPaths && path != defaultPath
     val scaleOptions = listOf(0, -3, 3)
-    val scaleLabel   = "×10^$scale"
-
-    val pathIsDuplicate = path in existingPaths
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add custom entry") },
+        title = { Text(if (editing) stringResource(R.string.edit_custom_entry) else stringResource(R.string.add_custom_entry)) },
         text = {
-            Column {
-                OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
-                OutlinedTextField(title, { title = it }, label = { Text("Title") })
-                OutlinedTextField(unit,  { unit  = it }, label = { Text("Unit (optional)") })
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
+                OutlinedTextField(path,  { path = it }, label = { Text(stringResource(R.string.path_sys)) })
+                OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.title)) })
+                OutlinedTextField(unit,  { unit  = it }, label = { Text(stringResource(R.string.unit_optional)) })
 
                 Spacer(Modifier.height(12.dp))
-                Text("Scale:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.scale), style = MaterialTheme.typography.bodyMedium)
                 Row {
                     scaleOptions.forEach {
                         FilterChip(
@@ -517,9 +547,9 @@ fun AddFieldDialog(
                     onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit, scale)
                     onDismiss()
                 }
-            ) { Text(if (pathIsDuplicate) "Existed" else "Add") }
+            ) { Text(if (pathIsDuplicate) stringResource(R.string.existed) else stringResource(R.string.save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
     )
 }
 
@@ -533,6 +563,7 @@ fun ManageEntriesDialog(
     val coroutineScope = rememberCoroutineScope()
     val entries by viewModel.customEntries.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
+    var entryEditing by remember { mutableStateOf<CustomEntry?>(null) }
     val presets = listOf("generic", "empty")
     var expanded by remember { mutableStateOf(false) }
 
@@ -543,9 +574,11 @@ fun ManageEntriesDialog(
                 coroutineScope.launch {
                     try {
                         viewModel.importJsonFromUri(it)
-                        Toast.makeText(context, "Imported!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.imported), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.import_failed, e.message), Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -556,35 +589,39 @@ fun ManageEntriesDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
             Button(
-                onClick = { launcher.launch(arrayOf("application/json")) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Import profile")
-            }
-            Button(
                 onClick = {
-                viewModel.exportEntries(context) { uri ->
-                    if (uri != Uri.EMPTY)
-                        Toast.makeText(context, "Saved to Downloads", Toast.LENGTH_SHORT).show()
-                    else
-                        Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                    viewModel.exportEntries(context) { uri ->
+                        if (uri != Uri.EMPTY)
+                            Toast.makeText(context,
+                                context.getString(R.string.saved_to_downloads), Toast.LENGTH_SHORT).show()
+                        else
+                            Toast.makeText(context,
+                                context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
+                    }
                 }
-            },
-                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Export profile")
+                Text(
+                    text = stringResource(R.string.export_profile))
             }
-            Button(
-                onClick = { showAdd = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Add")
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
             }
         },
         confirmButton = {
-            Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { launcher.launch(arrayOf("application/json")) }
+            ) {
+                Text(stringResource(R.string.import_profile))
+            }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { showAdd = true }
+            ) {
+                Text(stringResource(R.string.add))
+            }
         },
-        title = { Text("Manage custom entries") },
+        title = { Text(stringResource(R.string.manage_custom_entries)) },
         text = {
             Column {
                 ExposedDropdownMenuBox(
@@ -592,7 +629,7 @@ fun ManageEntriesDialog(
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     TextField(
-                        value = "Choose from presets",
+                        value = stringResource(R.string.choose_from_presets),
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
@@ -613,7 +650,7 @@ fun ManageEntriesDialog(
                                         viewModel.importPreset(preset)
                                         Toast.makeText(
                                             context,
-                                            "Preset $preset imported",
+                                            context.getString(R.string.preset_imported, preset),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -624,7 +661,6 @@ fun ManageEntriesDialog(
                 }
 
                 Spacer(Modifier.height(8.dp))
-
                 LazyColumn {
                     items(count = entries.size, key = { entries[it].path }) { index ->
                         val entry = entries[index]
@@ -638,6 +674,9 @@ fun ManageEntriesDialog(
                                 Text(entry.title, style = MaterialTheme.typography.bodyMedium)
                                 Text(entry.path, style = MaterialTheme.typography.bodySmall)
                             }
+                            IconButton(onClick = { entryEditing = entry }) {
+                                Icon(Icons.Default.Edit, "Edit")
+                            }
                             IconButton(
                                 onClick = {
                                     coroutineScope.launch {
@@ -650,13 +689,14 @@ fun ManageEntriesDialog(
                         }
                     }
                     if (entries.isEmpty()) {
-                        item { Text("No custom entries.") }
+                        item { Text(stringResource(R.string.no_custom_entries)) }
                     }
                 }
             }
         }
     )
-    if (showAdd) {
+    if (showAdd || entryEditing != null) {
+        val init = entryEditing
         AddFieldDialog(
             existingPaths = entries.mapTo(mutableSetOf()) { it.path },
             onAdd = { path, title, unit, scale ->
@@ -664,7 +704,13 @@ fun ManageEntriesDialog(
                     viewModel.addCustomEntry(CustomEntry(path, title, unit, scale))
                 }
             },
-            onDismiss = { showAdd = false }
+            onDismiss = {
+                showAdd = false
+                entryEditing = null},
+            defaultPath  = init?.path  ?: "",
+            defaultTitle = init?.title ?: "",
+            defaultUnit  = init?.unit  ?: "",
+            defaultScale = init?.scale ?: 0
         )
     }
 }
