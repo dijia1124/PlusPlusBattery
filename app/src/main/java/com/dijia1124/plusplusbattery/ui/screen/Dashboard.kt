@@ -494,15 +494,15 @@ fun AddFieldDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (editing) "Edit custom entry" else "Add custom entry") },
+        title = { Text(if (editing) stringResource(R.string.edit_custom_entry) else stringResource(R.string.add_custom_entry)) },
         text = {
             Column {
-                OutlinedTextField(path,  { path = it }, label = { Text("Path (/sys/...)") })
-                OutlinedTextField(title, { title = it }, label = { Text("Title") })
-                OutlinedTextField(unit,  { unit  = it }, label = { Text("Unit (optional)") })
+                OutlinedTextField(path,  { path = it }, label = { Text(stringResource(R.string.path_sys)) })
+                OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.title)) })
+                OutlinedTextField(unit,  { unit  = it }, label = { Text(stringResource(R.string.unit_optional)) })
 
                 Spacer(Modifier.height(12.dp))
-                Text("Scale:", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.scale), style = MaterialTheme.typography.bodyMedium)
                 Row {
                     scaleOptions.forEach {
                         FilterChip(
@@ -522,9 +522,9 @@ fun AddFieldDialog(
                     onAdd(path, title.ifBlank { path.substringAfterLast('/') }, unit, scale)
                     onDismiss()
                 }
-            ) { Text(if (pathIsDuplicate) "Existed" else "Save") }
+            ) { Text(if (pathIsDuplicate) stringResource(R.string.existed) else stringResource(R.string.save)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
     )
 }
 
@@ -549,9 +549,11 @@ fun ManageEntriesDialog(
                 coroutineScope.launch {
                     try {
                         viewModel.importJsonFromUri(it)
-                        Toast.makeText(context, "Imported!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.imported), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "Import failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.import_failed, e.message), Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -565,32 +567,37 @@ fun ManageEntriesDialog(
                 onClick = { launcher.launch(arrayOf("application/json")) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Import profile")
+                Text(stringResource(R.string.import_profile))
             }
             Button(
                 onClick = {
                 viewModel.exportEntries(context) { uri ->
                     if (uri != Uri.EMPTY)
-                        Toast.makeText(context, "Saved to Downloads", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.saved_to_downloads), Toast.LENGTH_SHORT).show()
                     else
-                        Toast.makeText(context, "Export failed", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context,
+                            context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
                 }
             },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Export profile")
+                Text(stringResource(R.string.export_profile))
             }
             Button(
                 onClick = { showAdd = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Add")
+                Text(stringResource(R.string.add))
             }
         },
         confirmButton = {
-            Button(onClick = onDismiss) { Text(stringResource(R.string.close)) }
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.close)) }
         },
-        title = { Text("Manage custom entries") },
+        title = { Text(stringResource(R.string.manage_custom_entries)) },
         text = {
             Column {
                 ExposedDropdownMenuBox(
@@ -598,7 +605,7 @@ fun ManageEntriesDialog(
                     onExpandedChange = { expanded = !expanded }
                 ) {
                     TextField(
-                        value = "Choose from presets",
+                        value = stringResource(R.string.choose_from_presets),
                         onValueChange = {},
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
@@ -619,7 +626,7 @@ fun ManageEntriesDialog(
                                         viewModel.importPreset(preset)
                                         Toast.makeText(
                                             context,
-                                            "Preset $preset imported",
+                                            context.getString(R.string.preset_imported, preset),
                                             Toast.LENGTH_SHORT
                                         ).show()
                                     }
@@ -658,7 +665,7 @@ fun ManageEntriesDialog(
                         }
                     }
                     if (entries.isEmpty()) {
-                        item { Text("No custom entries.") }
+                        item { Text(stringResource(R.string.no_custom_entries)) }
                     }
                 }
             }

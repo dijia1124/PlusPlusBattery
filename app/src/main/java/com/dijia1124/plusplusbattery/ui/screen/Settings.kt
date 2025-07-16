@@ -118,7 +118,7 @@ fun SettingsContent(
         )
         ListItem(
             headlineContent = {
-                Text(text = "Enable Oplus fields", style = MaterialTheme.typography.bodyLarge)
+                Text(text = stringResource(R.string.enable_oplus_fields), style = MaterialTheme.typography.bodyLarge)
             },
             trailingContent = {
                 Switch(
