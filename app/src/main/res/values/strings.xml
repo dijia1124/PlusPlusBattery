@@ -103,8 +103,8 @@
     <string name="design_capacity">Design Capacity</string>
     <string name="manage_custom_entries">Manage custom entries</string>
     <string name="choose_from_presets">Choose from presets</string>
-    <string name="export_profile">Export profile</string>
-    <string name="import_profile">Import profile</string>
+    <string name="export_profile">Export</string>
+    <string name="import_profile">Import</string>
     <string name="imported">Imported</string>
     <string name="import_failed">Import failed: %1$s</string>
     <string name="saved_to_downloads">Saved to Downloads</string>

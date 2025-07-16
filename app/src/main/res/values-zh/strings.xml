@@ -102,8 +102,8 @@
     <string name="design_capacity">设计容量</string>
     <string name="manage_custom_entries">管理自定义条目</string>
     <string name="choose_from_presets">从预设中选择</string>
-    <string name="export_profile">导出配置</string>
-    <string name="import_profile">导入配置</string>
+    <string name="export_profile">导出</string>
+    <string name="import_profile">导入</string>
     <string name="imported">已导入</string>
     <string name="import_failed">导入失败: %1$s</string>
     <string name="saved_to_downloads">已保存到下载目录</string>

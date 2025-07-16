@@ -564,38 +564,37 @@ fun ManageEntriesDialog(
         onDismissRequest = onDismiss,
         dismissButton = {
             Button(
-                onClick = { launcher.launch(arrayOf("application/json")) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.import_profile))
-            }
-            Button(
                 onClick = {
-                viewModel.exportEntries(context) { uri ->
-                    if (uri != Uri.EMPTY)
-                        Toast.makeText(context,
-                            context.getString(R.string.saved_to_downloads), Toast.LENGTH_SHORT).show()
-                    else
-                        Toast.makeText(context,
-                            context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
+                    viewModel.exportEntries(context) { uri ->
+                        if (uri != Uri.EMPTY)
+                            Toast.makeText(context,
+                                context.getString(R.string.saved_to_downloads), Toast.LENGTH_SHORT).show()
+                        else
+                            Toast.makeText(context,
+                                context.getString(R.string.export_failed), Toast.LENGTH_SHORT).show()
+                    }
                 }
-            },
-                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.export_profile))
+                Text(
+                    text = stringResource(R.string.export_profile))
             }
-            Button(
-                onClick = { showAdd = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.add))
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
             }
         },
         confirmButton = {
             Button(
-                onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
-                ) { Text(stringResource(R.string.close)) }
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { launcher.launch(arrayOf("application/json")) }
+            ) {
+                Text(stringResource(R.string.import_profile))
+            }
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = { showAdd = true }
+            ) {
+                Text(stringResource(R.string.add))
+            }
         },
         title = { Text(stringResource(R.string.manage_custom_entries)) },
         text = {
