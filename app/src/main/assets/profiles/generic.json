@@ -7,11 +7,13 @@
   {
     "path": "/sys/class/power_supply/battery/charge_full",
     "title": "charge_full",
-    "unit": "mAh"
+    "unit": "mAh",
+    "scale": -3
   },
   {
     "path": "/sys/class/power_supply/battery/charge_full_design",
     "title": "charge_full_design",
-    "unit": "mAh"
+    "unit": "mAh",
+    "scale": -3
   }
 ]
