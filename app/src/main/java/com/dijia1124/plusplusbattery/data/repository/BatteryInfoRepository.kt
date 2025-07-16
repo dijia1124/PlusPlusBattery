@@ -330,8 +330,9 @@ class BatteryInfoRepository(private val context: Context) {
         }
 
     suspend fun addCustomEntry(entry: CustomEntry) = settings.edit { prefs ->
-        val current = customEntries.first()
-        prefs[CUSTOM_ENTRIES] = Json.encodeToString(current + entry)
+        val list = customEntries.first().associateBy { it.path }.toMutableMap()
+        list[entry.path] = entry
+        prefs[CUSTOM_ENTRIES] = Json.encodeToString(list.values.toList())
     }
 
     suspend fun removeCustomEntry(path: String) = settings.edit { prefs ->
@@ -421,5 +422,4 @@ class BatteryInfoRepository(private val context: Context) {
         val list = Json.decodeFromString<List<CustomEntry>>(json)
         mergeAndSave(list)
     }
-
 }
