@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
@@ -496,7 +498,9 @@ fun AddFieldDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (editing) stringResource(R.string.edit_custom_entry) else stringResource(R.string.add_custom_entry)) },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            ) {
                 OutlinedTextField(path,  { path = it }, label = { Text(stringResource(R.string.path_sys)) })
                 OutlinedTextField(title, { title = it }, label = { Text(stringResource(R.string.title)) })
                 OutlinedTextField(unit,  { unit  = it }, label = { Text(stringResource(R.string.unit_optional)) })
