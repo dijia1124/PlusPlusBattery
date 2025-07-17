@@ -153,8 +153,6 @@ fun calcRawFcc(
 suspend fun readBatteryLogMap(
     fields: Set<String>? = null
 ): Map<String, String> = withContext(Dispatchers.IO) {
-    val base = OPLUS_CHG_BATTERY_PATH
-
     val headLine  = readBatteryInfo("battery_log_head") ?: return@withContext emptyMap<String, String>()
     val valueLine = readBatteryInfo("battery_log_content") ?: return@withContext emptyMap<String, String>()
 
@@ -169,7 +167,6 @@ suspend fun readBatteryLogMap(
 
 
 suspend fun safeRootReadInt(
-    context: Context,
     path: String,
     index: Int,
     fallback: () -> Int,
@@ -203,4 +200,14 @@ suspend fun isDualBattery(): Boolean = withContext(Dispatchers.IO) {
             else -> false
         }
     } else false
+}
+
+fun normalizeQmax(rawQ: Int, fcc: Int?): Int {
+    // some models report qmax multiplied by 10
+    var q = rawQ
+    val ref = fcc ?: 20000
+    while (q >= ref * 2) {
+        q /= 10
+    }
+    return q
 }

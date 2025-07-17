@@ -3,9 +3,9 @@ battery — from simple level and power readings to deep-dive metrics.
 It is designed and tested on modern OnePlus/Oppo/Realme devices,
 but also works on most recent AOSP-based ROMs.
 
-──────────────────────────
+───────────────────
 ■  KEY FEATURES
-──────────────────────────
+───────────────────
 • Real-time dashboard
   – Level, voltage, current, charge / discharge power
   – Works with and without root
@@ -28,10 +28,15 @@ but also works on most recent AOSP-based ROMs.
     • Raw, uncompensated FCC/SOH values (especially for silicon batteries)
     • Under-voltage shut-down threshold (vbat_uv)
     • Battery serial number, manufacture date, Qmax, and more
+  - Reads generic linux power supply files under /sys/class/power_supply/battery for universal devices
+    • Customizable paths/titles/units for anything you want to read with root access
 
-──────────────────────────
+• Experimental
+  - Gets battery data from logcat (root required)
+    • Currently only some OPlus, Moto & Xiaomi devices are supported (depends on models and systems)
+───────────────────
 ■  INSTALLATION
-──────────────────────────
+───────────────────
 1. Make sure your handset runs a recent OxygenOS / ColorOS build or another
    up-to-date Android ROM.
 2. Install the APK (or via F-Droid once this package is published).
@@ -39,10 +44,11 @@ but also works on most recent AOSP-based ROMs.
 4. (Optional) Grant root to unlock advanced metrics.
 5. (Optional) To make the monitor service work as intended, disable battery optimisation for
    PlusPlusBattery and, on ColorOS 15, enable “Auto-launch”.
+6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode.
 
-──────────────────────────
+───────────────────
 ■  PRIVACY & OPEN SOURCE
-──────────────────────────
+───────────────────
 There are **no ads, no trackers, no internet permissions**.
 • Application source code ─ MIT Licence
 • Material Icons (Google Fonts) ─ Apache Licence 2.0
