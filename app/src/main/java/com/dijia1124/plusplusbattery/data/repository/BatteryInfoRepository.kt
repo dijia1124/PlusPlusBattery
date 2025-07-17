@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.BatteryManager
-import android.os.Build
 import android.provider.MediaStore
 import androidx.datastore.preferences.core.edit
 import com.dijia1124.plusplusbattery.data.util.DUAL_BATTERY_KEY
@@ -135,7 +134,7 @@ class BatteryInfoRepository(private val context: Context) {
         var rootReadFailed = false
         // fall back to batteryManager if root read fails for rooted vot1,2 and current
         rootModeVoltage0 =
-            safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_0_INDEX, {
+            safeRootReadInt("bcc_parms", BCC_VOLTAGE_0_INDEX, {
                 val intent = context.registerReceiver(
                     null,
                     IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -144,14 +143,14 @@ class BatteryInfoRepository(private val context: Context) {
             }) { rootReadFailed = true }
 
         rootModeVoltage1 =
-            safeRootReadInt(context, "bcc_parms", BCC_VOLTAGE_1_INDEX, {
+            safeRootReadInt("bcc_parms", BCC_VOLTAGE_1_INDEX, {
                 // if root read fails, shows value 0, on the right side of Battery Voltage entry
                 // e.g. 4000 / 0 mV
                 0
             }) { rootReadFailed = true }
 
         rootModeCurrent =
-            safeRootReadInt(context, "bcc_parms", BCC_CURRENT_INDEX, {
+            safeRootReadInt("bcc_parms", BCC_CURRENT_INDEX, {
                 batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toInt()
             }) { rootReadFailed = true }
         rootModePower = if (!rootReadFailed) {
