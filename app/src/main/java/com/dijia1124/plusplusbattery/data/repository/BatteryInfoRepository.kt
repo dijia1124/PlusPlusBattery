@@ -25,6 +25,7 @@ import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
 import com.dijia1124.plusplusbattery.data.util.getStatusString
 import com.dijia1124.plusplusbattery.data.util.isDualBattery
+import com.dijia1124.plusplusbattery.data.util.normalizeQmax
 import com.dijia1124.plusplusbattery.data.util.readBatteryInfo
 import com.dijia1124.plusplusbattery.data.util.readBatteryLogMap
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
@@ -204,7 +205,11 @@ class BatteryInfoRepository(private val context: Context) {
             if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
         }
         val logMap = readBatteryLogMap()
-        val qMax = logMap["batt_qmax"]?.let { "$it mAh" } ?: context.getString(R.string.unknown)
+        val fccInt = fcc.toIntOrNull()
+        val qmaxInt = logMap["batt_qmax"]?.toIntOrNull()
+        val qMax = qmaxInt?.let { q ->
+            "${normalizeQmax(q, fccInt)} mAh"
+        } ?: context.getString(R.string.unknown)
         listOf(
             BatteryInfo(
                 BatteryInfoType.VOLTAGE,

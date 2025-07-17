@@ -204,3 +204,12 @@ suspend fun isDualBattery(): Boolean = withContext(Dispatchers.IO) {
         }
     } else false
 }
+
+fun normalizeQmax(rawQ: Int, fcc: Int?): Int {
+    var q = rawQ
+    val ref = fcc ?: 20000
+    while (q >= ref * 2) {
+        q /= 10
+    }
+    return q
+}
