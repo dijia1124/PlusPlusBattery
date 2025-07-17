@@ -100,7 +100,7 @@
     <string name="manufacturer">Manufacturer: %1$s</string>
     <string name="model">Model: %1$s</string>
     <string name="custom_battery_info">Custom Battery Info</string>
-    <string name="enable_oplus_fields">Show OPlus exclusive fields</string>
+    <string name="enable_oplus_fields">Show OPlus exclusive entries</string>
     <string name="design_capacity">Design Capacity</string>
     <string name="manage_custom_entries">Manage custom entries</string>
     <string name="choose_from_presets">Choose from presets</string>
