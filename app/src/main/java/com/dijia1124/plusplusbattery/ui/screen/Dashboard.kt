@@ -81,14 +81,17 @@ import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import com.dijia1124.plusplusbattery.ui.components.showRootDeniedToast
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
+    val context    = LocalContext.current
     var showMgr       by remember { mutableStateOf(false) }
     var menuExpanded  by remember { mutableStateOf(false) }
+    val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     AppScaffold(
         title = currentTitle,
         actions = {
@@ -117,10 +120,16 @@ fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: Batt
         DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
     }
     if (showMgr) {
-        ManageEntriesDialog(
-            viewModel = batteryInfoViewModel,
-            onDismiss = { showMgr = false }
-        )
+        if (!hasRoot || !isRootMode) {
+            context.showRootDeniedToast()
+            showMgr = false
+        }
+        else {
+            ManageEntriesDialog(
+                viewModel = batteryInfoViewModel,
+                onDismiss = { showMgr = false }
+            )
+        }
     }
 }
 
@@ -421,11 +430,7 @@ fun RootSwitch(hasRoot: Boolean, isRootMode: Boolean, context: Context, onToggle
                             if (hasRoot) {
                                 onToggle(true)
                             } else {
-                                Toast.makeText(
-                                    context,
-                                    context.getString(R.string.root_access_denied),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                context.showRootDeniedToast()
                             }
                         } else {
                             onToggle(false)
