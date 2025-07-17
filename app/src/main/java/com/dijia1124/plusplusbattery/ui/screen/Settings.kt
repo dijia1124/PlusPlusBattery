@@ -34,6 +34,7 @@ import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
 import androidx.core.net.toUri
+import com.dijia1124.plusplusbattery.ui.components.showRootDeniedToast
 import kotlin.math.roundToInt
 
 @Composable
@@ -137,10 +138,16 @@ fun SettingsContent(
             }
         )
         if (showMgr) {
-            ManageEntriesDialog(
-                viewModel = batteryVM,
-                onDismiss = { showMgr = false }
-            )
+            if (isRootMode) {
+                ManageEntriesDialog(
+                    viewModel = batteryVM,
+                    onDismiss = { showMgr = false }
+                )
+            }
+            else {
+                context.showRootDeniedToast()
+                showMgr = false
+            }
         }
         RefreshIntervalListItem(
             refreshInterval = refreshInterval,
@@ -149,7 +156,11 @@ fun SettingsContent(
             }
         )
         ListItem(
-            modifier = Modifier.clickable { navController.navigate("battery_logcat_experiment") },
+            modifier = Modifier.clickable {
+                if (isRootMode) {
+                    navController.navigate("battery_logcat_experiment")
+                }
+                else context.showRootDeniedToast()},
             headlineContent = { Text(text = stringResource(R.string.get_from_logcat), style = MaterialTheme.typography.bodyLarge) }
         )
         ListItem(
