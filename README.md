@@ -44,10 +44,6 @@ Or download the APK from [Github Release](https://github.com/dijia1124/PlusPlusB
 5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS 15 users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
 6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode.
 
-## Note
-
-On some recent ColorOS versions (such as 15.0.0.840 for OnePlus 13), the monitor service might not be able to work properly due to the strict battery optimization policy. In this case you may want to play around with the file /data/oplus/os/bpm/sys_elsa_config_list.xml
-
 ## Credits
 
 Special thanks to [@shminer](https://github.com/shminer) for providing source code, algorithm logic, and insights related to FCC & SOH compensation.
