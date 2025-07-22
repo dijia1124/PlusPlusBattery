@@ -347,7 +347,7 @@ class BatteryInfoRepository(private val context: Context) {
     suspend fun readCustomEntries(): List<BatteryInfo> = coroutineScope {
         customEntries.first().map { entry ->
             async(Dispatchers.IO) {
-                val raw = readBatteryInfo("", entry.path) ?: R.string.unknown
+                val raw = readBatteryInfo("", entry.path) ?: context.getString(R.string.unknown)
                 val scaled = raw.toString().toDoubleOrNull()?.let { value ->
                     value * 10.0.pow(entry.scale)
                 }?.let { "%.0f".format(it) } ?: raw
