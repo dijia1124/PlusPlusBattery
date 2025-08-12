@@ -293,8 +293,9 @@ class BatteryInfoRepository(private val context: Context) {
 
     suspend fun getEstimatedFcc(savedEstimatedFcc: String): BatteryInfo =
         withContext(Dispatchers.IO) {
+            val calibMultiplier = calibFlow.first()
             val currentNow =
-                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier
             val batteryLevel =
                 batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
