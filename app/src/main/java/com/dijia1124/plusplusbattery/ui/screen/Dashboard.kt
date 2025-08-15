@@ -62,8 +62,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -79,6 +79,8 @@ import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.getBoolString
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import com.dijia1124.plusplusbattery.ui.components.CardWithPowerChart
+import com.dijia1124.plusplusbattery.ui.components.PowerDataPoint
 import com.dijia1124.plusplusbattery.ui.components.showRootDeniedToast
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -276,6 +278,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var lastSize by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
+    val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
+    var chartStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val OPLUS_TYPES = setOf(
         BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
         BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
@@ -289,8 +293,13 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         if (!hasRoot && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
         }
+
         lifecycleOwner.lifecycle
             .repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // Reset power chart data when entering foreground
+                powerDataPoints.clear()
+                chartStartTime = System.currentTimeMillis()
+
                 while (true) {
                     val basicList = batteryInfoViewModel.refreshBatteryInfo()
                     val displayList = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
@@ -318,6 +327,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             displayList.add(fccInfo)
                             lastSize = displayList.size
                         }
+
+                        // Collect power data for chart
+                        collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
+
                         batteryInfoList.clear()
                         batteryInfoList.addAll(displayList)
                         // scroll to bottom if root mode is enabled
@@ -360,6 +373,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         when (batteryInfoList[index].type) {
+                            BatteryInfoType.POWER -> CardWithPowerChart(
+                                info = info,
+                                powerData = powerDataPoints.toList()
+                            )
                             BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
                                 info = info,
                                 isDualBatt = isDualBatt,
@@ -766,5 +783,28 @@ fun ManageEntriesDialog(
             defaultUnit  = init?.unit  ?: "",
             defaultScale = init?.scale ?: 0
         )
+    }
+}
+
+private fun collectPowerDataForChart(
+    displayList: List<BatteryInfo>,
+    powerDataPoints: MutableList<PowerDataPoint>,
+    chartStartTime: Long,
+    maxDataPoints: Int = 3600
+) {
+    val powerInfo = displayList.find { it.type == BatteryInfoType.POWER }
+    powerInfo?.let { info ->
+        try {
+            val powerValue = info.value.replace(Regex("[^-?0-9.]"), "").toFloatOrNull() ?: 0f
+            val currentTime = System.currentTimeMillis()
+            powerDataPoints.add(PowerDataPoint(currentTime - chartStartTime, kotlin.math.abs(powerValue)))
+
+            // Keep only last N data points
+            if (powerDataPoints.size > maxDataPoints) {
+                powerDataPoints.removeAt(0)
+            }
+        } catch (e: Exception) {
+            // Ignore parsing errors
+        }
     }
 }
