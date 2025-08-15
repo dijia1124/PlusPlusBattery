@@ -144,6 +144,27 @@ fun NormalBatteryCard(info: BatteryInfo) {
 }
 
 @Composable
+fun BatteryCardWithInfo(
+    info: BatteryInfo,
+    onShowInfo: () -> Unit
+) {
+    Row {
+        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+            Text(text = info.customTitle ?: stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = info.value,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        IconButton(onClick = onShowInfo, modifier = Modifier.size(36.dp)) {
+            Icon(Icons.Default.Info, contentDescription = "Show Info", modifier = Modifier.size(18.dp))
+        }
+    }
+}
+
+@Composable
 fun BatteryCardWithCalibration(
     info: BatteryInfo,
     isDualBatt: Boolean,
@@ -200,6 +221,25 @@ fun BatteryCardWithCoeffTable(
 }
 
 @Composable
+fun EstFccInfoDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.estimated_fcc_title)) },
+        text = {
+            Text(
+                text = stringResource(R.string.estimated_fcc_info),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+}
+
+@Composable
 fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -230,6 +270,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
     var showMultiplierDialog by remember { mutableStateOf(false) }
+    var showEstFccDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     var lastSize by remember { mutableIntStateOf(0) }
@@ -346,6 +387,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                     }
                                 }
                             )
+                            BatteryInfoType.EST_FCC -> BatteryCardWithInfo(
+                                info = info,
+                                onShowInfo = { showEstFccDialog = true }
+                            )
                             else -> NormalBatteryCard(info)
                         }
                     }
@@ -356,6 +401,12 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             RootSwitch(hasRoot, isRootMode , context, onToggle = {
                 batteryInfoViewModel.setRootMode(it)
             })
+        }
+    }
+
+    if (showEstFccDialog) {
+        EstFccInfoDialog {
+            showEstFccDialog = false
         }
     }
 

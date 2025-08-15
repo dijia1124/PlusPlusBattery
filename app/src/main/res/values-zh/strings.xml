@@ -34,6 +34,8 @@
     <string name="battery_cycle_count">循环计数</string>
     <string name="battery_current">电流</string>
     <string name="full_charge_capacity">完全充满时的容量</string>
+    <string name="estimated_fcc_title">电池容量估算</string>
+    <string name="estimated_fcc_info">此值在电量完全充满（100%）且电流小于25 mA 时进行估算。此时的charge counter的值会被记录并且显示于此。 \n注意上方电流倍率和单双电芯选项需要选择正确。</string>
     <string name="estimating_full_charge_capacity">正在测量完全充满时的容量…</string>
     <string name="capacity_unavailable">无法读取容量</string>
     <string name="charging">充电中</string>

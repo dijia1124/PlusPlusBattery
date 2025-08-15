@@ -35,6 +35,8 @@
     <string name="battery_cycle_count">Charge Cycle Count</string>
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
+    <string name="estimated_fcc_title">FCC Estimation</string>
+    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and Current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual battery option above need to be correctly selected.</string>
     <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
