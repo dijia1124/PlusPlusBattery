@@ -275,7 +275,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var showEstFccDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
-    var lastSize by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
     val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
     val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
@@ -325,7 +324,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                             displayList.addAll(nonRootVCPList)
                             val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
                             displayList.add(fccInfo)
-                            lastSize = displayList.size
                         }
 
                         // Collect power data for chart
@@ -333,11 +331,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
 
                         batteryInfoList.clear()
                         batteryInfoList.addAll(displayList)
-                        // scroll to bottom if root mode is enabled
-                        if (isRootMode && batteryInfoList.size != lastSize) {
-                            listState.scrollToItem(batteryInfoList.lastIndex)
-                        }
-                        lastSize = batteryInfoList.size
                     }
                     delay(settingsViewModel.refreshInterval.value.toLong())
                 }
