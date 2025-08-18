@@ -793,11 +793,19 @@ private fun collectPowerDataForChart(
     maxDataPoints: Int = 3600
 ) {
     val powerInfo = displayList.find { it.type == BatteryInfoType.POWER }
-    powerInfo?.let { info ->
+    val tempInfo = displayList.find { it.type == BatteryInfoType.TEMP }
+
+    powerInfo?.let { power ->
         try {
-            val powerValue = info.value.replace(Regex("[^-?0-9.]"), "").toFloatOrNull() ?: 0f
+            val powerValue = power.value.replace(Regex("[^-?0-9.]"), "").toFloatOrNull() ?: 0f
+            val tempValue = tempInfo?.value?.replace(Regex("[^-?0-9.]"), "")?.toFloatOrNull() ?: 0f
             val currentTime = System.currentTimeMillis()
-            powerDataPoints.add(PowerDataPoint(currentTime - chartStartTime, kotlin.math.abs(powerValue)))
+
+            powerDataPoints.add(PowerDataPoint(
+                timestamp = currentTime - chartStartTime,
+                power = kotlin.math.abs(powerValue),
+                temperature = tempValue
+            ))
 
             // Keep only last N data points
             if (powerDataPoints.size > maxDataPoints) {

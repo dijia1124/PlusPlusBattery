@@ -19,7 +19,8 @@ import com.dijia1124.plusplusbattery.ui.screen.NormalBatteryCard
 
 data class PowerDataPoint(
     val timestamp: Long,
-    val power: Float
+    val power: Float,
+    val temperature: Float = 0f
 )
 
 @Composable
@@ -27,7 +28,7 @@ fun CardWithPowerChart(
     info: BatteryInfo,
     powerData: List<PowerDataPoint>
 ) {
-    Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+    Column() {
         NormalBatteryCard(info)
         if (powerData.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -36,6 +37,7 @@ fun CardWithPowerChart(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
+                    .padding(horizontal = 4.dp)
             )
         }
     }
@@ -48,13 +50,14 @@ fun PowerChart(
 ) {
     val density = LocalDensity.current
     val textColor = MaterialTheme.colorScheme.onSurface
-    val lineColor = MaterialTheme.colorScheme.primary
+    val powerLineColor = MaterialTheme.colorScheme.primary
+    val temperatureLineColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
     val gridColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
 
     Canvas(modifier = modifier) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val padding = with(density) { 24.dp.toPx() }
+        val topPadding = with(density) { 12.dp.toPx() }
         val bottomPadding = with(density) { 32.dp.toPx() }
 
         if (data.isEmpty()) return@Canvas
@@ -62,24 +65,30 @@ fun PowerChart(
         // Calculate data ranges
         val minTime = data.first().timestamp
         val maxTime = data.last().timestamp
-        val rawMinPower = data.minOfOrNull { it.power } ?: 0f
         val rawMaxPower = data.maxOfOrNull { it.power } ?: 1f
+        val rawMinTemp = data.minOfOrNull { it.temperature } ?: 0f
+        val rawMaxTemp = data.maxOfOrNull { it.temperature } ?: 1f
 
-        // Handle power range - always start from 0 and use integer scales
-        val minPower = 0f // Always start from 0
-        val maxPower = kotlin.math.ceil(kotlin.math.max(rawMaxPower * 1.1f, 5f)).toFloat() // Add 10% padding, minimum 5
-
+        // Handle power range
+        val minPower = 0f
+        val maxPower = kotlin.math.ceil(kotlin.math.max(rawMaxPower * 1.1f, 5f)).toFloat()
         val adjustedPowerRange = maxPower - minPower
 
-        // Handle time range - ensure minimum display range
+        // Handle temperature range
+        val tempMargin = kotlin.math.max((rawMaxTemp - rawMinTemp) * 0.1f, 5f)
+        val minTemp = kotlin.math.floor(rawMinTemp - tempMargin).toFloat()
+        val maxTemp = kotlin.math.ceil(rawMaxTemp + tempMargin).toFloat()
+        val adjustedTempRange = maxTemp - minTemp
+
+        // Handle time range
         val rawTimeRange = maxTime - minTime
-        val displayTimeRange = if (rawTimeRange < 30000) { // Less than 30 seconds
-            kotlin.math.max(rawTimeRange, 30000) // At least 30 seconds
+        val displayTimeRange = if (rawTimeRange < 30000) {
+            kotlin.math.max(rawTimeRange, 30000)
         } else {
             rawTimeRange
         }
 
-        // Text paint for measuring and drawing Y-axis labels
+        // Text paint for Y-axis labels
         val textPaint = android.graphics.Paint().apply {
             color = textColor.toArgb()
             textSize = with(density) { 10.sp.toPx() }
@@ -87,22 +96,40 @@ fun PowerChart(
             textAlign = android.graphics.Paint.Align.RIGHT
         }
 
-        // Calculate maximum width needed for Y-axis labels (using integer format)
-        var maxLabelWidth = 0f
+        // Calculate maximum width needed for left Y-axis labels
+        var maxLeftLabelWidth = 0f
         for (i in 0..4) {
             val powerValue = maxPower - (adjustedPowerRange * i / 4)
-            val text = powerValue.toInt().toString() // Always show as integer
+            val text = powerValue.toInt().toString()
             val textWidth = textPaint.measureText(text)
-            maxLabelWidth = kotlin.math.max(maxLabelWidth, textWidth)
+            maxLeftLabelWidth = kotlin.math.max(maxLeftLabelWidth, textWidth)
         }
 
-        // Dynamic left padding based on label width
-        val leftPadding = maxLabelWidth + with(density) { 12.dp.toPx() }
+        // Text paint for right Y-axis labels
+        val rightTextPaint = android.graphics.Paint().apply {
+            color = textColor.toArgb()
+            textSize = with(density) { 10.sp.toPx() }
+            isAntiAlias = true
+            textAlign = android.graphics.Paint.Align.LEFT
+        }
+
+        // Calculate maximum width needed for right Y-axis labels
+        var maxRightLabelWidth = 0f
+        for (i in 0..4) {
+            val tempValue = maxTemp - (adjustedTempRange * i / 4)
+            val text = tempValue.toInt().toString()
+            val textWidth = rightTextPaint.measureText(text)
+            maxRightLabelWidth = kotlin.math.max(maxRightLabelWidth, textWidth)
+        }
+
+        // Dynamic padding based on label widths
+        val leftPadding = maxLeftLabelWidth + with(density) { 25.dp.toPx() }
+        val rightPadding = maxRightLabelWidth + with(density) { 25.dp.toPx() }
 
         // Drawing area
         val chartLeft = leftPadding
-        val chartRight = canvasWidth - padding
-        val chartTop = padding
+        val chartRight = canvasWidth - rightPadding
+        val chartTop = topPadding
         val chartBottom = canvasHeight - bottomPadding
         val chartWidth = chartRight - chartLeft
         val chartHeight = chartBottom - chartTop
@@ -111,6 +138,7 @@ fun PowerChart(
         for (i in 0..4) {
             val y = chartTop + (chartHeight * i / 4)
             val powerValue = maxPower - (adjustedPowerRange * i / 4)
+            val tempValue = maxTemp - (adjustedTempRange * i / 4)
 
             // Grid line
             drawLine(
@@ -120,9 +148,9 @@ fun PowerChart(
                 strokeWidth = 0.5.dp.toPx()
             )
 
-            // Y-axis label (always integer)
+            // Left Y-axis label (Power)
             drawIntoCanvas { canvas ->
-                val text = powerValue.toInt().toString()
+                val text = "${powerValue.toInt()} W"
                 canvas.nativeCanvas.drawText(
                     text,
                     chartLeft - with(density) { 8.dp.toPx() },
@@ -130,9 +158,20 @@ fun PowerChart(
                     textPaint
                 )
             }
+
+            // Right Y-axis label (Temp)
+            drawIntoCanvas { canvas ->
+                val text = "${tempValue.toInt()}°C"
+                canvas.nativeCanvas.drawText(
+                    text,
+                    chartRight + with(density) { 8.dp.toPx() },
+                    y + with(density) { 3.dp.toPx() },
+                    rightTextPaint
+                )
+            }
         }
 
-        // Text paint for X-axis labels (center aligned)
+        // Text paint for X-axis labels
         val xAxisTextPaint = android.graphics.Paint().apply {
             color = textColor.toArgb()
             textSize = with(density) { 10.sp.toPx() }
@@ -140,13 +179,12 @@ fun PowerChart(
             textAlign = android.graphics.Paint.Align.CENTER
         }
 
-        // Draw X-axis labels with improved time range handling
+        // Draw X-axis labels
         val timeSteps = 4
         for (i in 0..timeSteps) {
             val x = chartLeft + (chartWidth * i / timeSteps)
-            val timeValue = (displayTimeRange * i / timeSteps) / 1000 // Convert to seconds
+            val timeValue = (displayTimeRange * i / timeSteps) / 1000
 
-            // X-axis label with minute format
             drawIntoCanvas { canvas ->
                 val text = if (timeValue >= 60) {
                     val minutes = (timeValue / 60).toInt()
@@ -158,47 +196,87 @@ fun PowerChart(
                 canvas.nativeCanvas.drawText(
                     text,
                     x,
-                    chartBottom + with(density) { 16.dp.toPx() },
+                    chartBottom + with(density) { 20.dp.toPx() },
                     xAxisTextPaint
                 )
             }
         }
 
-        // Draw power line using relative timestamp
+        // Draw power line
         if (data.size >= 2) {
-            val path = Path()
+            val powerPath = Path()
             data.forEachIndexed { index, point ->
                 val relativeTimestamp = point.timestamp - minTime
                 val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
                 val y = chartBottom - (chartHeight * (point.power - minPower) / adjustedPowerRange.coerceAtLeast(0.01f))
 
                 if (index == 0) {
-                    path.moveTo(x, y)
+                    powerPath.moveTo(x, y)
                 } else {
-                    path.lineTo(x, y)
+                    powerPath.lineTo(x, y)
                 }
             }
 
             drawPath(
-                path = path,
-                color = lineColor,
+                path = powerPath,
+                color = powerLineColor,
                 style = Stroke(width = 2.dp.toPx())
             )
         }
 
-        // Draw data points using relative timestamp
+        // Draw temperature line
+        if (data.size >= 2) {
+            val tempPath = Path()
+            data.forEachIndexed { index, point ->
+                val relativeTimestamp = point.timestamp - minTime
+                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
+
+                if (index == 0) {
+                    tempPath.moveTo(x, y)
+                } else {
+                    tempPath.lineTo(x, y)
+                }
+            }
+
+            drawPath(
+                path = tempPath,
+                color = temperatureLineColor,
+                style = Stroke(width = 2.dp.toPx())
+            )
+        }
+
+        // Draw power data points
         data.forEach { point ->
             val relativeTimestamp = point.timestamp - minTime
             val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
             val y = chartBottom - (chartHeight * (point.power - minPower) / adjustedPowerRange.coerceAtLeast(0.01f))
 
             val pointRadius = when {
-                data.size > 30 -> 1.dp.toPx() // use small points for large datasets
-                else -> 2.dp.toPx() // use larger points for small datasets
+                data.size > 30 -> 1.dp.toPx()
+                else -> 2.dp.toPx()
             }
 
             drawCircle(
-                color = lineColor,
+                color = powerLineColor,
+                radius = pointRadius,
+                center = Offset(x, y)
+            )
+        }
+
+        // Draw temperature data points
+        data.forEach { point ->
+            val relativeTimestamp = point.timestamp - minTime
+            val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+            val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
+
+            val pointRadius = when {
+                data.size > 30 -> 1.dp.toPx()
+                else -> 2.dp.toPx()
+            }
+
+            drawCircle(
+                color = temperatureLineColor,
                 radius = pointRadius,
                 center = Offset(x, y)
             )
