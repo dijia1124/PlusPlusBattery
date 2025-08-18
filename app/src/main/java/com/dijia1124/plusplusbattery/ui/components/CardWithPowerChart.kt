@@ -3,7 +3,13 @@ package com.dijia1124.plusplusbattery.ui.components
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
@@ -28,9 +34,23 @@ fun CardWithPowerChart(
     info: BatteryInfo,
     powerData: List<PowerDataPoint>
 ) {
-    Column() {
-        NormalBatteryCard(info)
-        if (powerData.isNotEmpty()) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+        ) {
+            NormalBatteryCard(info)
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(36.dp)) {
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand"
+                )
+            }
+        }
+        if (expanded && powerData.isNotEmpty()) {
             Spacer(modifier = Modifier.height(4.dp))
             PowerChart(
                 data = powerData,
