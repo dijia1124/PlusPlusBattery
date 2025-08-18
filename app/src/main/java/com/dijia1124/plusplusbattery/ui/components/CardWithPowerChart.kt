@@ -86,13 +86,17 @@ fun PowerChart(
         val minTime = data.first().timestamp
         val maxTime = data.last().timestamp
         val rawMaxPower = data.maxOfOrNull { it.power } ?: 1f
+        // Nice tick step (always 5 ticks: 0..4)
+        val stepCandidates = listOf(
+            0.05f, 0.1f, 0.2f, 0.25f, 0.5f,
+            1f, 2f, 2.5f, 5f, 10f, 20f, 25f, 50f, 100f
+        )
+        val desiredStepBase = (rawMaxPower / 4f).coerceAtLeast(0.01f)
+        val powerStep = stepCandidates.firstOrNull { it >= desiredStepBase } ?: stepCandidates.last()
+        val maxPower = powerStep * 4f
+        // We intentionally allow maxPower > rawMaxPower to land on round ticks
         val rawMinTemp = data.minOfOrNull { it.temperature } ?: 0f
         val rawMaxTemp = data.maxOfOrNull { it.temperature } ?: 1f
-
-        // Handle power range
-        val minPower = 0f
-        val maxPower = kotlin.math.ceil(kotlin.math.max(rawMaxPower * 1.1f, 5f)).toFloat()
-        val adjustedPowerRange = maxPower - minPower
 
         // Handle temperature range
         val tempMargin = kotlin.math.max((rawMaxTemp - rawMinTemp) * 0.1f, 5f)
@@ -104,9 +108,7 @@ fun PowerChart(
         val rawTimeRange = maxTime - minTime
         val displayTimeRange = if (rawTimeRange < 30000) {
             kotlin.math.max(rawTimeRange, 30000)
-        } else {
-            rawTimeRange
-        }
+        } else rawTimeRange
 
         // Text paint for Y-axis labels
         val textPaint = android.graphics.Paint().apply {
@@ -119,8 +121,8 @@ fun PowerChart(
         // Calculate maximum width needed for left Y-axis labels
         var maxLeftLabelWidth = 0f
         for (i in 0..4) {
-            val powerValue = maxPower - (adjustedPowerRange * i / 4)
-            val text = powerValue.toInt().toString()
+            val powerValue = maxPower - powerStep * i
+            val text = if (powerStep < 1f) String.format("%.1f", powerValue) else powerValue.toInt().toString()
             val textWidth = textPaint.measureText(text)
             maxLeftLabelWidth = kotlin.math.max(maxLeftLabelWidth, textWidth)
         }
@@ -157,7 +159,7 @@ fun PowerChart(
         // Draw grid lines and Y-axis labels
         for (i in 0..4) {
             val y = chartTop + (chartHeight * i / 4)
-            val powerValue = maxPower - (adjustedPowerRange * i / 4)
+            val powerValue = maxPower - powerStep * i
             val tempValue = maxTemp - (adjustedTempRange * i / 4)
 
             // Grid line
@@ -170,7 +172,8 @@ fun PowerChart(
 
             // Left Y-axis label (Power)
             drawIntoCanvas { canvas ->
-                val text = "${powerValue.toInt()} W"
+                val base = if (powerStep < 1f) String.format("%.1f", powerValue) else powerValue.toInt().toString()
+                val text = "$base W"
                 canvas.nativeCanvas.drawText(
                     text,
                     chartLeft - with(density) { 8.dp.toPx() },
@@ -228,7 +231,7 @@ fun PowerChart(
             data.forEachIndexed { index, point ->
                 val relativeTimestamp = point.timestamp - minTime
                 val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-                val y = chartBottom - (chartHeight * (point.power - minPower) / adjustedPowerRange.coerceAtLeast(0.01f))
+                val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
 
                 if (index == 0) {
                     powerPath.moveTo(x, y)
@@ -270,7 +273,7 @@ fun PowerChart(
         data.forEach { point ->
             val relativeTimestamp = point.timestamp - minTime
             val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-            val y = chartBottom - (chartHeight * (point.power - minPower) / adjustedPowerRange.coerceAtLeast(0.01f))
+            val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
 
             val pointRadius = when {
                 data.size > 30 -> 1.dp.toPx()
