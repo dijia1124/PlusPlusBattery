@@ -98,12 +98,12 @@ class BatteryInfoRepository(private val context: Context) {
         listOf(
             BatteryInfo(
                 BatteryInfoType.LEVEL,
-                "$level %",
+                "$level%",
                 false
             ),
             BatteryInfo(
                 BatteryInfoType.TEMP,
-                "${temperature / 10.0} °C",
+                "${temperature / 10.0}°C",
                 false
             ),
             BatteryInfo(
