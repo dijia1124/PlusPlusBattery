@@ -764,7 +764,7 @@ private fun collectPowerDataForChart(
     displayList: List<BatteryInfo>,
     powerDataPoints: MutableList<PowerDataPoint>,
     chartStartTime: Long,
-    maxDataPoints: Int = 3600
+    maxDataPoints: Int = 36000
 ) {
     val powerInfo = displayList.find { it.type == BatteryInfoType.POWER }
     val tempInfo = displayList.find { it.type == BatteryInfoType.TEMP }
