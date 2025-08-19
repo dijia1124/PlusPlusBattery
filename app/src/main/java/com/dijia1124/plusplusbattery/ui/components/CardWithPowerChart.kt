@@ -202,19 +202,40 @@ fun PowerChart(
             textAlign = android.graphics.Paint.Align.CENTER
         }
 
+        // Use actual data timestamps for X-axis ticks
+        val tickIndices = when {
+            data.size < 30 -> {
+                // Show only last tick to prevent overlap in early stages
+                listOf(data.lastIndex)
+            }
+            else -> {
+                // Show 5 evenly spaced ticks once we have enough data
+                val maxTicks = 5
+                val step = (data.size - 1).toFloat() / (maxTicks - 1)
+                (0 until maxTicks).map { i ->
+                    when (i) {
+                        maxTicks - 1 -> data.lastIndex
+                        else -> (i * step).toInt()
+                    }
+                }
+            }
+        }
+
         // Draw X-axis labels
-        val timeSteps = 4
-        for (i in 0..timeSteps) {
-            val x = chartLeft + (chartWidth * i / timeSteps)
-            val timeValue = (displayTimeRange * i / timeSteps) / 1000
+        tickIndices.forEach { index ->
+            val point = data[index]
+            val relativeTimestamp = point.timestamp - minTime
+            val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+            val elapsedSeconds = relativeTimestamp / 1000
 
             drawIntoCanvas { canvas ->
-                val text = if (timeValue >= 60) {
-                    val minutes = (timeValue / 60).toInt()
-                    val seconds = (timeValue % 60).toInt()
-                    "${minutes}m${seconds}s"
-                } else {
-                    "${timeValue.toInt()}s"
+                val text = when {
+                    elapsedSeconds >= 60 -> {
+                        val minutes = (elapsedSeconds / 60).toInt()
+                        val seconds = (elapsedSeconds % 60).toInt()
+                        if (seconds == 0) "${minutes}m" else "${minutes}m${seconds}s"
+                    }
+                    else -> "${elapsedSeconds}s"
                 }
                 canvas.nativeCanvas.drawText(
                     text,
