@@ -368,7 +368,11 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         when (batteryInfoList[index].type) {
                             BatteryInfoType.POWER -> CardWithPowerChart(
                                 info = info,
-                                powerData = powerDataPoints.toList()
+                                powerData = powerDataPoints.toList(),
+                                onResetData = {
+                                    powerDataPoints.clear()
+                                    chartStartTime = System.currentTimeMillis()
+                                }
                             )
                             BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
                                 info = info,
