@@ -284,10 +284,16 @@ fun PowerChart(
                 }
             }
 
+            val lineWidth = when {
+                data.size > 100 -> 0.8.dp.toPx()
+                data.size > 30 -> 1.2.dp.toPx()
+                else -> 1.5.dp.toPx()
+            }
+
             drawPath(
                 path = powerPath,
                 color = powerLineColor,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = lineWidth)
             )
         }
 
@@ -306,50 +312,64 @@ fun PowerChart(
                 }
             }
 
+            val lineWidth = when {
+                data.size > 100 -> 0.8.dp.toPx()
+                data.size > 30 -> 1.2.dp.toPx()
+                else -> 1.5.dp.toPx()
+            }
+
             drawPath(
                 path = tempPath,
                 color = temperatureLineColor,
-                style = Stroke(width = 2.dp.toPx())
+                style = Stroke(width = lineWidth)
             )
         }
 
         // Draw power data points (only if not empty)
         if (!isEmpty) {
-            data.forEach { point ->
-                val relativeTimestamp = point.timestamp - minTime
-                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-                val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
+            val pointRadius = when {
+                data.size > 100 -> 0f
+                data.size > 50 -> 0.3.dp.toPx()
+                data.size > 30 -> 0.6.dp.toPx()
+                else -> 1.2.dp.toPx()
+            }
 
-                val pointRadius = when {
-                    data.size > 30 -> 1.dp.toPx()
-                    else -> 2.dp.toPx()
+            if (pointRadius > 0) {
+                data.forEach { point ->
+                    val relativeTimestamp = point.timestamp - minTime
+                    val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                    val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
+
+                    drawCircle(
+                        color = powerLineColor,
+                        radius = pointRadius,
+                        center = Offset(x, y)
+                    )
                 }
-
-                drawCircle(
-                    color = powerLineColor,
-                    radius = pointRadius,
-                    center = Offset(x, y)
-                )
             }
         }
 
         // Draw temperature data points (only if not empty)
         if (!isEmpty) {
-            data.forEach { point ->
-                val relativeTimestamp = point.timestamp - minTime
-                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-                val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
+            val pointRadius = when {
+                data.size > 100 -> 0f
+                data.size > 50 -> 0.3.dp.toPx()
+                data.size > 30 -> 0.6.dp.toPx()
+                else -> 1.2.dp.toPx()
+            }
 
-                val pointRadius = when {
-                    data.size > 30 -> 1.dp.toPx()
-                    else -> 2.dp.toPx()
+            if (pointRadius > 0) {
+                data.forEach { point ->
+                    val relativeTimestamp = point.timestamp - minTime
+                    val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                    val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
+
+                    drawCircle(
+                        color = temperatureLineColor,
+                        radius = pointRadius,
+                        center = Offset(x, y)
+                    )
                 }
-
-                drawCircle(
-                    color = temperatureLineColor,
-                    radius = pointRadius,
-                    center = Offset(x, y)
-                )
             }
         }
     }
