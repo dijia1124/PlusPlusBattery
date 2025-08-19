@@ -60,7 +60,7 @@ fun CardWithPowerChart(
                 )
             }
         }
-        if (expanded && powerData.isNotEmpty()) {
+        if (expanded) {
             Spacer(modifier = Modifier.height(4.dp))
             PowerChart(
                 data = powerData,
@@ -90,12 +90,19 @@ fun PowerChart(
         val topPadding = with(density) { 12.dp.toPx() }
         val bottomPadding = with(density) { 32.dp.toPx() }
 
-        if (data.isEmpty()) return@Canvas
+        // Handle empty data case - show empty chart with grid
+        val isEmpty = data.isEmpty()
+        val displayData = if (isEmpty) {
+            // Create dummy data point for empty state
+            listOf(PowerDataPoint(0L, 0f, 0f))
+        } else {
+            data
+        }
 
         // Calculate data ranges
-        val minTime = data.first().timestamp
-        val maxTime = data.last().timestamp
-        val rawMaxPower = data.maxOfOrNull { it.power } ?: 1f
+        val minTime = displayData.first().timestamp
+        val maxTime = if (isEmpty) 30000L else displayData.last().timestamp
+        val rawMaxPower = if (isEmpty) 1f else displayData.maxOfOrNull { it.power } ?: 1f
         // Nice tick step (always 5 ticks: 0..4)
         val stepCandidates = listOf(
             0.05f, 0.1f, 0.2f, 0.25f, 0.5f,
@@ -213,51 +220,57 @@ fun PowerChart(
         }
 
         // Use actual data timestamps for X-axis ticks
-        val tickIndices = when {
-            data.size < 30 -> {
-                // Show only last tick to prevent overlap in early stages
-                listOf(data.lastIndex)
-            }
-            else -> {
-                // Show 5 evenly spaced ticks once we have enough data
-                val maxTicks = 5
-                val step = (data.size - 1).toFloat() / (maxTicks - 1)
-                (0 until maxTicks).map { i ->
-                    when (i) {
-                        maxTicks - 1 -> data.lastIndex
-                        else -> (i * step).toInt()
+        val tickIndices = if (isEmpty) {
+            emptyList()
+        } else {
+            when {
+                data.size < 30 -> {
+                    // Show only last tick to prevent overlap in early stages
+                    listOf(data.lastIndex)
+                }
+                else -> {
+                    // Show 5 evenly spaced ticks once we have enough data
+                    val maxTicks = 5
+                    val step = (data.size - 1).toFloat() / (maxTicks - 1)
+                    (0 until maxTicks).map { i ->
+                        when (i) {
+                            maxTicks - 1 -> data.lastIndex
+                            else -> (i * step).toInt()
+                        }
                     }
                 }
             }
         }
 
-        // Draw X-axis labels
-        tickIndices.forEach { index ->
-            val point = data[index]
-            val relativeTimestamp = point.timestamp - minTime
-            val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-            val elapsedSeconds = relativeTimestamp / 1000
+        // Draw X-axis labels (only if not empty)
+        if (!isEmpty) {
+            tickIndices.forEach { index ->
+                val point = data[index]
+                val relativeTimestamp = point.timestamp - minTime
+                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                val elapsedSeconds = relativeTimestamp / 1000
 
-            drawIntoCanvas { canvas ->
-                val text = when {
-                    elapsedSeconds >= 60 -> {
-                        val minutes = (elapsedSeconds / 60).toInt()
-                        val seconds = (elapsedSeconds % 60).toInt()
-                        if (seconds == 0) "${minutes}m" else "${minutes}m${seconds}s"
+                drawIntoCanvas { canvas ->
+                    val text = when {
+                        elapsedSeconds >= 60 -> {
+                            val minutes = (elapsedSeconds / 60).toInt()
+                            val seconds = (elapsedSeconds % 60).toInt()
+                            if (seconds == 0) "${minutes}m" else "${minutes}m${seconds}s"
+                        }
+                        else -> "${elapsedSeconds}s"
                     }
-                    else -> "${elapsedSeconds}s"
+                    canvas.nativeCanvas.drawText(
+                        text,
+                        x,
+                        chartBottom + with(density) { 20.dp.toPx() },
+                        xAxisTextPaint
+                    )
                 }
-                canvas.nativeCanvas.drawText(
-                    text,
-                    x,
-                    chartBottom + with(density) { 20.dp.toPx() },
-                    xAxisTextPaint
-                )
             }
         }
 
-        // Draw power line
-        if (data.size >= 2) {
+        // Draw power line (only if not empty and has multiple points)
+        if (!isEmpty && data.size >= 2) {
             val powerPath = Path()
             data.forEachIndexed { index, point ->
                 val relativeTimestamp = point.timestamp - minTime
@@ -278,8 +291,8 @@ fun PowerChart(
             )
         }
 
-        // Draw temperature line
-        if (data.size >= 2) {
+        // Draw temperature line (only if not empty and has multiple points)
+        if (!isEmpty && data.size >= 2) {
             val tempPath = Path()
             data.forEachIndexed { index, point ->
                 val relativeTimestamp = point.timestamp - minTime
@@ -300,40 +313,44 @@ fun PowerChart(
             )
         }
 
-        // Draw power data points
-        data.forEach { point ->
-            val relativeTimestamp = point.timestamp - minTime
-            val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-            val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
+        // Draw power data points (only if not empty)
+        if (!isEmpty) {
+            data.forEach { point ->
+                val relativeTimestamp = point.timestamp - minTime
+                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                val y = chartBottom - (chartHeight * point.power / maxPower.coerceAtLeast(0.0001f))
 
-            val pointRadius = when {
-                data.size > 30 -> 1.dp.toPx()
-                else -> 2.dp.toPx()
+                val pointRadius = when {
+                    data.size > 30 -> 1.dp.toPx()
+                    else -> 2.dp.toPx()
+                }
+
+                drawCircle(
+                    color = powerLineColor,
+                    radius = pointRadius,
+                    center = Offset(x, y)
+                )
             }
-
-            drawCircle(
-                color = powerLineColor,
-                radius = pointRadius,
-                center = Offset(x, y)
-            )
         }
 
-        // Draw temperature data points
-        data.forEach { point ->
-            val relativeTimestamp = point.timestamp - minTime
-            val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
-            val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
+        // Draw temperature data points (only if not empty)
+        if (!isEmpty) {
+            data.forEach { point ->
+                val relativeTimestamp = point.timestamp - minTime
+                val x = chartLeft + (chartWidth * relativeTimestamp / displayTimeRange.coerceAtLeast(1))
+                val y = chartBottom - (chartHeight * (point.temperature - minTemp) / adjustedTempRange.coerceAtLeast(0.01f))
 
-            val pointRadius = when {
-                data.size > 30 -> 1.dp.toPx()
-                else -> 2.dp.toPx()
+                val pointRadius = when {
+                    data.size > 30 -> 1.dp.toPx()
+                    else -> 2.dp.toPx()
+                }
+
+                drawCircle(
+                    color = temperatureLineColor,
+                    radius = pointRadius,
+                    center = Offset(x, y)
+                )
             }
-
-            drawCircle(
-                color = temperatureLineColor,
-                radius = pointRadius,
-                center = Offset(x, y)
-            )
         }
     }
 }
