@@ -6,6 +6,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
+import com.dijia1124.plusplusbattery.data.util.POWER_CHART_EXPANDED_KEY
 import com.dijia1124.plusplusbattery.data.util.REFRESH_INTERVAL_KEY
 import com.dijia1124.plusplusbattery.data.util.ROOT_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.SHOW_OPLUS_FIELDS
@@ -75,4 +76,11 @@ class PrefsRepository(context: Context) {
 
     suspend fun setShowOplusFields(enabled: Boolean) =
         dataStore.edit { it[SHOW_OPLUS_FIELDS] = enabled }
+
+    val isPowerChartExpanded: Flow<Boolean> =
+        dataStore.data.map { it[POWER_CHART_EXPANDED_KEY] ?: false }
+
+    suspend fun setPowerChartExpanded(expanded: Boolean) {
+        dataStore.edit { it[POWER_CHART_EXPANDED_KEY] = expanded }
+    }
 }

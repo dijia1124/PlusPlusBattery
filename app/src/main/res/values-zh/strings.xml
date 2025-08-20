@@ -34,6 +34,8 @@
     <string name="battery_cycle_count">循环计数</string>
     <string name="battery_current">电流</string>
     <string name="full_charge_capacity">完全充满时的容量</string>
+    <string name="estimated_fcc_title">电池容量估算</string>
+    <string name="estimated_fcc_info">此值在电量完全充满（100%）且电流小于25 mA 时进行估算。此时的charge counter的值会被记录并且显示于此。 \n注意上方电流倍率和单双电芯选项需要选择正确。</string>
     <string name="estimating_full_charge_capacity">正在测量完全充满时的容量…</string>
     <string name="capacity_unavailable">无法读取容量</string>
     <string name="charging">充电中</string>
@@ -58,7 +60,8 @@
     <string name="reset">恢复默认</string>
     <string name="close">关闭</string>
     <string name="use_basic_mode">使用基础模式</string>
-    <string name="use_root_mode">使用 Root 模式</string>
+    <string name="enable_root_mode">启用 Root 模式</string>
+    <string name="disable_root_mode">禁用 Root 模式</string>
     <string name="full_charge_capacity_battery_fcc">完全充满时的容量 (battery_fcc)</string>
     <string name="battery_health_battery_soh">电池健康 (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>
@@ -73,7 +76,7 @@
     <string name="offset_table_not_found">\n未找到偏移量表</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的真实 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
-    <string name="show_root_switch_on_dashboard">在首页显示 Root 模式开关</string>
+    <string name="show_fab_on_dashboard">在首页显示悬浮按钮</string>
     <string name="version">版本: %1$s</string>
     <string name="battery_qmax">电池最大化学容量 (batt_qmax)</string>
     <string name="follow_system_theme">跟随系统主题</string>
@@ -121,4 +124,5 @@
     <string name="existed">已存在</string>
     <string name="save">保存</string>
     <string name="cancel">取消</string>
+    <string name="battery_cycle_count_info">如果你设备的安卓版本低于14，循环计数可能无法正常显示。或者有些情况下，即使你的系统版本是15以上，依然无法正常支持BatteryManager API。</string>
 </resources>

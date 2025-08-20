@@ -98,12 +98,7 @@ class BatteryInfoRepository(private val context: Context) {
         listOf(
             BatteryInfo(
                 BatteryInfoType.LEVEL,
-                "$level %",
-                false
-            ),
-            BatteryInfo(
-                BatteryInfoType.TEMP,
-                "${temperature / 10.0} °C",
+                "$level%",
                 false
             ),
             BatteryInfo(
@@ -119,6 +114,11 @@ class BatteryInfoRepository(private val context: Context) {
             BatteryInfo(
                 BatteryInfoType.CYCLE_COUNT,
                 cycleCount.toString(),
+                false
+            ),
+            BatteryInfo(
+                BatteryInfoType.TEMP,
+                "${temperature / 10.0}°C",
                 false
             ),
         )
@@ -293,8 +293,9 @@ class BatteryInfoRepository(private val context: Context) {
 
     suspend fun getEstimatedFcc(savedEstimatedFcc: String): BatteryInfo =
         withContext(Dispatchers.IO) {
+            val calibMultiplier = calibFlow.first()
             val currentNow =
-                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW) * calibMultiplier
             val batteryLevel =
                 batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
 
