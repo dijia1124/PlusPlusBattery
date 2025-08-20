@@ -62,7 +62,7 @@
     <string name="close">Close</string>
     <string name="use_basic_mode">Use basic mode</string>
     <string name="enable_root_mode">Enable root mode</string>
-    <string name="disable_root_mode">Diable root mode</string>
+    <string name="disable_root_mode">Disable root mode</string>
     <string name="full_charge_capacity_battery_fcc">Full Charge Capacity (battery_fcc)</string>
     <string name="battery_health_battery_soh">Battery Health (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">Battery Manufacture Date (battery_manu_date)</string>
@@ -125,5 +125,5 @@
     <string name="existed">Existed</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="battery_cycle_count_info">This value may not available if your device\'s Android version is below 14, or, in some cases, even if your system is on Android 15 or above, it still does not support this BatteryManager API.</string>
+    <string name="battery_cycle_count_info">This value may not available if your device\'s Android version is below 14, or, in some cases, even if your system is on Android 14 or above, it still does not support this BatteryManager API.</string>
 </resources>
