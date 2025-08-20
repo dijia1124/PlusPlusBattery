@@ -102,11 +102,6 @@ class BatteryInfoRepository(private val context: Context) {
                 false
             ),
             BatteryInfo(
-                BatteryInfoType.TEMP,
-                "${temperature / 10.0}°C",
-                false
-            ),
-            BatteryInfo(
                 BatteryInfoType.STATUS,
                 getStatusString(status, context),
                 false
@@ -119,6 +114,11 @@ class BatteryInfoRepository(private val context: Context) {
             BatteryInfo(
                 BatteryInfoType.CYCLE_COUNT,
                 cycleCount.toString(),
+                false
+            ),
+            BatteryInfo(
+                BatteryInfoType.TEMP,
+                "${temperature / 10.0}°C",
                 false
             ),
         )
