@@ -223,6 +223,24 @@ fun BatteryCardWithCoeffTable(
 }
 
 @Composable
+fun CycleCountDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.battery_cycle_count)) },
+        text = {
+            Text(
+                text = stringResource(R.string.battery_cycle_count_info),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+}
+@Composable
 fun EstFccInfoDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -272,6 +290,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
     var showMultiplierDialog by remember { mutableStateOf(false) }
+    var showCycleCountDialog by remember { mutableStateOf(false) }
     var showEstFccDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
@@ -366,6 +385,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         when (batteryInfoList[index].type) {
+                            BatteryInfoType.CYCLE_COUNT -> BatteryCardWithInfo(
+                                info = info,
+                                onShowInfo = { showCycleCountDialog = true}
+                            )
                             BatteryInfoType.POWER -> CardWithPowerChart(
                                 info = info,
                                 powerData = powerDataPoints.toList(),
@@ -415,6 +438,12 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             RootSwitch(hasRoot, isRootMode , context, onToggle = {
                 batteryInfoViewModel.setRootMode(it)
             })
+        }
+    }
+
+    if (showCycleCountDialog) {
+        CycleCountDialog {
+            showCycleCountDialog = false
         }
     }
 

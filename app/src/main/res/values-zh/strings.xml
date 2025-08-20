@@ -123,4 +123,5 @@
     <string name="existed">已存在</string>
     <string name="save">保存</string>
     <string name="cancel">取消</string>
+    <string name="battery_cycle_count_info">如果你设备的安卓版本低于14，循环计数可能无法正常显示。或者有些情况下，即使你的系统版本是15以上，依然无法正常支持BatteryManager API。</string>
 </resources>
