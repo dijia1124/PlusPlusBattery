@@ -68,33 +68,6 @@ fun SettingsContent(
             .verticalScroll(scrollState)
     ) {
         ListItem(
-            headlineContent = { Text(text = stringResource(R.string.use_root_mode), style = MaterialTheme.typography.bodyLarge) },
-            trailingContent = {
-                Switch(
-                    checked = isRootMode,
-                    onCheckedChange = { desired ->
-                        if (desired) {
-                            if (hasRoot) batteryVM.setRootMode(true)
-                            else Toast.makeText(
-                                context,
-                                context.getString(R.string.root_access_denied),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else batteryVM.setRootMode(false)
-                    }
-                )
-            }
-        )
-        ListItem(
-            headlineContent = { Text(text = stringResource(R.string.show_root_switch_on_dashboard), style = MaterialTheme.typography.bodyLarge) },
-            trailingContent = {
-                Switch(
-                    checked = showOnDash,
-                    onCheckedChange = { batteryVM.setShowSwitchOnDashboard(it) }
-                )
-            }
-        )
-        ListItem(
             headlineContent = {
                 Text(text = stringResource(R.string.follow_system_theme), style = MaterialTheme.typography.bodyLarge)
             },
@@ -114,6 +87,33 @@ fun SettingsContent(
                     checked = darkModeEnabled,
                     onCheckedChange = { settingsVM.setDarkMode(it) },
                     enabled = !followSystemTheme
+                )
+            }
+        )
+        ListItem(
+            headlineContent = { Text(text = stringResource(R.string.show_fab_on_dashboard), style = MaterialTheme.typography.bodyLarge) },
+            trailingContent = {
+                Switch(
+                    checked = showOnDash,
+                    onCheckedChange = { batteryVM.setShowSwitchOnDashboard(it) }
+                )
+            }
+        )
+        ListItem(
+            headlineContent = { Text(text = stringResource(R.string.enable_root_mode), style = MaterialTheme.typography.bodyLarge) },
+            trailingContent = {
+                Switch(
+                    checked = isRootMode,
+                    onCheckedChange = { desired ->
+                        if (desired) {
+                            if (hasRoot) batteryVM.setRootMode(true)
+                            else Toast.makeText(
+                                context,
+                                context.getString(R.string.root_access_denied),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else batteryVM.setRootMode(false)
+                    }
                 )
             }
         )

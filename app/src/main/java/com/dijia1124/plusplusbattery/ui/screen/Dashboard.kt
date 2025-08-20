@@ -7,25 +7,36 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
 import androidx.compose.material3.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -40,6 +51,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -66,6 +78,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.Lifecycle
@@ -360,84 +373,99 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         batteryInfoViewModel.saveCycleCount()
     }
 
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        LazyColumn (
-            state = listState,
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ){
-            items(batteryInfoList.size) { index ->
-                val info = batteryInfoList[index]
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+            LazyColumn (
+                state = listState,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                items(batteryInfoList.size) { index ->
+                    val info = batteryInfoList[index]
 
-                OutlinedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-                    shape = RoundedCornerShape(8.dp),
-                    border = BorderStroke(1.dp, Color.LightGray),
-                ) {
-                    Row(
+                    OutlinedCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(vertical = 4.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+                        shape = RoundedCornerShape(8.dp),
+                        border = BorderStroke(1.dp, Color.LightGray),
                     ) {
-                        when (batteryInfoList[index].type) {
-                            BatteryInfoType.CYCLE_COUNT -> BatteryCardWithInfo(
-                                info = info,
-                                onShowInfo = { showCycleCountDialog = true}
-                            )
-                            BatteryInfoType.POWER -> CardWithPowerChart(
-                                info = info,
-                                powerData = powerDataPoints.toList(),
-                                onResetData = {
-                                    powerDataPoints.clear()
-                                    chartStartTime = System.currentTimeMillis()
-                                }
-                            )
-                            BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
-                                info = info,
-                                isDualBatt = isDualBatt,
-                                isRootMode = isRootMode,
-                                context = context,
-                                onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
-                                onShowMultiplierDialog = { showMultiplierDialog = true }
-                            )
-                            BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_RAW_SOH -> BatteryCardWithCoeffTable(
-                                info = info,
-                                onShowInfo = {
-                                    coroutineScope.launch{
-                                        val list = readTermCoeff(context)
-                                        coeffDialogText = buildString {
-                                            append(context.getString(R.string.raw_fcc_soh_calc_intro))
-                                            append(context.getString(R.string.vbatuv_mv_fccoffset_mah_sohoffset))
-                                            list.forEach {
-                                                append("${it.first}, ${it.second}, ${it.third}\n")
-                                            }
-                                            if (list.isEmpty()) {
-                                                append(context.getString(R.string.offset_table_not_found))
-                                            }
-                                        }
-                                        showCoeffDialog = true
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            when (batteryInfoList[index].type) {
+                                BatteryInfoType.CYCLE_COUNT -> BatteryCardWithInfo(
+                                    info = info,
+                                    onShowInfo = { showCycleCountDialog = true}
+                                )
+                                BatteryInfoType.POWER -> CardWithPowerChart(
+                                    info = info,
+                                    powerData = powerDataPoints.toList(),
+                                    onResetData = {
+                                        powerDataPoints.clear()
+                                        chartStartTime = System.currentTimeMillis()
                                     }
-                                }
-                            )
-                            BatteryInfoType.EST_FCC -> BatteryCardWithInfo(
-                                info = info,
-                                onShowInfo = { showEstFccDialog = true }
-                            )
-                            else -> NormalBatteryCard(info)
+                                )
+                                BatteryInfoType.CURRENT -> BatteryCardWithCalibration(
+                                    info = info,
+                                    isDualBatt = isDualBatt,
+                                    isRootMode = isRootMode,
+                                    context = context,
+                                    onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
+                                    onShowMultiplierDialog = { showMultiplierDialog = true }
+                                )
+                                BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_RAW_SOH -> BatteryCardWithCoeffTable(
+                                    info = info,
+                                    onShowInfo = {
+                                        coroutineScope.launch{
+                                            val list = readTermCoeff(context)
+                                            coeffDialogText = buildString {
+                                                append(context.getString(R.string.raw_fcc_soh_calc_intro))
+                                                append(context.getString(R.string.vbatuv_mv_fccoffset_mah_sohoffset))
+                                                list.forEach {
+                                                    append("${it.first}, ${it.second}, ${it.third}\n")
+                                                }
+                                                if (list.isEmpty()) {
+                                                    append(context.getString(R.string.offset_table_not_found))
+                                                }
+                                            }
+                                            showCoeffDialog = true
+                                        }
+                                    }
+                                )
+                                BatteryInfoType.EST_FCC -> BatteryCardWithInfo(
+                                    info = info,
+                                    onShowInfo = { showEstFccDialog = true }
+                                )
+                                else -> NormalBatteryCard(info)
+                            }
                         }
+                    }
+                }
+
+                // Add extra space to avoid overlapping
+                if (showSwitch) {
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
                     }
                 }
             }
         }
-        if (showSwitch){
-            RootSwitch(hasRoot, isRootMode , context, onToggle = {
-                batteryInfoViewModel.setRootMode(it)
-            })
+
+        if (showSwitch) {
+            ExpandableFab(
+                hasRoot = hasRoot,
+                isRootMode = isRootMode,
+                context = context,
+                onToggleRootMode = { batteryInfoViewModel.setRootMode(it) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+            )
         }
     }
 
@@ -486,51 +514,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
 
             }
         )
-    }
-}
-
-@Composable
-fun RootSwitch(hasRoot: Boolean, isRootMode: Boolean, context: Context, onToggle: (Boolean) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        OutlinedCard(
-            modifier = Modifier
-                .fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-            shape = RoundedCornerShape(8.dp),
-            border = BorderStroke(1.dp, Color.LightGray),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.use_root_mode),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f)
-                )
-                Switch(
-                    checked = isRootMode,
-                    onCheckedChange = { desired ->
-                        if (desired) {
-                            if (hasRoot) {
-                                onToggle(true)
-                            } else {
-                                context.showRootDeniedToast()
-                            }
-                        } else {
-                            onToggle(false)
-                        }
-                    }
-                )
-            }
-        }
     }
 }
 
@@ -839,6 +822,73 @@ private fun collectPowerDataForChart(
             }
         } catch (e: Exception) {
             // Ignore parsing errors
+        }
+    }
+}
+
+@Composable
+fun ExpandableFab(
+    hasRoot: Boolean,
+    isRootMode: Boolean,
+    context: Context,
+    onToggleRootMode: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isExpanded) 45f else 0f,
+        animationSpec = tween(300),
+        label = "fab_rotation"
+    )
+
+    if (isExpanded) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { isExpanded = false }
+        )
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Root Mode Extended FAB
+        if (isExpanded) {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    if (!isRootMode) {
+                        if (hasRoot) onToggleRootMode(true) else context.showRootDeniedToast()
+                    } else {
+                        onToggleRootMode(false)
+                    }
+                    isExpanded = false
+                },
+                containerColor = if (isRootMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                contentColor = if (isRootMode) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+            ) {
+                Text(
+                    text = if (isRootMode) stringResource(R.string.disable_root_mode) else stringResource(R.string.enable_root_mode)
+                )
+            }
+        }
+
+        // Main FAB
+        FloatingActionButton(
+            onClick = { isExpanded = !isExpanded },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Build,
+                contentDescription = if (isExpanded) "Close menu" else "Open menu",
+                modifier = Modifier.rotate(rotationAngle)
+            )
         }
     }
 }

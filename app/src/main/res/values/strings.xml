@@ -36,7 +36,7 @@
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
     <string name="estimated_fcc_title">FCC Estimation</string>
-    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and Current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual battery option above need to be correctly selected.</string>
+    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and the current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual battery option above need to be correctly selected.</string>
     <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
@@ -61,7 +61,8 @@
     <string name="reset">Reset</string>
     <string name="close">Close</string>
     <string name="use_basic_mode">Use basic mode</string>
-    <string name="use_root_mode">Use root mode</string>
+    <string name="enable_root_mode">Enable root mode</string>
+    <string name="disable_root_mode">Diable root mode</string>
     <string name="full_charge_capacity_battery_fcc">Full Charge Capacity (battery_fcc)</string>
     <string name="battery_health_battery_soh">Battery Health (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">Battery Manufacture Date (battery_manu_date)</string>
@@ -76,7 +77,7 @@
     <string name="offset_table_not_found">\nOffset Table Not Found</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[Raw fcc&soh in Plus Plus Battery are calculated using this table\n]]></string>
     <string name="settings">Settings</string>
-    <string name="show_root_switch_on_dashboard">Show root switch on dashboard</string>
+    <string name="show_fab_on_dashboard">Show floating button on dashboard</string>
     <string name="version">Version: %1$s</string>
     <string name="battery_qmax">Maximum Chemical Capacity (batt_qmax)</string>
     <string name="follow_system_theme">Follow system theme</string>

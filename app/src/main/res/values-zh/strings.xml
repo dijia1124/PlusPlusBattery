@@ -60,7 +60,8 @@
     <string name="reset">恢复默认</string>
     <string name="close">关闭</string>
     <string name="use_basic_mode">使用基础模式</string>
-    <string name="use_root_mode">使用 Root 模式</string>
+    <string name="enable_root_mode">启用 Root 模式</string>
+    <string name="disable_root_mode">禁用 Root 模式</string>
     <string name="full_charge_capacity_battery_fcc">完全充满时的容量 (battery_fcc)</string>
     <string name="battery_health_battery_soh">电池健康 (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>
@@ -75,7 +76,7 @@
     <string name="offset_table_not_found">\n未找到偏移量表</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的真实 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
-    <string name="show_root_switch_on_dashboard">在首页显示 Root 模式开关</string>
+    <string name="show_fab_on_dashboard">在首页显示悬浮按钮</string>
     <string name="version">版本: %1$s</string>
     <string name="battery_qmax">电池最大化学容量 (batt_qmax)</string>
     <string name="follow_system_theme">跟随系统主题</string>
