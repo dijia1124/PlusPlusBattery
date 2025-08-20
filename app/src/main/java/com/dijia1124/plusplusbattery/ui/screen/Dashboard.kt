@@ -41,11 +41,9 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -101,48 +99,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Dashboard(hasRoot: Boolean, currentTitle: String, batteryInfoViewModel: BatteryInfoViewModel, settingsViewModel: SettingsViewModel) {
-    val context    = LocalContext.current
-    var showMgr       by remember { mutableStateOf(false) }
-    var menuExpanded  by remember { mutableStateOf(false) }
-    val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
-    AppScaffold(
-        title = currentTitle,
-        actions = {
-            Box {
-                IconButton(onClick = { menuExpanded = true }) {
-                    Icon(
-                        Icons.Default.MoreVert,
-                        contentDescription = "Menu"
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.manage_custom_entries)) },
-                        onClick = {
-                            menuExpanded = false
-                            showMgr = true
-                        }
-                    )
-                }
-            }
-        }) {
+    AppScaffold(title = currentTitle)
+    {
         DashBoardContent(hasRoot, batteryInfoViewModel, settingsViewModel)
-    }
-    if (showMgr) {
-        if (!hasRoot || !isRootMode) {
-            context.showRootDeniedToast()
-            showMgr = false
-        }
-        else {
-            ManageEntriesDialog(
-                viewModel = batteryInfoViewModel,
-                onDismiss = { showMgr = false }
-            )
-        }
     }
 }
 
@@ -465,6 +424,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 hasRoot = hasRoot,
                 isRootMode = isRootMode,
                 context = context,
+                batteryInfoViewModel = batteryInfoViewModel,
                 onToggleRootMode = { batteryInfoViewModel.setRootMode(it) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -836,9 +796,11 @@ fun ExpandableFab(
     hasRoot: Boolean,
     isRootMode: Boolean,
     context: Context,
+    batteryInfoViewModel: BatteryInfoViewModel,
     onToggleRootMode: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showMgr       by remember { mutableStateOf(false) }
     var isExpanded by remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (isExpanded) 45f else 0f,
@@ -863,8 +825,21 @@ fun ExpandableFab(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Root Mode Extended FAB
         if (isExpanded) {
+            // Manage Entries Extended FAB
+            ExtendedFloatingActionButton(
+                onClick = {
+                    showMgr = true
+                    isExpanded = false
+                },
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary
+            ) {
+                Text(
+                    text = stringResource(R.string.manage_custom_entries)
+                )
+            }
+            // Root Mode Extended FAB
             ExtendedFloatingActionButton(
                 onClick = {
                     if (!isRootMode) {
@@ -894,6 +869,19 @@ fun ExpandableFab(
                 contentDescription = if (isExpanded) "Close menu" else "Open menu",
                 modifier = Modifier.rotate(rotationAngle)
             )
+        }
+
+        if (showMgr) {
+            if (!hasRoot || !isRootMode) {
+                context.showRootDeniedToast()
+                showMgr = false
+            }
+            else {
+                ManageEntriesDialog(
+                    viewModel = batteryInfoViewModel,
+                    onDismiss = { showMgr = false }
+                )
+            }
         }
     }
 }
