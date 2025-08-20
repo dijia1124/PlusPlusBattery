@@ -299,6 +299,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
+    val isPowerChartExpanded by settingsViewModel.isPowerChartExpanded.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
@@ -407,6 +408,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                     onResetData = {
                                         powerDataPoints.clear()
                                         chartStartTime = System.currentTimeMillis()
+                                    },
+                                    isExpanded = isPowerChartExpanded,
+                                    onChartExpand = {
+                                        settingsViewModel.setPowerChartExpanded(!isPowerChartExpanded)
                                     }
                                 )
                                 BatteryInfoType.CURRENT -> BatteryCardWithCalibration(

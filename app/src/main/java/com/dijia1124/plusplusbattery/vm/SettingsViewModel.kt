@@ -68,4 +68,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setShowOplusFields(enabled: Boolean) = viewModelScope.launch {
         prefs.setShowOplusFields(enabled)
     }
+
+    val isPowerChartExpanded: StateFlow<Boolean> = prefs.isPowerChartExpanded
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setPowerChartExpanded(expanded: Boolean) = viewModelScope.launch {
+        prefs.setPowerChartExpanded(expanded)
+    }
 }

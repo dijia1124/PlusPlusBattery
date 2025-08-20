@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
@@ -34,10 +33,10 @@ data class PowerDataPoint(
 fun CardWithPowerChart(
     info: BatteryInfo,
     powerData: List<PowerDataPoint>,
-    onResetData: () -> Unit = {}
+    isExpanded: Boolean,
+    onResetData: () -> Unit = {},
+    onChartExpand: () -> Unit = {}
 ) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
-
     Column {
         Row(
             modifier = Modifier
@@ -45,7 +44,7 @@ fun CardWithPowerChart(
         ) {
             NormalBatteryCard(info)
             Spacer(modifier = Modifier.weight(1f))
-            if (expanded) {
+            if (isExpanded) {
                 IconButton(onClick = onResetData, modifier = Modifier.size(36.dp)) {
                     Icon(
                         imageVector = Icons.Filled.Refresh,
@@ -53,14 +52,14 @@ fun CardWithPowerChart(
                     )
                 }
             }
-            IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(36.dp)) {
+            IconButton(onClick = onChartExpand, modifier = Modifier.size(36.dp)) {
                 Icon(
-                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand"
+                    imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) "Collapse" else "Expand"
                 )
             }
         }
-        if (expanded) {
+        if (isExpanded) {
             Spacer(modifier = Modifier.height(4.dp))
             PowerChart(
                 data = powerData,
