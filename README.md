@@ -8,12 +8,12 @@
 
 ## Features
 
-- **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power, and health status without root access.
+- **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power with charts, and health status without root access.
 - **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery level is 100% and the battery current is within the range from 0 to 20 mA. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
 - **Cycle Count History**: Records the daily cycle count when the app is opened and saves it locally using a Room database. Users can view this on the history page.
 - **Real-Time Battery Monitor Notification**: Posts an ongoing notification showing battery metrics. Info entries can be customized.
 - **Root Mode**: Requires root permission to read additional information.
-- **Current Remaining Capacity**: Read from `/sys/class/oplus_chg/battery/battery_rm`. This value changes with battery level.
+- **Current Remaining Capacity (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_rm`. This value changes with battery level.
 - **Full Charge Capacity (battery_fcc) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_fcc`. This value fluctuates based on charging/discharging behavior.
 - **Raw Full Charge Capacity (Root Mode)**: Reverse-calculated uncompensated FCC. Silicon-carbon anode batteries typically apply algorithmic compensation based on undervoltage thresholds.
 - **Battery Health (battery_soh) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_soh`. This value fluctuates with usage.
@@ -25,7 +25,7 @@
 - **Custom Entries (Root Mode)**: Customizable entries for universal devices, with default presets displaying charge cycles & fccs from generic linux power_supply files. You can also add any other readable path as you like. Users can also export/import custom profiles.
 
 ## Experimental Features
-- **Get Battery Data from Logcat (Root Mode)**: For some devices, this app can extract battery related data from logcat. Currently supported devices include some OPlus, Moto and Xiaomi devices (depends on models and systems)
+- **Get Battery Data from Logcat (Root Mode)**: For some devices, this app can extract battery related data from logcat. Currently supported devices include some OPlus, Moto and Xiaomi devices (limited support varies on models and systems)
 
 ## Downloads
 
@@ -42,11 +42,16 @@ Or download the APK from [Github Release](https://github.com/dijia1124/PlusPlusB
 3. Launch the app.
 4. (Optional) Grant root access.
 5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS 15 users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
-6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode.
+6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode, and edit the custom entries to suit your needs.
 
 ## Credits
 
-Special thanks to [@shminer](https://github.com/shminer) for providing source code, algorithm logic, and insights related to FCC & SOH compensation.
+Special thanks to [@shminer](https://github.com/shminer) for providing kernel source code, algorithm logic, and insights related to FCC & SOH compensation.
+
+## Contributors
+<a href="https://github.com/dijia1124/plusplusbattery/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dijia1124/plusplusbattery" />
+</a>
 
 ## License
 

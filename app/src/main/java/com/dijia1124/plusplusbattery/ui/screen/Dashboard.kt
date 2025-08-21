@@ -79,6 +79,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
@@ -123,15 +124,25 @@ fun BatteryCardWithInfo(
     onShowInfo: () -> Unit
 ) {
     Row {
-        Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-            Text(text = info.customTitle ?: stringResource(info.type.titleRes), style = MaterialTheme.typography.bodyMedium)
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 4.dp)
+        ) {
+            Text(
+                text = info.customTitle ?: stringResource(info.type.titleRes),
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
             Text(
                 text = info.value,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
-        Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = onShowInfo, modifier = Modifier.size(36.dp)) {
             Icon(Icons.Default.Info, contentDescription = "Show Info", modifier = Modifier.size(18.dp))
         }
@@ -764,7 +775,7 @@ private fun collectPowerDataForChart(
     displayList: List<BatteryInfo>,
     powerDataPoints: MutableList<PowerDataPoint>,
     chartStartTime: Long,
-    maxDataPoints: Int = 3600
+    maxDataPoints: Int = 36000
 ) {
     val powerInfo = displayList.find { it.type == BatteryInfoType.POWER }
     val tempInfo = displayList.find { it.type == BatteryInfoType.TEMP }

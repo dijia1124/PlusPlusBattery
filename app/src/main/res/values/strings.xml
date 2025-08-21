@@ -125,5 +125,5 @@
     <string name="existed">Existed</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
-    <string name="battery_cycle_count_info">This value may not available if your device\'s Android version is below 14, or, in some cases, even if your system is on Android 14 or above, it still does not support this BatteryManager API.</string>
+    <string name="battery_cycle_count_info">This feature requires a specific BatteryManager API. If the value shows "-1" or "5" all the time, it means it may not be supported on your device. This can happen on Android versions below 14 or, in some cases, on a few devices running Android 14 and even newer.</string>
 </resources>
