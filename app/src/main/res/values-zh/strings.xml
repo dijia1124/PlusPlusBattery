@@ -67,14 +67,14 @@
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>
     <string name="root_access_denied">无法获取 Root 权限</string>
     <string name="battery_under_voltage_threshold_vbat_uv">截止电压 (vbat_uv)</string>
-    <string name="raw_battery_health_before_compensation">真实电池健康</string>
-    <string name="raw_full_charge_capacity_before_compensation">真实完全充满时的容量</string>
+    <string name="raw_battery_health_before_compensation">原始电池健康</string>
+    <string name="raw_full_charge_capacity_before_compensation">原始完全充满时的容量</string>
     <string name="remaining_charge_counter">"当前剩余电量 (battery_rm)"</string>
     <string name="battery_serial_number_battery_sn">电池序列号 (battery_sn)</string>
     <string name="fcc_soh_offset_table">FCC/SOH偏移量表</string>
     <string name="vbatuv_mv_fccoffset_mah_sohoffset">\n截止电压, fcc偏移量, soh偏移量\n</string>
     <string name="offset_table_not_found">\n未找到偏移量表</string>
-    <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的真实 fcc&soh 依据这张表计算反推\n]]></string>
+    <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的原始 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
     <string name="show_fab_on_dashboard">在首页显示悬浮按钮</string>
     <string name="version">版本: %1$s</string>

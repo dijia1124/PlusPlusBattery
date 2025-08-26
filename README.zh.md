@@ -4,7 +4,7 @@
 
 ## 简介
 
-`加加电池` 是一款适合一加宝宝体质的简单电池信息显示和电池寿命估算应用，提供实时电池状态监测，并能在特定条件下评估电池的完全充电容量和硅碳负极电池未经补偿的相对真实的容量和健康度。Oppo和Realme机型也适用。
+`加加电池` 是一款适合一加宝宝体质的简单电池信息显示和电池寿命估算应用，提供实时电池状态监测，并能在特定条件下评估电池的完全充电容量和硅碳负极电池未经补偿的相对原始的容量和健康度。Oppo和Realme机型也适用。
 
 ## 特性
 
@@ -15,9 +15,9 @@
 - **Root模式**: 需要Root权限读取额外信息。
 - **当前剩余电量**: 通过读取/sys/class/oplus_chg/battery/battery_rm获取的值。此值随电量变动。
 - **完全充满时的容量（battery_fcc）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。此值随充放使用上下浮动。
-- **真实完全充满时的容量（Root模式）**: 通过反推得到的未经偏移量补偿的fcc值。目前的硅碳负极电池会有算法通过偏移量对不同的截止电压进行fcc的补偿。
+- **原始完全充满时的容量（Root模式）**: 通过反推得到的未经偏移量补偿的fcc值。目前的硅碳负极电池会有算法通过偏移量对不同的截止电压进行fcc的补偿。
 - **电池健康（battery_soh）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。此值随充放使用上下浮动。
-- **真实电池健康（Root模式）**: 通过反推得到的未经偏移量补偿的soh值。目前的硅碳负极电池会有算法通过偏移量对不同的截止电压进行soh的补偿。
+- **原始电池健康（Root模式）**: 通过反推得到的未经偏移量补偿的soh值。目前的硅碳负极电池会有算法通过偏移量对不同的截止电压进行soh的补偿。
 - **截止电压（vbat_uv）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。
 - **电池序列号（battery_sn）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_sn获取的值。
 - **电池生产日期（battery_manu_date）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。
