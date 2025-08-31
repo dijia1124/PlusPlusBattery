@@ -136,8 +136,10 @@ fun calcRawFcc(
     compensatedFcc: Int,
     rawSoh: Float,
     vbatUv: Int,
-    coeffList: List<Triple<Int, Int, Int>>
+    coeffList: List<Triple<Int, Int, Int>>,
+    designCapacity: Int
 ): Int {
+    if (compensatedFcc == designCapacity) return 0
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {
