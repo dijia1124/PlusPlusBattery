@@ -269,6 +269,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val isRootMode by batteryInfoViewModel.isRootMode.collectAsState()
     val isMultiply by batteryInfoViewModel.isMultiply.collectAsState()
     val isDualBatt by batteryInfoViewModel.isDualBatt.collectAsState()
+    val refreshInterval by settingsViewModel.refreshInterval.collectAsState()
     val isPowerChartExpanded by settingsViewModel.isPowerChartExpanded.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
@@ -335,7 +336,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                         batteryInfoList.clear()
                         batteryInfoList.addAll(displayList)
                     }
-                    delay(settingsViewModel.refreshInterval.value.toLong())
+                    delay(refreshInterval.toLong())
                 }
             }
     }
