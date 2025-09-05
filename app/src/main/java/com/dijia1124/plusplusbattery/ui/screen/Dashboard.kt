@@ -406,6 +406,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                                 if (list.isEmpty()) {
                                                     append(context.getString(R.string.offset_table_not_found))
                                                 }
+                                                append(context.getString(R.string.unknown_due_to_fcc_equals_design_capacity))
                                             }
                                             showCoeffDialog = true
                                         }
