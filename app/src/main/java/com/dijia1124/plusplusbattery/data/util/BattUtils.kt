@@ -121,6 +121,7 @@ fun calcRawSoh(
     vbatUv: Int,
     coeffList: List<Triple<Int, Int, Int>>
 ): Float {
+    if (compensatedSoh == 100) return 0f
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {
