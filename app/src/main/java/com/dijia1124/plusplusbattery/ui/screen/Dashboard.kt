@@ -243,6 +243,25 @@ fun EstFccInfoDialog(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun WrongVoltageDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.battery_voltage)) },
+        text = {
+            Text(
+                text = stringResource(R.string.wrong_battery_voltage_info),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.close))
+            }
+        }
+    )
+}
+
+@Composable
 fun CoeffTableDialog(infoText: String, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -277,6 +296,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var showCycleCountDialog by remember { mutableStateOf(false) }
     var showEstFccDialog by remember { mutableStateOf(false) }
+    var showWrongVoltageDialog by remember { mutableStateOf(false) }
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -393,6 +413,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                     onToggleDualBat = { batteryInfoViewModel.setDualBatt(!isDualBatt) },
                                     onShowMultiplierDialog = { showMultiplierDialog = true }
                                 )
+                                BatteryInfoType.VOLTAGE -> BatteryCardWithInfo(
+                                    info = info,
+                                    onShowInfo = { showWrongVoltageDialog = true }
+                                )
                                 BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_RAW_SOH -> BatteryCardWithCoeffTable(
                                     info = info,
                                     onShowInfo = {
@@ -462,6 +486,12 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     if (showCoeffDialog) {
         CoeffTableDialog(infoText = coeffDialogText) {
             showCoeffDialog = false
+        }
+    }
+
+    if (showWrongVoltageDialog) {
+        WrongVoltageDialog {
+            showWrongVoltageDialog = false
         }
     }
 

@@ -125,5 +125,6 @@
     <string name="existed">已存在</string>
     <string name="save">保存</string>
     <string name="cancel">取消</string>
-    <string name="battery_cycle_count_info">该功能依靠系统的 BatteryManager API。如果该数值一直显示“-1”或“5”，则说明你的系统尚不支持该API。可能是因为你的安卓版本低于14，有时亦可发生在安卓15及以上版本。</string>
+    <string name="battery_cycle_count_info">该功能依靠系统的 BatteryManager API。如果该数值一直显示“-1”或“5”，则说明你的系统尚不支持该 API。可能是因为你的安卓版本低于14，有时亦可发生在安卓15及以上版本。</string>
+    <string name="wrong_battery_voltage_info">如果这个数值小于 10 mV, 你的设备也许正以 V（伏特）回报电压，而不是 mV（毫伏）。这也会导致错误的功率显示。如果有 Root 权限，欧加设备也许能获得正确电压。</string>
 </resources>
