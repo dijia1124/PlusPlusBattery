@@ -73,7 +73,7 @@
     <string name="battery_serial_number_battery_sn">电池序列号 (battery_sn)</string>
     <string name="fcc_soh_offset_table">FCC/SOH偏移量表</string>
     <string name="vbatuv_mv_fccoffset_mah_sohoffset">\n截止电压, fcc偏移量, soh偏移量\n</string>
-    <string name="offset_table_not_found">\n未找到偏移量表</string>
+    <string name="offset_table_not_found">\n未找到偏移量表\n</string>
     <string name="unknown_due_to_fcc_equals_design_capacity">\n当 battery_fcc 恰好等于设计容量时，此值会显示为“未知”。因为实际补偿后的值可能会超过设计容量，导致原始值偏小。\n</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的原始 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
