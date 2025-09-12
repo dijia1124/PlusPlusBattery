@@ -1,6 +1,7 @@
 package com.dijia1124.plusplusbattery.vm
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
@@ -74,5 +75,15 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setPowerChartExpanded(expanded: Boolean) = viewModelScope.launch {
         prefs.setPowerChartExpanded(expanded)
+    }
+
+    val dailyHistoryEnabled = prefs.dailyHistoryEnabled.stateIn(
+        viewModelScope, SharingStarted.Eagerly, initialValue = false
+    )
+
+    fun setDailyHistoryEnabled(enabled: Boolean, context: Context) {
+        viewModelScope.launch {
+            prefs.setDailyHistoryEnabled(context, enabled)
+        }
     }
 }

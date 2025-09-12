@@ -2,7 +2,11 @@ package com.dijia1124.plusplusbattery.data.repository
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
+import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
@@ -12,8 +16,10 @@ import com.dijia1124.plusplusbattery.data.util.ROOT_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.SHOW_OPLUS_FIELDS
 import com.dijia1124.plusplusbattery.data.util.SHOW_SWITCH_ON_DASHBOARD
 import com.dijia1124.plusplusbattery.data.util.dataStore
+import com.dijia1124.plusplusbattery.service.DailyHistoryWorker
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.TimeUnit
 
 class PrefsRepository(context: Context) {
 
@@ -82,5 +88,26 @@ class PrefsRepository(context: Context) {
 
     suspend fun setPowerChartExpanded(expanded: Boolean) {
         dataStore.edit { it[POWER_CHART_EXPANDED_KEY] = expanded }
+    }
+
+    val dailyHistoryEnabled: Flow<Boolean> =
+        dataStore.data.map { it[DAILY_HISTORY_ENABLED] ?: false }
+
+    suspend fun setDailyHistoryEnabled(context: Context, enabled: Boolean) {
+        dataStore.edit { it[DAILY_HISTORY_ENABLED] = enabled }
+
+        val workManager = WorkManager.getInstance(context)
+        if (enabled) {
+            val dailyWorkRequest = PeriodicWorkRequestBuilder<DailyHistoryWorker>(24, TimeUnit.HOURS)
+                .build()
+
+            workManager.enqueueUniquePeriodicWork(
+                "DailyHistoryLog",
+                ExistingPeriodicWorkPolicy.REPLACE,
+                dailyWorkRequest
+            )
+        } else {
+            workManager.cancelUniqueWork("DailyHistoryLog")
+        }
     }
 }

@@ -128,4 +128,6 @@
     <string name="cancel">Cancel</string>
     <string name="battery_cycle_count_info">This feature requires a specific BatteryManager API. If the value shows "-1" or "5" all the time, it means it may not be supported on your device. This can happen on Android versions below 14 or, in some cases, on a few devices running Android 14 and even newer.</string>
     <string name="wrong_battery_voltage_info">If this value is less than 10 mV, your device might be reporting battery voltage in V (volt) instead of mV (millivolt), which also leads to the incorrect battery power value. With root access, OPlus devices may get the correct voltage</string>
+    <string name="automatic_daily_charge_cycle_log">Automatic daily charge cycle log</string>
+    <string name="workmanager_for_charge_cycle">By default, charge cycles are recorded when the app is opened. You may need to switch between the Dashboard and History tabs to trigger it.\n\nAlternatively, you can enable the \'Automatic daily charge cycle log\' option in Settings for it to be recorded automatically by WorkManager without manually opening the app.</string>
 </resources>
