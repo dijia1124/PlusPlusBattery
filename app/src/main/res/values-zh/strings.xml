@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">加加电池</string>
     <string name="about">关于</string>
-    <string name="instructions_content">
+    <string name="instructions_content" formatted="false">
         项目地址：https://github.com/dijia1124/PlusPlusBattery \n
         作者：@dijia1124 aka goodnic \n
         鸣谢: @shminer aka bybycode \n
@@ -74,7 +74,7 @@
     <string name="fcc_soh_offset_table">FCC/SOH偏移量表</string>
     <string name="vbatuv_mv_fccoffset_mah_sohoffset">\n截止电压, fcc偏移量, soh偏移量\n</string>
     <string name="offset_table_not_found">\n未找到偏移量表\n</string>
-    <string name="unknown_due_to_fcc_equals_design_capacity">\n当 battery_fcc 恰好等于设计容量，或者 battery_soh 恰好等于 100% 时，此值会显示为“未知”。因为实际补偿后的值可能会超过最大显示值，导致原始值偏小。\n</string>
+    <string name="unknown_due_to_fcc_equals_design_capacity" formatted="false">\n当 battery_fcc 恰好等于设计容量，或者 battery_soh 恰好等于 100% 时，此值会显示为“未知”。因为实际补偿后的值可能会超过最大显示值，导致原始值偏小。\n</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的原始 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
     <string name="show_fab_on_dashboard">在首页显示悬浮按钮</string>
