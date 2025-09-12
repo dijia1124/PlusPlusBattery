@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Plus Plus Battery</string>
     <string name="about">About</string>
-    <string name="instructions_content">"
+    <string name="instructions_content" formatted="false">"
         Repo: https://github.com/dijia1124/PlusPlusBattery \n
         Author: @dijia1124 aka goodnic \n
         Credits: @shminer aka bybycode \n
@@ -75,7 +75,7 @@
     <string name="fcc_soh_offset_table">FCC/SOH Offset Table</string>
     <string name="vbatuv_mv_fccoffset_mah_sohoffset">\nvbatUv, fccOffset, sohOffset\n</string>
     <string name="offset_table_not_found">\nOffset Table Not Found\n</string>
-    <string name="unknown_due_to_fcc_equals_design_capacity">\nThis value might show \"Unknown\" if battery_fcc equals to design_capacity, or battery_soh equals to 100%, as the actual compensated value might exceed maximum, causing the raw value to be inaccurate.\n</string>
+    <string name="unknown_due_to_fcc_equals_design_capacity" formatted="false">\nThis value might show "Unknown" if battery_fcc equals to design_capacity, or battery_soh equals to 100%, as the actual compensated value might exceed maximum, causing the raw value to be inaccurate.\n</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[Raw fcc&soh in Plus Plus Battery are calculated using this table\n]]></string>
     <string name="settings">Settings</string>
     <string name="show_fab_on_dashboard">Show floating button on dashboard</string>
