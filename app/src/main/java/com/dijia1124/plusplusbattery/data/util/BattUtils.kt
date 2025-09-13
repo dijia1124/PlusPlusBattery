@@ -1,15 +1,22 @@
 package com.dijia1124.plusplusbattery.data.util
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
 import com.dijia1124.plusplusbattery.R
+import com.dijia1124.plusplusbattery.data.model.HistoryInfo
+import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
 import com.topjohnwu.superuser.Shell
-import java.nio.ByteBuffer
 import java.io.File
 import com.topjohnwu.superuser.io.SuFileInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private const val BCC_CURRENT_INDICES_LAST = 18
 private const val OPLUS_CHG_BATTERY_PATH = "/sys/class/oplus_chg/battery/"
@@ -121,6 +128,7 @@ fun calcRawSoh(
     vbatUv: Int,
     coeffList: List<Triple<Int, Int, Int>>
 ): Float {
+    if (compensatedSoh == 100) return 0f
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {
@@ -136,8 +144,10 @@ fun calcRawFcc(
     compensatedFcc: Int,
     rawSoh: Float,
     vbatUv: Int,
-    coeffList: List<Triple<Int, Int, Int>>
+    coeffList: List<Triple<Int, Int, Int>>,
+    designCapacity: Int
 ): Int {
+    if (compensatedFcc == designCapacity) return 0
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {
@@ -210,4 +220,19 @@ fun normalizeQmax(rawQ: Int, fcc: Int?): Int {
         q /= 10
     }
     return q
+}
+
+suspend fun saveCycleCountToHistory(context: Context, historyInfoRepository: HistoryInfoRepository) {
+    withContext(Dispatchers.IO) {
+        val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+        val date = System.currentTimeMillis()
+        val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(date))
+        val newInfo = HistoryInfo(
+            date = date,
+            dateString = dateString,
+            cycleCount = cycleCount.toString()
+        )
+        historyInfoRepository.insertOrUpdate(newInfo)
+    }
 }

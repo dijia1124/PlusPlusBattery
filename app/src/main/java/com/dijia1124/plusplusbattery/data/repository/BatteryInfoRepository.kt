@@ -199,7 +199,8 @@ class BatteryInfoRepository(private val context: Context) {
             fcc.toIntOrNull() ?: 0,
             rawSoh.toFloatOrNull() ?: 0f,
             vbatUv.toIntOrNull() ?: 0,
-            readTermCoeff(context)
+            readTermCoeff(context),
+            designCapacity.toIntOrNull() ?: 0
         ).let { resultValue ->
             if (resultValue == 0) context.getString(R.string.unknown) else resultValue.toString()
         }

@@ -2,8 +2,6 @@ package com.dijia1124.plusplusbattery.vm
 
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.BatteryManager
 import androidx.lifecycle.AndroidViewModel
@@ -11,19 +9,16 @@ import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.CustomEntry
-import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
+import com.dijia1124.plusplusbattery.data.util.saveCycleCountToHistory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class BatteryInfoViewModel(application: Application,
                            private val batteryInfoRepository: BatteryInfoRepository = BatteryInfoRepository(
@@ -111,19 +106,9 @@ class BatteryInfoViewModel(application: Application,
             batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value)
         }
 
-    suspend fun saveCycleCount(): Unit =
-        withContext(Dispatchers.IO) {
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
-            val date = System.currentTimeMillis()
-            val dateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(date))
-            val newInfo = HistoryInfo(
-                date = date,
-                dateString = dateString,
-                cycleCount = cycleCount.toString()
-            )
-            historyInfoRepository.insertOrUpdate(newInfo)
-        }
+    suspend fun saveCycleCount() {
+        saveCycleCountToHistory(context, historyInfoRepository)
+    }
 
     fun exportEntries(context: Context, onDone: (Uri) -> Unit) =
         viewModelScope.launch {

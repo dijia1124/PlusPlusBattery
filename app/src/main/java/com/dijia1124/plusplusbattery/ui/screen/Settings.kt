@@ -57,6 +57,7 @@ fun SettingsContent(
     val scrollState = rememberScrollState()
     val darkModeEnabled by settingsVM.darkModeEnabled.collectAsState()
     val followSystemTheme by settingsVM.followSystemTheme.collectAsState()
+    val dailyHistoryEnabled by settingsVM.dailyHistoryEnabled.collectAsState()
     val refreshInterval by settingsVM.refreshInterval.collectAsState()
     val showOplusFields by settingsVM.showOplusFields.collectAsState()
     var showMgr by remember { mutableStateOf(false) }
@@ -96,6 +97,17 @@ fun SettingsContent(
                 Switch(
                     checked = showOnDash,
                     onCheckedChange = { batteryVM.setShowSwitchOnDashboard(it) }
+                )
+            }
+        )
+        ListItem(
+            headlineContent = {
+                Text(text = stringResource(R.string.automatic_daily_charge_cycle_log), style = MaterialTheme.typography.bodyLarge)
+            },
+            trailingContent = {
+                Switch(
+                    checked = dailyHistoryEnabled,
+                    onCheckedChange = { settingsVM.setDailyHistoryEnabled(it, context) }
                 )
             }
         )
