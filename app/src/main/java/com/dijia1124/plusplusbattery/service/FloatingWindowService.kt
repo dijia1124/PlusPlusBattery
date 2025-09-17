@@ -19,11 +19,13 @@ import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import com.dijia1124.plusplusbattery.MainApplication
 import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.ui.components.FloatingWindowContent
+import com.dijia1124.plusplusbattery.ui.theme.PlusPlusBatteryTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -97,11 +99,15 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
 
             setContent {
                 val text by batteryInfoText.collectAsState()
-                FloatingWindowContent(text = text) {
-                    dragAmount ->
-                    params.x += dragAmount.x.roundToInt()
-                    params.y += dragAmount.y.roundToInt()
-                    windowManager.updateViewLayout(floatingView, params)
+                val useDarkTheme = (application as MainApplication).useDarkTheme
+
+                PlusPlusBatteryTheme(darkTheme = useDarkTheme, enableStatusBarEffect = false) {
+                    FloatingWindowContent(text = text) {
+                        dragAmount ->
+                        params.x += dragAmount.x.roundToInt()
+                        params.y += dragAmount.y.roundToInt()
+                        windowManager.updateViewLayout(floatingView, params)
+                    }
                 }
             }
             setViewTreeSavedStateRegistryOwner(this@FloatingWindowService)

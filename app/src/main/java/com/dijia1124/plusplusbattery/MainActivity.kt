@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -114,10 +113,7 @@ class MainActivity : ComponentActivity() {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
             Shell.getShell()
 
-            val darkModeEnabled   by settingsViewModel.darkModeEnabled.collectAsState()
-            val followSystemTheme by settingsViewModel.followSystemTheme.collectAsState()
-            val sysDark           = isSystemInDarkTheme()
-            val useDarkTheme = if (followSystemTheme) sysDark else darkModeEnabled
+            val useDarkTheme = (application as MainApplication).useDarkTheme
             PlusPlusBatteryTheme(darkTheme = useDarkTheme) {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
