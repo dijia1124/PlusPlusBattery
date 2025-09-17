@@ -57,9 +57,10 @@ class BatteryMonitorSettingsViewModel(
             val basicInfos = batteryRepo.getBasicBatteryInfo()
             val nonRootInfos = batteryRepo.getNonRootVoltCurrPwr()
             val rootInfos = batteryRepo.getRootBatteryInfo()
+            val customInfos = batteryRepo.readCustomEntries()
 
             // Combine and extract unique titles
-            val allTitles = (basicInfos + nonRootInfos + rootInfos)
+            val allTitles = (basicInfos + nonRootInfos + rootInfos + customInfos)
                 .map { it.type }
                 .distinct()
 
