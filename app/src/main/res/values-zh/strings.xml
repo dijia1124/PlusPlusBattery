@@ -102,7 +102,7 @@
     <string name="waiting_for_battery_data_from_logcat">请把设备插上充电器，并保持电量不要到达100%… \n如果数据显示错误或毫无显示，那你的设备的logcat可能还没有被加加电池支持，或者logcat里根本没有电池信息。</string>
     <string name="manufacturer">制造商: %1$s</string>
     <string name="model">型号: %1$s</string>
-    <string name="custom_battery_info">自定义电池信息</string>
+    <string name="custom_battery_info">自定义条目</string>
     <string name="enable_oplus_fields">显示欧加专属条目</string>
     <string name="design_capacity">设计容量</string>
     <string name="manage_custom_entries">管理自定义条目</string>
