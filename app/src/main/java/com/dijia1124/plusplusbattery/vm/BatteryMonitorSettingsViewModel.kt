@@ -9,6 +9,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.service.BatteryMonitorService
+import com.dijia1124.plusplusbattery.service.FloatingWindowService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,8 @@ class BatteryMonitorSettingsViewModel(
 
     private val _isMonitoring = MutableStateFlow(false)
     val isMonitoring: StateFlow<Boolean> = _isMonitoring.asStateFlow()
-
+    private val _isFloatingWindowOn = MutableStateFlow(false)
+    val isFloatingWindowOn: StateFlow<Boolean> = _isFloatingWindowOn.asStateFlow()
     private val appContext = getApplication<Application>()
 
     fun startMonitor() {
@@ -39,6 +41,20 @@ class BatteryMonitorSettingsViewModel(
             appContext.stopService(intent)
         }
         _isMonitoring.value = false
+    }
+
+    fun startFloatingWindow() {
+        Intent(appContext, FloatingWindowService::class.java).also { intent ->
+            appContext.startService(intent)
+        }
+        _isFloatingWindowOn.value = true
+    }
+
+    fun stopFloatingWindow() {
+        Intent(appContext, FloatingWindowService::class.java).also { intent ->
+            appContext.stopService(intent)
+        }
+        _isFloatingWindowOn.value = false
     }
 
 

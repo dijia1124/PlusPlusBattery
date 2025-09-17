@@ -85,6 +85,8 @@
     <string name="battery_type_battery_type">电池类型 (battery_type)</string>
     <string name="design_capacity_design_capacity">电池设计容量 (design_capacity)</string>
     <string name="notification_permission_denied">无法获取通知权限</string>
+    <string name="floating_window">悬浮窗</string>
+    <string name="overlay_permission_denied">无法获取悬浮窗权限</string>
     <string name="battery_monitor">电池监控</string>
     <string name="initializing">初始化中…</string>
     <string name="battery_monitor_entry_settings">电池监控条目设置</string>

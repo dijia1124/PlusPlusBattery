@@ -1,8 +1,10 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +32,7 @@ import com.dijia1124.plusplusbattery.ui.components.AppScaffold
 import androidx.compose.runtime.getValue
 import com.dijia1124.plusplusbattery.vm.BatteryMonitorSettingsViewModel
 import com.dijia1124.plusplusbattery.R
+import androidx.core.net.toUri
 
 @Composable
 fun BatteryMonitor(currentTitle: String, navController: NavController, battMonVM: BatteryMonitorSettingsViewModel) {
@@ -59,8 +62,55 @@ fun BatteryMonitorContent(
             headlineContent = {BatteryMonitorSwitch(battMonVM)}
         )
         ListItem(
+            headlineContent = {FloatingWindowSwitch(battMonVM)}
+        )
+        ListItem(
             headlineContent = {
                 Text(text = stringResource(R.string.disable_battery_optimization), style = MaterialTheme.typography.bodySmall)
+            }
+        )
+    }
+}
+
+@Composable
+fun FloatingWindowSwitch(battMonVM: BatteryMonitorSettingsViewModel) {
+    val context = LocalContext.current
+    val isFloatingWindowOn by battMonVM.isFloatingWindowOn.collectAsState()
+
+    val overlayPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { _ ->
+        if (Settings.canDrawOverlays(context)) {
+            battMonVM.startFloatingWindow()
+        } else {
+            Toast.makeText(
+                context,
+                context.getString(R.string.overlay_permission_denied),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = context.getString(R.string.floating_window), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Switch(
+            checked = isFloatingWindowOn,
+            onCheckedChange = { on ->
+                if (on) {
+                    if (!Settings.canDrawOverlays(context)) {
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            "package:${context.packageName}".toUri()
+                        )
+                        overlayPermissionLauncher.launch(intent)
+                    } else {
+                        battMonVM.startFloatingWindow()
+                    }
+                } else {
+                    battMonVM.stopFloatingWindow()
+                }
             }
         )
     }
