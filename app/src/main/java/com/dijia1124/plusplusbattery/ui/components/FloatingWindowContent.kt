@@ -33,7 +33,8 @@ fun FloatingWindowContent(
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Text(
-            text = text
+            text = text,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
