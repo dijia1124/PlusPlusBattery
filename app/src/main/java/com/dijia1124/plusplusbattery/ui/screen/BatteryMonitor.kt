@@ -94,7 +94,7 @@ fun FloatingWindowSwitch(battMonVM: BatteryMonitorSettingsViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = context.getString(R.string.floating_window), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Text(text = context.getString(R.string.show_in_floating_window), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
         Switch(
             checked = isFloatingWindowOn,
             onCheckedChange = { on ->
@@ -139,7 +139,7 @@ fun BatteryMonitorSwitch(battMonVM: BatteryMonitorSettingsViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = context.getString(R.string.battery_monitor), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+        Text(text = context.getString(R.string.show_in_notification_bar), modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
         Switch(
             checked = isMonitoring,
             onCheckedChange = { on ->
