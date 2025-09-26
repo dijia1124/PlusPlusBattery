@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
@@ -100,13 +101,28 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
             setContent {
                 val text by batteryInfoText.collectAsState()
                 val useDarkTheme = (application as MainApplication).useDarkTheme
+                val alpha by prefsRepo.floatingWindowAlpha.collectAsState(initial = 1.0f)
+                val size by prefsRepo.floatingWindowSize.collectAsState(initial = 1.0f)
+                val touchable by prefsRepo.floatingWindowTouchable.collectAsState(initial = true)
+
+                LaunchedEffect(touchable) {
+                    val newFlags = if (touchable) {
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                    } else {
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                    }
+                    params.flags = newFlags
+                    windowManager.updateViewLayout(floatingView, params)
+                }
 
                 PlusPlusBatteryTheme(darkTheme = useDarkTheme, enableStatusBarEffect = false) {
-                    FloatingWindowContent(text = text) {
+                    FloatingWindowContent(text = text, alpha = alpha, size = size) {
                         dragAmount ->
-                        params.x += dragAmount.x.roundToInt()
-                        params.y += dragAmount.y.roundToInt()
-                        windowManager.updateViewLayout(floatingView, params)
+                        if (touchable) {
+                            params.x += dragAmount.x.roundToInt()
+                            params.y += dragAmount.y.roundToInt()
+                            windowManager.updateViewLayout(floatingView, params)
+                        }
                     }
                 }
             }

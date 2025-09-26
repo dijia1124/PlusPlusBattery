@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun FloatingWindowContent(
     text: String,
+    alpha: Float,
+    size: Float,
     onDrag: (Offset) -> Unit
 ) {
     Box(
@@ -27,14 +29,17 @@ fun FloatingWindowContent(
                 }
             }
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = alpha),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.onSurface
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size
+            )
         )
     }
 }

@@ -91,6 +91,7 @@
     <string name="battery_monitor">Battery Monitor</string>
     <string name="initializing">Initializing…</string>
     <string name="battery_monitor_entry_settings">Monitor Entry Settings</string>
+    <string name="floating_window_settings">Floating Window Settings</string>
     <string name="show_in_notification_bar">Show in notification bar</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
@@ -133,4 +134,7 @@
     <string name="wrong_battery_voltage_info">If this value is less than 10 mV, your device might be reporting battery voltage in V (volt) instead of mV (millivolt), which also leads to the incorrect battery power value. With root access, OPlus devices may get the correct voltage</string>
     <string name="automatic_daily_charge_cycle_log">Automatic daily charge cycle log</string>
     <string name="workmanager_for_charge_cycle">By default, charge cycles are recorded when the app is opened. You may need to switch between the Dashboard and History tabs to trigger it.\n\nAlternatively, you can enable the \'Automatic daily charge cycle log\' option in Settings for it to be recorded automatically by WorkManager without manually opening the app.</string>
+    <string name="opacity">Opacity: %1$s</string>
+    <string name="size">Size: %1$s</string>
+    <string name="enable_touch">Enable touch</string>
 </resources>

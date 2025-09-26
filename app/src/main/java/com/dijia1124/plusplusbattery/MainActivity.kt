@@ -37,10 +37,12 @@ import com.dijia1124.plusplusbattery.ui.screen.BatteryMonitorSettings
 import com.dijia1124.plusplusbattery.ui.screen.Dashboard
 import com.dijia1124.plusplusbattery.ui.screen.History
 import com.dijia1124.plusplusbattery.ui.screen.Settings
+import com.dijia1124.plusplusbattery.ui.screen.FloatingWindowSettings
 import com.dijia1124.plusplusbattery.ui.screen.UniversalSupportLogcat
 import com.dijia1124.plusplusbattery.vm.BatteryInfoViewModel
 import com.dijia1124.plusplusbattery.vm.BatteryLogViewModel
 import com.dijia1124.plusplusbattery.vm.BatteryMonitorSettingsViewModel
+import com.dijia1124.plusplusbattery.vm.FloatingWindowSettingsViewModel
 import com.dijia1124.plusplusbattery.vm.HistoryInfoViewModel
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import com.topjohnwu.superuser.Shell
@@ -74,6 +76,16 @@ class MainActivity : ComponentActivity() {
                         BatteryMonitorSettingsViewModel(application) as T
                 }
             )[BatteryMonitorSettingsViewModel::class.java]
+        }
+
+        val floatingWindowSettingsViewModel by lazy {
+            ViewModelProvider(
+                this,
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
+                        FloatingWindowSettingsViewModel(application) as T
+                }
+            )[FloatingWindowSettingsViewModel::class.java]
         }
 
         val batteryInfoViewModel by lazy {
@@ -164,6 +176,13 @@ class MainActivity : ComponentActivity() {
                                 navController,
                                 battMonViewModel,
                                 stringResource(R.string.battery_monitor_entry_settings)
+                            )
+                        }
+                        composable("floating_window_settings") {
+                            FloatingWindowSettings(
+                                stringResource(R.string.floating_window_settings),
+                                navController,
+                                floatingWindowSettingsViewModel
                             )
                         }
                         composable("battery_monitor") {
