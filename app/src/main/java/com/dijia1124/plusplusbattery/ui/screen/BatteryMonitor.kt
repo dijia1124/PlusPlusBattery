@@ -56,11 +56,11 @@ fun BatteryMonitorContent(
     ) {
         ListItem(
             modifier = Modifier.clickable { navController.navigate("batt_mon_settings") },
-            headlineContent = { Text(text = stringResource(R.string.battery_monitor_entry_settings), style = MaterialTheme.typography.bodyLarge) }
+            headlineContent = { Text(text = stringResource(R.string.battery_monitor_entry_settings_list_item_title), style = MaterialTheme.typography.bodyLarge) }
         )
         ListItem(
             modifier = Modifier.clickable { navController.navigate("floating_window_settings") },
-            headlineContent = { Text(text = stringResource(R.string.floating_window_settings), style = MaterialTheme.typography.bodyLarge) }
+            headlineContent = { Text(text = stringResource(R.string.floating_window_settings_list_item_title), style = MaterialTheme.typography.bodyLarge) }
         )
         ListItem(
             headlineContent = {BatteryMonitorSwitch(battMonVM)}

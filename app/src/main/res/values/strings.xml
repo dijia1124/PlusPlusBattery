@@ -91,7 +91,9 @@
     <string name="battery_monitor">Battery Monitor</string>
     <string name="initializing">Initializing…</string>
     <string name="battery_monitor_entry_settings">Monitor Entry Settings</string>
+    <string name="battery_monitor_entry_settings_list_item_title">Monitor entry settings</string>
     <string name="floating_window_settings">Floating Window Settings</string>
+    <string name="floating_window_settings_list_item_title">Floating window settings</string>
     <string name="show_in_notification_bar">Show in notification bar</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
