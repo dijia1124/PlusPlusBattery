@@ -115,7 +115,7 @@ class PrefsRepository(context: Context) {
     }
 
     val floatingWindowAlpha: Flow<Float> =
-        dataStore.data.map { it[FLOATING_WINDOW_ALPHA] ?: 1.0f }
+        dataStore.data.map { it[FLOATING_WINDOW_ALPHA] ?: 0.75f }
 
     suspend fun setFloatingWindowAlpha(alpha: Float) {
         dataStore.edit { it[FLOATING_WINDOW_ALPHA] = alpha }
