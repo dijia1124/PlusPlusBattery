@@ -1,7 +1,10 @@
 package com.dijia1124.plusplusbattery.service
 
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.Gravity
@@ -29,6 +32,7 @@ import com.dijia1124.plusplusbattery.ui.components.FloatingWindowContent
 import com.dijia1124.plusplusbattery.ui.theme.PlusPlusBatteryTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -60,6 +64,18 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
     private lateinit var _batteryInfoText: MutableStateFlow<String>
     private val batteryInfoText get() = _batteryInfoText.asStateFlow()
 
+    private var updateJob: Job? = null
+
+    private val screenReceiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_OFF -> updateJob?.cancel()
+                Intent.ACTION_SCREEN_ON  ->
+                    if (updateJob?.isActive != true) startUpdating()
+            }
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
@@ -72,6 +88,11 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
         lifecycleOwner.create()
         batteryRepo = BatteryInfoRepository(applicationContext)
         prefsRepo = PrefsRepository(applicationContext)
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_SCREEN_OFF)
+            addAction(Intent.ACTION_SCREEN_ON)
+        }
+        registerReceiver(screenReceiver, filter)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -134,13 +155,13 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
 
         windowManager.addView(floatingView, params)
 
-        startFetchingData()
+        startUpdating()
 
         return START_STICKY
     }
 
-    private fun startFetchingData() {
-        serviceScope.launch {
+    private fun startUpdating() {
+        updateJob = serviceScope.launch {
             val interval = prefsRepo.refreshInterval.first()
             while (isActive) {
                 _batteryInfoText.value = fetchBatteryInfo()
@@ -185,5 +206,6 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
             windowManager.removeView(floatingView)
         }
         lifecycleOwner.destroy()
+        unregisterReceiver(screenReceiver)
     }
 }
