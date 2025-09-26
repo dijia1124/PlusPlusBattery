@@ -85,9 +85,15 @@
     <string name="battery_type_battery_type">电池类型 (battery_type)</string>
     <string name="design_capacity_design_capacity">电池设计容量 (design_capacity)</string>
     <string name="notification_permission_denied">无法获取通知权限</string>
+    <string name="show_in_floating_window">在悬浮窗显示</string>
+    <string name="overlay_permission_denied">无法获取悬浮窗权限</string>
     <string name="battery_monitor">电池监控</string>
     <string name="initializing">初始化中…</string>
     <string name="battery_monitor_entry_settings">电池监控条目设置</string>
+    <string name="battery_monitor_entry_settings_list_item_title">电池监控条目设置</string>
+    <string name="floating_window_settings">悬浮窗设置</string>
+    <string name="floating_window_settings_list_item_title">悬浮窗设置</string>
+    <string name="show_in_notification_bar">在通知栏显示</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">请选择你想要电池监控显示的条目:</string>
     <string name="monitor">监控</string>
     <string name="stop">停止</string>
@@ -129,4 +135,7 @@
     <string name="wrong_battery_voltage_info">如果这个数值小于 10 mV, 你的设备也许正以 V（伏特）回报电压，而不是 mV（毫伏）。这也会导致错误的功率显示。如果有 Root 权限，欧加设备也许能获得正确电压。</string>
     <string name="automatic_daily_charge_cycle_log">每日自动记录电池循环次数</string>
     <string name="workmanager_for_charge_cycle">默认情况下，打开 App 时会尝试记录循环次数。你可能需要在首页和设置页面来回切换一次来触发记录。\n\n或者，你可以在设置里启用“每日自动记录电池循环次数”从而实现无需打开 App 并通过WorkManager自动触发记录。</string>
+    <string name="opacity">不透明度: %1$s</string>
+    <string name="size">尺寸: %1$s</string>
+    <string name="enable_touch">启用触摸</string>
 </resources>

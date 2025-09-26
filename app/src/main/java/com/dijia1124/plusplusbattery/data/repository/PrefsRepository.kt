@@ -8,6 +8,9 @@ import androidx.work.WorkManager
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
 import com.dijia1124.plusplusbattery.data.util.POWER_CHART_EXPANDED_KEY
@@ -109,5 +112,26 @@ class PrefsRepository(context: Context) {
         } else {
             workManager.cancelUniqueWork("DailyHistoryLog")
         }
+    }
+
+    val floatingWindowAlpha: Flow<Float> =
+        dataStore.data.map { it[FLOATING_WINDOW_ALPHA] ?: 1.0f }
+
+    suspend fun setFloatingWindowAlpha(alpha: Float) {
+        dataStore.edit { it[FLOATING_WINDOW_ALPHA] = alpha }
+    }
+
+    val floatingWindowSize: Flow<Float> =
+        dataStore.data.map { it[FLOATING_WINDOW_SIZE] ?: 1.0f }
+
+    suspend fun setFloatingWindowSize(size: Float) {
+        dataStore.edit { it[FLOATING_WINDOW_SIZE] = size }
+    }
+
+    val floatingWindowTouchable: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TOUCHABLE] ?: true }
+
+    suspend fun setFloatingWindowTouchable(touchable: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TOUCHABLE] = touchable }
     }
 }

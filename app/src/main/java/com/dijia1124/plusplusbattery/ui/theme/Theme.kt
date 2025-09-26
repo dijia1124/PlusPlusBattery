@@ -41,6 +41,7 @@ fun PlusPlusBatteryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
+    enableStatusBarEffect: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -55,7 +56,7 @@ fun PlusPlusBatteryTheme(
 
     // Status bar color
     val view = LocalView.current
-    if (!view.isInEditMode) {
+    if (!view.isInEditMode && enableStatusBarEffect && view.context is Activity) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.primary.toArgb()
