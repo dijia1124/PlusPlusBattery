@@ -148,6 +148,7 @@ fun calcRawFcc(
     designCapacity: Int
 ): Int {
     if (compensatedFcc == designCapacity) return 0
+    if (rawSoh == 0f) return 0
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {
