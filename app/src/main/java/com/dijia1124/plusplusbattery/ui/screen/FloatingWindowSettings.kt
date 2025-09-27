@@ -158,6 +158,16 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             }
         }
         ListItem(
+            headlineContent = { Text(text = stringResource(R.string.text_shadow)) },
+            trailingContent = {
+                val textShadowEnabled by floatingWindowSettingsViewModel.floatingWindowTextShadowEnabled.collectAsState()
+                Switch(
+                    checked = textShadowEnabled,
+                    onCheckedChange = { floatingWindowSettingsViewModel.setFloatingWindowTextShadowEnabled(it) }
+                )
+            }
+        )
+        ListItem(
             headlineContent = { Text(text = stringResource(R.string.enable_touch)) },
             trailingContent = {
                 Switch(

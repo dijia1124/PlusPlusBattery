@@ -12,6 +12,7 @@ import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_BACKGROUND_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_SHADOW
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
@@ -149,5 +150,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowBackgroundColor(colorKey: String) {
         dataStore.edit { it[FLOATING_WINDOW_BACKGROUND_COLOR] = colorKey }
+    }
+
+    val floatingWindowTextShadowEnabled: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_SHADOW] ?: false }
+
+    suspend fun setFloatingWindowTextShadowEnabled(enabled: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_SHADOW] = enabled }
     }
 }
