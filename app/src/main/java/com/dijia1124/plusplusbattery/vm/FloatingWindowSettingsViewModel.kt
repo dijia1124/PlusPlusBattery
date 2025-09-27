@@ -22,7 +22,10 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         viewModelScope, SharingStarted.Eagerly, initialValue = true
     )
     val floatingWindowTextColor = prefsRepository.floatingWindowTextColor.stateIn(
-        viewModelScope, SharingStarted.Eagerly, initialValue = "default"
+        viewModelScope, SharingStarted.Eagerly, initialValue = "auto"
+    )
+    val floatingWindowBackgroundColor = prefsRepository.floatingWindowBackgroundColor.stateIn(
+        viewModelScope, SharingStarted.Eagerly, initialValue = "auto"
     )
 
     fun setFloatingWindowAlpha(alpha: Float) {
@@ -49,10 +52,17 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         }
     }
 
+    fun setFloatingWindowBackgroundColor(colorKey: String) {
+        viewModelScope.launch {
+            prefsRepository.setFloatingWindowBackgroundColor(colorKey)
+        }
+    }
+
     fun resetFloatingWindowSettings() {
         setFloatingWindowAlpha(0.75f)
         setFloatingWindowSize(1.0f)
         setFloatingWindowTouchable(true)
         setFloatingWindowTextColor("auto")
+        setFloatingWindowBackgroundColor("auto")
     }
 }

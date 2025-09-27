@@ -9,6 +9,7 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_BACKGROUND_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
@@ -141,5 +142,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowTextColor(colorKey: String) {
         dataStore.edit { it[FLOATING_WINDOW_TEXT_COLOR] = colorKey }
+    }
+
+    val floatingWindowBackgroundColor: Flow<String> =
+        dataStore.data.map { it[FLOATING_WINDOW_BACKGROUND_COLOR] ?: "auto" }
+
+    suspend fun setFloatingWindowBackgroundColor(colorKey: String) {
+        dataStore.edit { it[FLOATING_WINDOW_BACKGROUND_COLOR] = colorKey }
     }
 }

@@ -20,6 +20,7 @@ fun FloatingWindowContent(
     alpha: Float,
     size: Float,
     textColor: Color,
+    backgroundColor: Color,
     onDrag: (Offset) -> Unit
 ) {
     Box(
@@ -31,7 +32,7 @@ fun FloatingWindowContent(
                 }
             }
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = alpha),
+                color = backgroundColor.copy(alpha = alpha),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(horizontal = 12.dp, vertical = 8.dp)

@@ -51,12 +51,20 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
     val size by floatingWindowSettingsViewModel.floatingWindowSize.collectAsState()
     val touchable by floatingWindowSettingsViewModel.floatingWindowTouchable.collectAsState()
     val textColorKey by floatingWindowSettingsViewModel.floatingWindowTextColor.collectAsState()
+    val backgroundColorKey by floatingWindowSettingsViewModel.floatingWindowBackgroundColor.collectAsState()
 
-    val colorOptions = mapOf(
+    val textColorOptions = mapOf(
         "auto" to stringResource(R.string.color_auto),
         "primary" to stringResource(R.string.color_primary),
         "secondary" to stringResource(R.string.color_secondary),
         "error" to stringResource(R.string.color_error)
+    )
+
+    val backgroundColorOptions = mapOf(
+        "auto" to stringResource(R.string.color_auto),
+        "primaryContainer" to stringResource(R.string.color_primary_container),
+        "secondaryContainer" to stringResource(R.string.color_secondary_container),
+        "errorContainer" to stringResource(R.string.color_error_container)
     )
 
     Column(
@@ -98,7 +106,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
         Text(
             text = stringResource(R.string.text_color),
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp)
         )
         LazyRow(
             modifier = Modifier
@@ -107,10 +115,37 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(colorOptions.toList()) { (key, name) ->
+            items(textColorOptions.toList()) { (key, name) ->
                 val isSelected = key == textColorKey
                 OutlinedCard(
                     onClick = { floatingWindowSettingsViewModel.setFloatingWindowTextColor(key) },
+                    border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else CardDefaults.outlinedCardBorder(),
+                    colors = if (isSelected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else CardDefaults.outlinedCardColors(),
+                ) {
+                    Text(
+                        text = name,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+        Text(
+            text = stringResource(R.string.background_color),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp)
+        )
+        LazyRow(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(backgroundColorOptions.toList()) { (key, name) ->
+                val isSelected = key == backgroundColorKey
+                OutlinedCard(
+                    onClick = { floatingWindowSettingsViewModel.setFloatingWindowBackgroundColor(key) },
                     border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else CardDefaults.outlinedCardBorder(),
                     colors = if (isSelected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else CardDefaults.outlinedCardColors(),
                 ) {

@@ -83,6 +83,10 @@
     <string name="color_primary">Primary</string>
     <string name="color_secondary">Secondary</string>
     <string name="color_error">Error</string>
+    <string name="background_color">Background color</string>
+    <string name="color_primary_container">Primary Container</string>
+    <string name="color_secondary_container">Secondary Container</string>
+    <string name="color_error_container">Error Container</string>
     <string name="show_fab_on_dashboard">Show floating button on dashboard</string>
     <string name="version">Version: %1$s</string>
     <string name="battery_qmax">Maximum Chemical Capacity (batt_qmax)</string>
