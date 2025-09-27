@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -125,6 +126,9 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
                 val alpha by prefsRepo.floatingWindowAlpha.collectAsState(initial = 1.0f)
                 val size by prefsRepo.floatingWindowSize.collectAsState(initial = 1.0f)
                 val touchable by prefsRepo.floatingWindowTouchable.collectAsState(initial = true)
+                val textColorKey by prefsRepo.floatingWindowTextColor.collectAsState(initial = "auto")
+                val backgroundColorKey by prefsRepo.floatingWindowBackgroundColor.collectAsState(initial = "auto")
+                val textShadowEnabled by prefsRepo.floatingWindowTextShadowEnabled.collectAsState(initial = false)
 
                 LaunchedEffect(touchable) {
                     val newFlags = if (touchable) {
@@ -137,7 +141,28 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
                 }
 
                 PlusPlusBatteryTheme(darkTheme = useDarkTheme, enableStatusBarEffect = false) {
-                    FloatingWindowContent(text = text, alpha = alpha, size = size) {
+                    val textColor = when (textColorKey) {
+                        "primary" -> MaterialTheme.colorScheme.primary
+                        "secondary" -> MaterialTheme.colorScheme.secondary
+                        "error" -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
+
+                    val backgroundColor = when (backgroundColorKey) {
+                        "primaryContainer" -> MaterialTheme.colorScheme.primaryContainer
+                        "secondaryContainer" -> MaterialTheme.colorScheme.secondaryContainer
+                        "errorContainer" -> MaterialTheme.colorScheme.errorContainer
+                        else -> MaterialTheme.colorScheme.surface
+                    }
+
+                    FloatingWindowContent(
+                        text = text,
+                        alpha = alpha,
+                        size = size,
+                        textColor = textColor,
+                        backgroundColor = backgroundColor,
+                        textShadowEnabled = textShadowEnabled
+                    ) {
                         dragAmount ->
                         if (touchable) {
                             params.x += dragAmount.x.roundToInt()

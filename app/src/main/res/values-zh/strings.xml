@@ -77,6 +77,15 @@
     <string name="unknown_due_to_fcc_equals_design_capacity" formatted="false">\n当 battery_fcc 恰好等于设计容量，或者 battery_soh 恰好等于 100% 时，此值会显示为“未知”。因为实际补偿后的值可能会超过最大显示值，导致原始值偏小。\n</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[加加电池中的原始 fcc&soh 依据这张表计算反推\n]]></string>
     <string name="settings">设置</string>
+    <string name="text_color">文本颜色</string>
+    <string name="color_auto">自动</string>
+    <string name="color_primary">主色</string>
+    <string name="color_secondary">辅助色</string>
+    <string name="color_error">警示色</string>
+    <string name="background_color">背景颜色</string>
+    <string name="color_primary_container">主容器色</string>
+    <string name="color_secondary_container">辅助容器色</string>
+    <string name="color_error_container">警示容器色</string>
     <string name="show_fab_on_dashboard">在首页显示悬浮按钮</string>
     <string name="version">版本: %1$s</string>
     <string name="battery_qmax">电池最大化学容量 (batt_qmax)</string>
@@ -138,6 +147,7 @@
     <string name="opacity">不透明度: %1$s</string>
     <string name="size">尺寸: %1$s</string>
     <string name="enable_touch">启用触摸</string>
+    <string name="text_shadow">文本阴影</string>
     <string name="export_history">到处历史</string>
     <string name="export_history_confirmation">到处所有历史记录到一个 csv 文件？ \n最早: %1$s\n最新: %2$s</string>
     <string name="export">Export</string>
