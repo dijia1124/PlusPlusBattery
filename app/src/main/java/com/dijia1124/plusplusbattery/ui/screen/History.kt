@@ -81,7 +81,7 @@ fun History(historyInfoViewModel: HistoryInfoViewModel, currentTitle: String) {
             },
             confirmButton = {
                 Button(onClick = { showHelpDialog = false }) {
-                    Text("OK")
+                    Text(stringResource(R.string.close))
                 }
             }
         )
