@@ -148,7 +148,7 @@
     <string name="size">尺寸: %1$s</string>
     <string name="enable_touch">启用触摸</string>
     <string name="text_shadow">文本阴影</string>
-    <string name="export_history">到处历史</string>
-    <string name="export_history_confirmation">到处所有历史记录到一个 csv 文件？ \n最早: %1$s\n最新: %2$s</string>
+    <string name="export_history">导出历史信息</string>
+    <string name="export_history_confirmation">导出所有历史信息到一个 csv 文件？ \n最早: %1$s\n最新: %2$s</string>
     <string name="export">Export</string>
 </resources>
