@@ -70,10 +70,10 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 10.dp)
             .verticalScroll(rememberScrollState())
     ) {
         ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = { Text(text = stringResource(
                 R.string.opacity,
                 String.format("%.2f", alpha)
@@ -89,6 +89,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             }
         )
         ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = { Text(text = stringResource(
                 R.string.size,
                 String.format("%.2f", size)
@@ -106,14 +107,14 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
         Text(
             text = stringResource(R.string.text_color),
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 26.dp, top = 16.dp, end = 26.dp, bottom = 8.dp)
         )
         LazyRow(
             modifier = Modifier
                 .padding(vertical = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            contentPadding = PaddingValues(horizontal = 26.dp)
         ) {
             items(textColorOptions.toList()) { (key, name) ->
                 val isSelected = key == textColorKey
@@ -133,14 +134,14 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
         Text(
             text = stringResource(R.string.background_color),
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 26.dp, top = 16.dp, end = 26.dp, bottom = 8.dp)
         )
         LazyRow(
             modifier = Modifier
                 .padding(vertical = 8.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp)
+            contentPadding = PaddingValues(horizontal = 26.dp)
         ) {
             items(backgroundColorOptions.toList()) { (key, name) ->
                 val isSelected = key == backgroundColorKey
@@ -158,6 +159,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             }
         }
         ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = { Text(text = stringResource(R.string.text_shadow)) },
             trailingContent = {
                 val textShadowEnabled by floatingWindowSettingsViewModel.floatingWindowTextShadowEnabled.collectAsState()
@@ -168,6 +170,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             }
         )
         ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = { Text(text = stringResource(R.string.enable_touch)) },
             trailingContent = {
                 Switch(
@@ -179,6 +182,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
             }
         )
         ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
