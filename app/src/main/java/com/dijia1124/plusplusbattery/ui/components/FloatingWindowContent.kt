@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 
@@ -18,6 +19,7 @@ fun FloatingWindowContent(
     text: String,
     alpha: Float,
     size: Float,
+    textColor: Color,
     onDrag: (Offset) -> Unit
 ) {
     Box(
@@ -36,7 +38,7 @@ fun FloatingWindowContent(
     ) {
         Text(
             text = text,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = textColor,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size

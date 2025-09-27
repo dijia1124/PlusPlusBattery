@@ -1,14 +1,21 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -43,6 +50,15 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
     val alpha by floatingWindowSettingsViewModel.floatingWindowAlpha.collectAsState()
     val size by floatingWindowSettingsViewModel.floatingWindowSize.collectAsState()
     val touchable by floatingWindowSettingsViewModel.floatingWindowTouchable.collectAsState()
+    val textColorKey by floatingWindowSettingsViewModel.floatingWindowTextColor.collectAsState()
+
+    val colorOptions = mapOf(
+        "auto" to stringResource(R.string.color_auto),
+        "primary" to stringResource(R.string.color_primary),
+        "secondary" to stringResource(R.string.color_secondary),
+        "error" to stringResource(R.string.color_error)
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,6 +95,33 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
                 )
             }
         )
+        Text(
+            text = stringResource(R.string.text_color),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
+        LazyRow(
+            modifier = Modifier
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(colorOptions.toList()) { (key, name) ->
+                val isSelected = key == textColorKey
+                OutlinedCard(
+                    onClick = { floatingWindowSettingsViewModel.setFloatingWindowTextColor(key) },
+                    border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else CardDefaults.outlinedCardBorder(),
+                    colors = if (isSelected) CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else CardDefaults.outlinedCardColors(),
+                ) {
+                    Text(
+                        text = name,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
         ListItem(
             headlineContent = { Text(text = stringResource(R.string.enable_touch)) },
             trailingContent = {

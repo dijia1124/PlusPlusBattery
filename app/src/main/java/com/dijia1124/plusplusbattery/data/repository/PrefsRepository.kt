@@ -10,6 +10,7 @@ import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
@@ -133,5 +134,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowTouchable(touchable: Boolean) {
         dataStore.edit { it[FLOATING_WINDOW_TOUCHABLE] = touchable }
+    }
+
+    val floatingWindowTextColor: Flow<String> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_COLOR] ?: "auto" }
+
+    suspend fun setFloatingWindowTextColor(colorKey: String) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_COLOR] = colorKey }
     }
 }
