@@ -36,6 +36,7 @@ fun FloatingWindowContent(
     ) {
         Text(
             text = text,
+            color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size
