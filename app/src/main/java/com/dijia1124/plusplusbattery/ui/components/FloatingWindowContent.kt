@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,6 +21,7 @@ fun FloatingWindowContent(
     text: String,
     alpha: Float,
     size: Float,
+    fontWeight: Int,
     textColor: Color,
     backgroundColor: Color,
     textShadowEnabled: Boolean,
@@ -43,6 +45,7 @@ fun FloatingWindowContent(
             MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size,
+                fontWeight = FontWeight(fontWeight),
                 shadow = Shadow(
                     color = textColor.copy(alpha = 0.5f),
                     offset = Offset(2f, 2f),
@@ -52,7 +55,8 @@ fun FloatingWindowContent(
         } else {
             MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
-                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size
+                lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size,
+                fontWeight = FontWeight(fontWeight)
             )
         }
         Text(

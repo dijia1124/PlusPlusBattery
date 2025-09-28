@@ -31,6 +31,10 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         viewModelScope, SharingStarted.Eagerly, initialValue = false
     )
 
+    val floatingWindowFontWeight = prefsRepository.floatingWindowFontWeight.stateIn(
+        viewModelScope, SharingStarted.Eagerly, initialValue = 400
+    )
+
     fun setFloatingWindowAlpha(alpha: Float) {
         viewModelScope.launch {
             prefsRepository.setFloatingWindowAlpha(alpha)
@@ -67,6 +71,12 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         }
     }
 
+    fun setFloatingWindowFontWeight(fontWeight: Int) {
+        viewModelScope.launch {
+            prefsRepository.setFloatingWindowFontWeight(fontWeight)
+        }
+    }
+
     fun resetFloatingWindowSettings() {
         setFloatingWindowAlpha(0.75f)
         setFloatingWindowSize(1.0f)
@@ -74,5 +84,6 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         setFloatingWindowTextColor("auto")
         setFloatingWindowBackgroundColor("auto")
         setFloatingWindowTextShadowEnabled(false)
+        setFloatingWindowFontWeight(400)
     }
 }
