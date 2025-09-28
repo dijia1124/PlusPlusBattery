@@ -14,6 +14,7 @@ import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_FONT_WEIGHT
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_SHADOW
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_STROKE_ENABLED
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
@@ -165,5 +166,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowFontWeight(fontWeight: Int) {
         dataStore.edit { it[FLOATING_WINDOW_FONT_WEIGHT] = fontWeight }
+    }
+
+    val floatingWindowTextStrokeEnabled: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_STROKE_ENABLED] ?: false }
+
+    suspend fun setFloatingWindowTextStrokeEnabled(enabled: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_STROKE_ENABLED] = enabled }
     }
 }

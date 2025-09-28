@@ -130,6 +130,7 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
                 val backgroundColorKey by prefsRepo.floatingWindowBackgroundColor.collectAsState(initial = "auto")
                 val textShadowEnabled by prefsRepo.floatingWindowTextShadowEnabled.collectAsState(initial = false)
                 val fontWeight by prefsRepo.floatingWindowFontWeight.collectAsState(initial = 400)
+                val textStrokeEnabled by prefsRepo.floatingWindowTextStrokeEnabled.collectAsState(initial = false)
 
                 LaunchedEffect(touchable) {
                     val newFlags = if (touchable) {
@@ -163,7 +164,8 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
                         fontWeight = fontWeight,
                         textColor = textColor,
                         backgroundColor = backgroundColor,
-                        textShadowEnabled = textShadowEnabled
+                        textShadowEnabled = textShadowEnabled,
+                        textStrokeEnabled = textStrokeEnabled
                     ) {
                         dragAmount ->
                         if (touchable) {

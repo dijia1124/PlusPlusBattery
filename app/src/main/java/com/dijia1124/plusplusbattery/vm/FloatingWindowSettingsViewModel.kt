@@ -35,6 +35,10 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         viewModelScope, SharingStarted.Eagerly, initialValue = 400
     )
 
+    val floatingWindowTextStrokeEnabled = prefsRepository.floatingWindowTextStrokeEnabled.stateIn(
+        viewModelScope, SharingStarted.Eagerly, initialValue = false
+    )
+
     fun setFloatingWindowAlpha(alpha: Float) {
         viewModelScope.launch {
             prefsRepository.setFloatingWindowAlpha(alpha)
@@ -77,6 +81,12 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         }
     }
 
+    fun setFloatingWindowTextStrokeEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            prefsRepository.setFloatingWindowTextStrokeEnabled(enabled)
+        }
+    }
+
     fun resetFloatingWindowSettings() {
         setFloatingWindowAlpha(0.75f)
         setFloatingWindowSize(1.0f)
@@ -85,5 +95,6 @@ class FloatingWindowSettingsViewModel(application: Application) : AndroidViewMod
         setFloatingWindowBackgroundColor("auto")
         setFloatingWindowTextShadowEnabled(false)
         setFloatingWindowFontWeight(400)
+        setFloatingWindowTextStrokeEnabled(false)
     }
 }

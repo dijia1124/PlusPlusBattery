@@ -175,6 +175,17 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
         }
         ListItem(
             modifier = Modifier.padding(horizontal = 10.dp),
+            headlineContent = { Text(text = stringResource(R.string.text_stroke)) },
+            trailingContent = {
+                val textStrokeEnabled by floatingWindowSettingsViewModel.floatingWindowTextStrokeEnabled.collectAsState()
+                Switch(
+                    checked = textStrokeEnabled,
+                    onCheckedChange = { floatingWindowSettingsViewModel.setFloatingWindowTextStrokeEnabled(it) }
+                )
+            }
+        )
+        ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
             headlineContent = { Text(text = stringResource(R.string.text_shadow)) },
             trailingContent = {
                 val textShadowEnabled by floatingWindowSettingsViewModel.floatingWindowTextShadowEnabled.collectAsState()
