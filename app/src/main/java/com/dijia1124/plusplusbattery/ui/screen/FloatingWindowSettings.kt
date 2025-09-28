@@ -52,6 +52,7 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
     val touchable by floatingWindowSettingsViewModel.floatingWindowTouchable.collectAsState()
     val textColorKey by floatingWindowSettingsViewModel.floatingWindowTextColor.collectAsState()
     val backgroundColorKey by floatingWindowSettingsViewModel.floatingWindowBackgroundColor.collectAsState()
+    val fontWeight by floatingWindowSettingsViewModel.floatingWindowFontWeight.collectAsState()
 
     val textColorOptions = mapOf(
         "auto" to stringResource(R.string.color_auto),
@@ -101,6 +102,20 @@ fun FloatingWindowSettingsContent(floatingWindowSettingsViewModel: FloatingWindo
                         floatingWindowSettingsViewModel.setFloatingWindowSize(newSize)
                     },
                     valueRange = 0.5f..2.0f
+                )
+            }
+        )
+        ListItem(
+            modifier = Modifier.padding(horizontal = 10.dp),
+            headlineContent = { Text(text = stringResource(R.string.font_weight, fontWeight)) },
+            supportingContent = {
+                Slider(
+                    value = fontWeight.toFloat(),
+                    onValueChange = { newFontWeight ->
+                        floatingWindowSettingsViewModel.setFloatingWindowFontWeight(newFontWeight.toInt())
+                    },
+                    valueRange = 100f..900f,
+                    steps = 7
                 )
             }
         )

@@ -148,6 +148,7 @@
     <string name="opacity">Opacity: %1$s</string>
     <string name="size">Size: %1$s</string>
     <string name="enable_touch">Enable touch</string>
+    <string name="font_weight">Font weight: %d</string>
     <string name="text_shadow">Text shadow</string>
     <string name="export_history">Export History</string>
     <string name="export_history_confirmation">Export all history records to a CSV file? \nEarliest: %1$s\nLatest: %2$s</string>

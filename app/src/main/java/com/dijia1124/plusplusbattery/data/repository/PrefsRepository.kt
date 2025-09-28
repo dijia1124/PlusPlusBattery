@@ -10,6 +10,7 @@ import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_BACKGROUND_COLOR
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_FONT_WEIGHT
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
 import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_SHADOW
@@ -157,5 +158,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowTextShadowEnabled(enabled: Boolean) {
         dataStore.edit { it[FLOATING_WINDOW_TEXT_SHADOW] = enabled }
+    }
+
+    val floatingWindowFontWeight: Flow<Int> =
+        dataStore.data.map { it[FLOATING_WINDOW_FONT_WEIGHT] ?: 400 }
+
+    suspend fun setFloatingWindowFontWeight(fontWeight: Int) {
+        dataStore.edit { it[FLOATING_WINDOW_FONT_WEIGHT] = fontWeight }
     }
 }
