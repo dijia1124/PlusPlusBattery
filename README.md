@@ -10,8 +10,8 @@
 
 - **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power with charts, and health status without root access.
 - **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery level is 100% and the battery current is within the range from 0 to 20 mA. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
-- **Cycle Count History**: Records the daily cycle count when the app is opened and saves it locally using a Room database. Users can view this on the history page.
-- **Real-Time Battery Monitor Notification**: Posts an ongoing notification showing battery metrics. Info entries can be customized.
+- **Cycle Count History**: Records the daily cycle count automatically or manually, and saves it locally using a Room database. Users can view it on the history page, and export it to csv files.
+- **Real-Time Battery Monitor**: Show battery metrics in a customizable floating window or the notification area. Info entries can be customized.
 - **Root Mode**: Requires root permission to read additional information.
 - **Current Remaining Capacity (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_rm`. This value changes with battery level.
 - **Full Charge Capacity (battery_fcc) (Root Mode)**: Read from `/sys/class/oplus_chg/battery/battery_fcc`. This value fluctuates based on charging/discharging behavior.
@@ -26,6 +26,16 @@
 
 ## Experimental Features
 - **Get Battery Data from Logcat (Root Mode)**: For some devices, this app can extract battery related data from logcat. Currently supported devices include some OPlus, Moto and Xiaomi devices (limited support varies on models and systems)
+
+## Screenshots
+
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_1.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_2.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_3.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_4.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_5.jpg" width="200"/>
+</p>
 
 ## Downloads
 

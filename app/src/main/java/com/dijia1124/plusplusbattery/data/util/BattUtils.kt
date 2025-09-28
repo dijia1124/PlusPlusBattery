@@ -32,6 +32,7 @@ fun getHealthString(health: Int, context: Context): String = when (health) {
     BatteryManager.BATTERY_HEALTH_GOOD -> context.getString(R.string.good)
     BatteryManager.BATTERY_HEALTH_OVERHEAT -> context.getString(R.string.overheat)
     BatteryManager.BATTERY_HEALTH_DEAD -> context.getString(R.string.dead)
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> context.getString(R.string.overvolt)
     else -> context.getString(R.string.unknown)
 }
 
@@ -148,6 +149,7 @@ fun calcRawFcc(
     designCapacity: Int
 ): Int {
     if (compensatedFcc == designCapacity) return 0
+    if (rawSoh == 0f) return 0
     val match = coeffList.find { it.first == vbatUv }
 
     return if (match != null) {

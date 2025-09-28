@@ -1,5 +1,6 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,8 +32,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.dijia1124.plusplusbattery.ui.components.AppScaffold
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,10 +44,21 @@ import java.util.Locale
 @Composable
 fun History(historyInfoViewModel: HistoryInfoViewModel, currentTitle: String) {
     var showHelpDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val firstHistoryInfo by historyInfoViewModel.getFirstHistoryInfo().collectAsState(initial = null)
+    val lastHistoryInfo by historyInfoViewModel.getLastHistoryInfo().collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
 
     AppScaffold(
         title = currentTitle,
         actions = {
+            IconButton(onClick = { showExportDialog = true }) {
+                Icon(
+                    painter = androidx.compose.ui.res.painterResource(id = R.drawable.export_notes_24dp_1f1f1f_fill1_wght400_grad0_opsz24),
+                    contentDescription = "Export"
+                )
+            }
             IconButton(onClick = { showHelpDialog = true }) {
                 Icon(
                     imageVector = Icons.Filled.Info,
@@ -67,7 +81,50 @@ fun History(historyInfoViewModel: HistoryInfoViewModel, currentTitle: String) {
             },
             confirmButton = {
                 Button(onClick = { showHelpDialog = false }) {
-                    Text("OK")
+                    Text(stringResource(R.string.close))
+                }
+            }
+        )
+    }
+
+    if (showExportDialog) {
+        val firstDate = firstHistoryInfo?.date?.let {
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
+        } ?: "N/A"
+        val lastDate = lastHistoryInfo?.date?.let {
+            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date(it))
+        } ?: "N/A"
+
+        AlertDialog(
+            onDismissRequest = { showExportDialog = false },
+            title = { Text(text = stringResource(R.string.export_history)) },
+            text = {
+                Text(
+                    text = stringResource(
+                        R.string.export_history_confirmation,
+                        firstDate,
+                        lastDate
+                    )
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    scope.launch {
+                        historyInfoViewModel.exportHistoryToCsv(context)
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.saved_to_downloads),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    showExportDialog = false
+                }) {
+                    Text(stringResource(R.string.export))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showExportDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
                 }
             }
         )

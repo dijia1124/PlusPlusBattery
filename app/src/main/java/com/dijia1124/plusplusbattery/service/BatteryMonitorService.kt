@@ -133,7 +133,7 @@ class BatteryMonitorService : Service() {
     private suspend fun fetchBatteryStatus(): String = withContext(Dispatchers.IO) {
         val isRoot = prefsRepo.isRootModeFlow.first()
         val allInfos =
-            if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo()
+            if (isRoot) batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo() + batteryRepo.readCustomEntries()
             else batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
         val visibleTypes = prefsRepo.visibleEntriesFlow.first()
         val filtered = if (visibleTypes.isEmpty()) {
@@ -146,10 +146,10 @@ class BatteryMonitorService : Service() {
         filtered.joinToString("\n") { info ->
             // if this entry is from the root‐only list, show the short key;
             // otherwise always show the localized title
-            val label = if (info.isShowKeyInMonitor) {
-                info.type.key
-            } else {
-                getString(info.type.titleRes)
+            val label = when {
+                info.type == BatteryInfoType.CUSTOM -> info.customTitle ?: info.type.key
+                info.isShowKeyInMonitor -> info.type.key
+                else -> getString(info.type.titleRes)
             }
             "$label: ${info.value}"
         }

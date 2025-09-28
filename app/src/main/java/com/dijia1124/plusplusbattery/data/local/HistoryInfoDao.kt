@@ -23,4 +23,10 @@ interface HistoryInfoDao {
     suspend fun existsHistoryInfo(dateString: String): Boolean
     @Query("SELECT * FROM historyinfo WHERE dateString = :dateString LIMIT 1")
     suspend fun getHistoryInfoByDate(dateString: String): HistoryInfo?
+
+    @Query("SELECT * FROM HistoryInfo ORDER BY date ASC LIMIT 1")
+    fun getFirstHistoryInfo(): Flow<HistoryInfo?>
+
+    @Query("SELECT * FROM HistoryInfo ORDER BY date DESC LIMIT 1")
+    fun getLastHistoryInfo(): Flow<HistoryInfo?>
 }

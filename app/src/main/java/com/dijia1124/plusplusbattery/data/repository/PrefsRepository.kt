@@ -8,6 +8,14 @@ import androidx.work.WorkManager
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.util.DAILY_HISTORY_ENABLED
 import com.dijia1124.plusplusbattery.data.util.DARK_MODE_KEY
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_ALPHA
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_BACKGROUND_COLOR
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_FONT_WEIGHT
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_SIZE
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_COLOR
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_SHADOW
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TEXT_STROKE_ENABLED
+import com.dijia1124.plusplusbattery.data.util.FLOATING_WINDOW_TOUCHABLE
 import com.dijia1124.plusplusbattery.data.util.FOLLOW_SYSTEM_THEME_KEY
 import com.dijia1124.plusplusbattery.data.util.MONITOR_VISIBLE_ENTRIES
 import com.dijia1124.plusplusbattery.data.util.POWER_CHART_EXPANDED_KEY
@@ -109,5 +117,61 @@ class PrefsRepository(context: Context) {
         } else {
             workManager.cancelUniqueWork("DailyHistoryLog")
         }
+    }
+
+    val floatingWindowAlpha: Flow<Float> =
+        dataStore.data.map { it[FLOATING_WINDOW_ALPHA] ?: 0.75f }
+
+    suspend fun setFloatingWindowAlpha(alpha: Float) {
+        dataStore.edit { it[FLOATING_WINDOW_ALPHA] = alpha }
+    }
+
+    val floatingWindowSize: Flow<Float> =
+        dataStore.data.map { it[FLOATING_WINDOW_SIZE] ?: 1.0f }
+
+    suspend fun setFloatingWindowSize(size: Float) {
+        dataStore.edit { it[FLOATING_WINDOW_SIZE] = size }
+    }
+
+    val floatingWindowTouchable: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TOUCHABLE] ?: true }
+
+    suspend fun setFloatingWindowTouchable(touchable: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TOUCHABLE] = touchable }
+    }
+
+    val floatingWindowTextColor: Flow<String> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_COLOR] ?: "auto" }
+
+    suspend fun setFloatingWindowTextColor(colorKey: String) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_COLOR] = colorKey }
+    }
+
+    val floatingWindowBackgroundColor: Flow<String> =
+        dataStore.data.map { it[FLOATING_WINDOW_BACKGROUND_COLOR] ?: "auto" }
+
+    suspend fun setFloatingWindowBackgroundColor(colorKey: String) {
+        dataStore.edit { it[FLOATING_WINDOW_BACKGROUND_COLOR] = colorKey }
+    }
+
+    val floatingWindowTextShadowEnabled: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_SHADOW] ?: false }
+
+    suspend fun setFloatingWindowTextShadowEnabled(enabled: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_SHADOW] = enabled }
+    }
+
+    val floatingWindowFontWeight: Flow<Int> =
+        dataStore.data.map { it[FLOATING_WINDOW_FONT_WEIGHT] ?: 400 }
+
+    suspend fun setFloatingWindowFontWeight(fontWeight: Int) {
+        dataStore.edit { it[FLOATING_WINDOW_FONT_WEIGHT] = fontWeight }
+    }
+
+    val floatingWindowTextStrokeEnabled: Flow<Boolean> =
+        dataStore.data.map { it[FLOATING_WINDOW_TEXT_STROKE_ENABLED] ?: false }
+
+    suspend fun setFloatingWindowTextStrokeEnabled(enabled: Boolean) {
+        dataStore.edit { it[FLOATING_WINDOW_TEXT_STROKE_ENABLED] = enabled }
     }
 }

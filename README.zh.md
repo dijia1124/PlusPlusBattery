@@ -10,8 +10,8 @@
 
 - **实时电池信息**：无需Root权限显示当前电池电量、电压、电流、充放功率（支持显示图表）、健康状态等信息。
 - **电池寿命估算**：仅在电量达到100%且电流在0-20mA范围内时，计算并记录完全充电容量，以此估算电池的健康状况和寿命。不代表真实值。只是估算值。
-- **历史循环次数记录**: 每日打开app时记录当天的循环次数并记录在本地Room数据库中，用户可在历史页查看。
-- **通知栏电池监控**: 在通知区域显示实时电池信息。显示条目可以自定义。
+- **历史循环次数记录**: 自动或手动记录当天的循环次数并记录在本地Room数据库中，用户可在历史页查看，以及导出到csv文件。
+- **实时电池监控**: 在悬浮窗或通知栏显示实时电池信息。悬浮窗和显示条目可以自定义。
 - **Root模式**: 需要Root权限读取额外信息。
 - **当前剩余电量**: 通过读取/sys/class/oplus_chg/battery/battery_rm获取的值。此值随电量变动。
 - **完全充满时的容量（battery_fcc）（Root模式）**: 通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。此值随充放使用上下浮动。
@@ -26,6 +26,16 @@
 
 ## 实验性功能
 - **从logcat获取电池信息（Root模式）**: 这个APP可以从logcat读取某些设备的电池数据。目前支持某些欧加、摩托罗拉、小米设备（根据不同设备和系统是情况而定，适配很局限）。
+
+## 截图
+
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_1.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_2.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_3.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_4.jpg" width="200"/>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_5.jpg" width="200"/>
+</p>
 
 ## 下载
 

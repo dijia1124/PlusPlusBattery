@@ -35,4 +35,12 @@ class HistoryInfoRepository (application: Application) {
             }
         }
     }
+
+    fun getFirstHistoryInfo(): Flow<HistoryInfo?> {
+        return historyInfoDao.getFirstHistoryInfo()
+    }
+
+    fun getLastHistoryInfo(): Flow<HistoryInfo?> {
+        return historyInfoDao.getLastHistoryInfo()
+    }
 }

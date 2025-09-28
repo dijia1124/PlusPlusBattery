@@ -45,6 +45,7 @@
     <string name="good">Good</string>
     <string name="overheat">Overheat</string>
     <string name="dead">Dead</string>
+    <string name="overvolt">Over Voltage</string>
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_about">About</string>
@@ -78,6 +79,15 @@
     <string name="unknown_due_to_fcc_equals_design_capacity" formatted="false">\nThis value might show \"Unknown\" if battery_fcc equals to design_capacity, or battery_soh equals to 100%, as the actual compensated value might exceed maximum, causing the raw value to be inaccurate.\n</string>
     <string name="raw_fcc_soh_calc_intro"><![CDATA[Raw fcc&soh in Plus Plus Battery are calculated using this table\n]]></string>
     <string name="settings">Settings</string>
+    <string name="text_color">Text color</string>
+    <string name="color_auto">Auto</string>
+    <string name="color_primary">Primary</string>
+    <string name="color_secondary">Secondary</string>
+    <string name="color_error">Error</string>
+    <string name="background_color">Background color</string>
+    <string name="color_primary_container">Primary Container</string>
+    <string name="color_secondary_container">Secondary Container</string>
+    <string name="color_error_container">Error Container</string>
     <string name="show_fab_on_dashboard">Show floating button on dashboard</string>
     <string name="version">Version: %1$s</string>
     <string name="battery_qmax">Maximum Chemical Capacity (batt_qmax)</string>
@@ -86,9 +96,15 @@
     <string name="battery_type_battery_type">Battery Type (battery_type)</string>
     <string name="design_capacity_design_capacity">Design Capacity (design_capacity)</string>
     <string name="notification_permission_denied">Notification permission denied</string>
+    <string name="show_in_floating_window">Show in floating window</string>
+    <string name="overlay_permission_denied">Overlay permission denied</string>
     <string name="battery_monitor">Battery Monitor</string>
     <string name="initializing">Initializing…</string>
     <string name="battery_monitor_entry_settings">Monitor Entry Settings</string>
+    <string name="battery_monitor_entry_settings_list_item_title">Monitor entry settings</string>
+    <string name="floating_window_settings">Floating Window Settings</string>
+    <string name="floating_window_settings_list_item_title">Floating window settings</string>
+    <string name="show_in_notification_bar">Show in notification bar</string>
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
     <string name="stop">Stop</string>
@@ -103,7 +119,7 @@
     <string name="waiting_for_battery_data_from_logcat">Please connect your device to a charger while the battery level is not full (less than 100%)… \nIf data is not showing correctly or nothing shows up, the logcat of your model may have not been supported by Plus Plus Battery yet, or the logcat does not contain battery related information.</string>
     <string name="manufacturer">Manufacturer: %1$s</string>
     <string name="model">Model: %1$s</string>
-    <string name="custom_battery_info">Custom Battery Info</string>
+    <string name="custom_battery_info">Custom Entry</string>
     <string name="enable_oplus_fields">Show OPlus exclusive entries</string>
     <string name="design_capacity">Design Capacity</string>
     <string name="manage_custom_entries">Manage custom entries</string>
@@ -130,4 +146,13 @@
     <string name="wrong_battery_voltage_info">If this value is less than 10 mV, your device might be reporting battery voltage in V (volt) instead of mV (millivolt), which also leads to the incorrect battery power value. With root access, OPlus devices may get the correct voltage</string>
     <string name="automatic_daily_charge_cycle_log">Automatic daily charge cycle log</string>
     <string name="workmanager_for_charge_cycle">By default, charge cycles are recorded when the app is opened. You may need to switch between the Dashboard and History tabs to trigger it.\n\nAlternatively, you can enable the \'Automatic daily charge cycle log\' option in Settings for it to be recorded automatically by WorkManager without manually opening the app.</string>
+    <string name="opacity">Opacity: %1$s</string>
+    <string name="size">Size: %1$s</string>
+    <string name="enable_touch">Enable touch</string>
+    <string name="font_weight">Font weight: %d</string>
+    <string name="text_shadow">Text shadow</string>
+    <string name="text_stroke">Text stroke</string>
+    <string name="export_history">Export History</string>
+    <string name="export_history_confirmation">Export all history records to a CSV file? \nEarliest: %1$s\nLatest: %2$s</string>
+    <string name="export">Export</string>
 </resources>
