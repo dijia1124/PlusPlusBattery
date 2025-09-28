@@ -54,13 +54,15 @@ fun FloatingWindowContent(
                     color = textColor.copy(alpha = 0.5f),
                     offset = Offset(2f, 2f),
                     blurRadius = 4f
-                )
+                ),
+                fontFeatureSettings = "tnum"
             )
         } else {
             MaterialTheme.typography.bodyLarge.copy(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize * size,
                 lineHeight = MaterialTheme.typography.bodyLarge.lineHeight * size,
-                fontWeight = FontWeight(fontWeight)
+                fontWeight = FontWeight(fontWeight),
+                fontFeatureSettings = "tnum"
             )
         }
         if (textStrokeEnabled) {
