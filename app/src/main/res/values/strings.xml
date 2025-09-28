@@ -45,6 +45,7 @@
     <string name="good">Good</string>
     <string name="overheat">Overheat</string>
     <string name="dead">Dead</string>
+    <string name="overvolt">Over Voltage</string>
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_about">About</string>
