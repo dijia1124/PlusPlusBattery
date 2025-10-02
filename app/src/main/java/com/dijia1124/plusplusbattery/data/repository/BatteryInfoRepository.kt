@@ -142,19 +142,28 @@ class BatteryInfoRepository(private val context: Context) {
                 intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
             }) { rootReadFailed = true }
 
-        rootModeVoltage1 =
-            safeRootReadInt("bcc_parms", BCC_VOLTAGE_1_INDEX, {
-                // if root read fails, shows value 0, on the right side of Battery Voltage entry
-                // e.g. 4000 / 0 mV
-                0
-            }) { rootReadFailed = true }
+        // A workaround for devices that return 0 for rootModeVoltage0
+        if (rootModeVoltage0 == 0) {
+            rootReadFailed = true
+            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            rootModeVoltage0 = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
+            rootModeCurrent = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+        } else {
+            rootModeVoltage1 =
+                safeRootReadInt("bcc_parms", BCC_VOLTAGE_1_INDEX, {
+                    // if root read fails, shows value 0, on the right side of Battery Voltage entry
+                    // e.g. 4000 / 0 mV
+                    0
+                }) { rootReadFailed = true }
 
-        rootModeCurrent =
-            safeRootReadInt("bcc_parms", BCC_CURRENT_INDEX, {
-                batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW).toInt()
-            }) { rootReadFailed = true }
+            rootModeCurrent =
+                safeRootReadInt("bcc_parms", BCC_CURRENT_INDEX, {
+                    batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                }) { rootReadFailed = true }
+        }
+
         rootModePower = if (!rootReadFailed) {
-            if (isDualBattery() == true) {
+            if (isDualBattery()) {
                 (rootModeVoltage0 + rootModeVoltage1) * rootModeCurrent * calibMultiplier / 1000000.0
             }
             else {
