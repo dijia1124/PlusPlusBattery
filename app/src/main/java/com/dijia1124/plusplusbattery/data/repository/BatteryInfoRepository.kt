@@ -19,6 +19,8 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.CUSTOM_ENTRIES
+import com.dijia1124.plusplusbattery.data.util.IS_CELSIUS
+import com.dijia1124.plusplusbattery.data.util.formatTemperature
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -82,6 +84,9 @@ class BatteryInfoRepository(private val context: Context) {
     val selectedMagnitudeFlow: Flow<Int> = settings.data
         .map { prefs -> prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0 }
 
+    val isCelsiusFlow: Flow<Boolean> = settings.data
+        .map { prefs -> prefs[IS_CELSIUS] ?: true }
+
     val estimatedFccFlow: Flow<String> = settings.data
         .map { prefs ->
             prefs[ESTIMATED_FCC_KEY]?.toString()
@@ -95,6 +100,8 @@ class BatteryInfoRepository(private val context: Context) {
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
         val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+        val isCelsius = isCelsiusFlow.first()
+
         listOf(
             BatteryInfo(
                 BatteryInfoType.LEVEL,
@@ -118,7 +125,7 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 BatteryInfoType.TEMP,
-                "${temperature / 10.0}°C",
+                formatTemperature(temperature, isCelsius),
                 false
             ),
         )

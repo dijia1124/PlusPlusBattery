@@ -23,6 +23,7 @@ import com.dijia1124.plusplusbattery.data.util.REFRESH_INTERVAL_KEY
 import com.dijia1124.plusplusbattery.data.util.ROOT_MODE_KEY
 import com.dijia1124.plusplusbattery.data.util.SHOW_OPLUS_FIELDS
 import com.dijia1124.plusplusbattery.data.util.SHOW_SWITCH_ON_DASHBOARD
+import com.dijia1124.plusplusbattery.data.util.IS_CELSIUS
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.service.DailyHistoryWorker
 import kotlinx.coroutines.flow.Flow
@@ -173,5 +174,12 @@ class PrefsRepository(context: Context) {
 
     suspend fun setFloatingWindowTextStrokeEnabled(enabled: Boolean) {
         dataStore.edit { it[FLOATING_WINDOW_TEXT_STROKE_ENABLED] = enabled }
+    }
+
+    val isCelsiusFlow: Flow<Boolean> =
+        dataStore.data.map { it[IS_CELSIUS] ?: true }
+
+    suspend fun setIsCelsius(isCelsius: Boolean) {
+        dataStore.edit { it[IS_CELSIUS] = isCelsius }
     }
 }

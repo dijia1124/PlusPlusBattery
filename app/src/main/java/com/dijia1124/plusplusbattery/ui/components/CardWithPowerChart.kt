@@ -22,6 +22,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
+import com.dijia1124.plusplusbattery.data.util.formatTemperature
 import com.dijia1124.plusplusbattery.ui.screen.NormalBatteryCard
 import com.dijia1124.plusplusbattery.R
 
@@ -37,6 +38,7 @@ fun CardWithPowerChart(
     info: BatteryInfo,
     powerData: List<PowerDataPoint>,
     isExpanded: Boolean,
+    isCelsius: Boolean,
     onResetData: () -> Unit = {},
     onChartExpand: () -> Unit = {}
 ) {
@@ -81,6 +83,7 @@ fun CardWithPowerChart(
             Spacer(modifier = Modifier.height(4.dp))
             PowerChart(
                 data = powerData,
+                isCelsius = isCelsius,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
@@ -93,6 +96,7 @@ fun CardWithPowerChart(
 @Composable
 fun PowerChart(
     data: List<PowerDataPoint>,
+    isCelsius: Boolean,
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
@@ -173,7 +177,7 @@ fun PowerChart(
         var maxRightLabelWidth = 0f
         for (i in 0..4) {
             val tempValue = maxTemp - (adjustedTempRange * i / 4)
-            val text = tempValue.toInt().toString()
+            val text = formatTemperature((tempValue * 10).toInt(), isCelsius)
             val textWidth = rightTextPaint.measureText(text)
             maxRightLabelWidth = kotlin.math.max(maxRightLabelWidth, textWidth)
         }
@@ -218,7 +222,8 @@ fun PowerChart(
 
             // Right Y-axis label (Temp)
             drawIntoCanvas { canvas ->
-                val text = "${tempValue.toInt()}°C"
+                val tempDisplayValue = tempValue.toInt()
+                val text = if (isCelsius) "${tempDisplayValue}°C" else "${tempDisplayValue}°F"
                 canvas.nativeCanvas.drawText(
                     text,
                     chartRight + with(density) { 8.dp.toPx() },

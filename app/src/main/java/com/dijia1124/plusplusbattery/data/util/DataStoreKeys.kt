@@ -28,3 +28,4 @@ val FLOATING_WINDOW_BACKGROUND_COLOR = stringPreferencesKey("floating_window_bac
 val FLOATING_WINDOW_TEXT_SHADOW = booleanPreferencesKey("floating_window_text_shadow")
 val FLOATING_WINDOW_FONT_WEIGHT = intPreferencesKey("floating_window_font_weight")
 val FLOATING_WINDOW_TEXT_STROKE_ENABLED = booleanPreferencesKey("floating_window_text_stroke_enabled")
+val IS_CELSIUS = booleanPreferencesKey("is_celsius")

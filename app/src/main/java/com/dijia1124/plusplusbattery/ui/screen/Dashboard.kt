@@ -122,9 +122,11 @@ fun NormalBatteryCard(info: BatteryInfo) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun BatteryCardWithInfo(
+fun BatteryCardWithButton(
     info: BatteryInfo,
-    onShowInfo: () -> Unit
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(
@@ -148,14 +150,40 @@ fun BatteryCardWithInfo(
         }
         Box(modifier = Modifier.padding(horizontal = 4.dp)) {
             FilledTonalIconButton(
-                onClick = onShowInfo,
+                onClick = onClick,
                 modifier = Modifier.size(36.dp),
                 shapes = IconButtonDefaults.shapes()
             ) {
-                Icon(ImageVector.vectorResource(id = R.drawable.info_24dp_1f1f1f_fill0_wght400_grad0_opsz24), contentDescription = "Show Info", modifier = Modifier.size(18.dp))
+                Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(18.dp))
             }
         }
     }
+}
+
+@Composable
+fun BatteryCardWithInfo(
+    info: BatteryInfo,
+    onShowInfo: () -> Unit
+) {
+    BatteryCardWithButton(
+        info = info,
+        icon = ImageVector.vectorResource(id = R.drawable.info_24dp_1f1f1f_fill0_wght400_grad0_opsz24),
+        contentDescription = "Show Info",
+        onClick = onShowInfo
+    )
+}
+
+@Composable
+fun BatteryCardWithSwap(
+    info: BatteryInfo,
+    onSwap: () -> Unit
+) {
+    BatteryCardWithButton(
+        info = info,
+        icon = ImageVector.vectorResource(id = R.drawable.swap_horiz_24dp_1f1f1f_fill0_wght400_grad0_opsz24),
+        contentDescription = "Swap Unit",
+        onClick = onSwap
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -333,6 +361,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val isPowerChartExpanded by settingsViewModel.isPowerChartExpanded.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
+    val isCelsius by settingsViewModel.isCelsius.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var showCycleCountDialog by remember { mutableStateOf(false) }
@@ -353,7 +382,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         BatteryInfoType.OPLUS_DESIGN_CAPACITY
     )
 
-    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
+    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner, isCelsius) {
         if (!hasRoot && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
         }
@@ -434,6 +463,12 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                     info = info,
                                     onShowInfo = { showCycleCountDialog = true}
                                 )
+                                BatteryInfoType.TEMP -> BatteryCardWithSwap(
+                                    info = info,
+                                    onSwap = {
+                                        settingsViewModel.setIsCelsius(!isCelsius)
+                                    }
+                                )
                                 BatteryInfoType.POWER -> CardWithPowerChart(
                                     info = info,
                                     powerData = powerDataPoints.toList(),
@@ -442,6 +477,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                         chartStartTime = System.currentTimeMillis()
                                     },
                                     isExpanded = isPowerChartExpanded,
+                                    isCelsius = isCelsius,
                                     onChartExpand = {
                                         settingsViewModel.setPowerChartExpanded(!isPowerChartExpanded)
                                     }
