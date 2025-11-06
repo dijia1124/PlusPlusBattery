@@ -9,20 +9,21 @@
         - Battery Level: The current battery level as a percentage.\n
         - Status: The current status of the battery (Charging, Discharging, Full, Not Charging).\n
         - Temperature: The current battery temperature in degrees Celsius.\n
-        - Health: The current health of the battery (Good, Overheat, Dead, Unknown).\n
+        - Health: The current health of the battery (Good, Overheat, Dead, Over Voltage, Unknown).\n
         - Voltage: The current battery voltage in millivolts.\n
         - Charge Cycle Count: The number of charge cycles the battery has gone through.\n
         - Battery Current: The instantaneous battery current in milliamperes.\n
         - Full Charge Capacity: The estimated full charge capacity of the battery in milliampere-hours.\n
           The Full Charge Capacity is displayed when charge complete.\n
-          Charge complete only happens when Battery Level is charged to 100% and Battery Current is within the range from 0 to 20 mA.\n
-        - Root Mode (OnePlus + ColorOS15/OxygenOS15 exclusive):\n
+          Charge complete only happens when Battery Level is charged to 100% and Battery Current is within the range from 0 to 25 mA.\n
+        - Root Mode (OPlus exclusive entries + universal custom entries):\n
         - Full Charge Capacity (battery_fcc): Value read by cat /sys/class/oplus_chg/battery/battery_fcc.\n
         - Battery Health (battery_soh): Value read by cat /sys/class/oplus_chg/battery/battery_soh.\n
         - Battery Under-Voltage Threshold (vbat_uv): Value read by cat /sys/class/oplus_chg/battery/vbat_uv.\n
           The device shuts down if the voltage is lower than this threshold.\n
         - Battery Manufacture Date (battery_manu_date): Value read by cat /sys/class/oplus_chg/battery/battery_manu_date.\n
-        - Qmax refers to the chemical capacity of the battery. The value of this capacity is load independent. This is the capacity that can be released by a battery under very low load current, usually expressed in mAh.\n
+        - Qmax (batt_qmax): Qmax refers to the chemical capacity of the battery. The value of this capacity is load independent. This is the capacity that can be released by a battery under very low load current, usually expressed in mAh.\n
+        - Custom Entries: Customizable entries for universal devices, with default presets displaying charge cycles &amp; fccs from generic linux power_supply files. You can also add any other readable path as you like. Users can also export/import custom profiles.\n
 "</string>
     <string name="plus_plus_battery">Plus Plus Battery</string>
     <string name="history">History</string>

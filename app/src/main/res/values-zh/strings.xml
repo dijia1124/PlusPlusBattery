@@ -9,19 +9,20 @@
     - 电量：当前电池电量的百分比。\n
     - 电池状态：当前电池的状态（充电中、放电中、已充满、未充电）。\n
     - 电池温度：当前电池温度（摄氏度）。\n
-    - 电池健康：电池当前的健康状况（良好、过热、损坏、未知）。\n
+    - 电池健康：电池当前的健康状况（良好、过热、损坏、超压、未知）。\n
     - 电压：当前电池电压（毫伏）。\n
     - 循环计数：电池充放电的次数。\n
     - 电流：当前电池的瞬时电流（毫安）。\n
     - 完全充满时的容量：估算的电池完全充满时的容量（毫安时）。\n
     完全充满时的容量会在电池充满时显示：\n
-    仅当电量为 100% 且电流在 0-20 mA 之间时，才视为电池充满。\n
-    - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
+    仅当电量为 100% 且电流在 0-25 mA 之间时，才视为电池充满。\n
+    - Root模式（欧加设备专属条目 + 通用自定义条目）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
     - 截止电压（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n
     - 电池最大化学容量（batt_qmax）：电池的最大化学容量。该容量值与负载无关。它是电池在非常小的负载电流下可以释放的容量，通常以毫安时表示。\n
+    - 自定义显示条目：为通用设备支持的自定义条目, 预设配置文件可供选择，读取linux power_supply目录下的文件可以显示电池容量和循环计数。当然你也可以添加其他任意路径来读取你想要的数据。用户也可以自行导出配置进行分享或者导入外部配置。\n
     </string>
     <string name="plus_plus_battery">加加电池</string>
     <string name="history">历史信息</string>
