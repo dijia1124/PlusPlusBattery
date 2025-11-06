@@ -67,6 +67,14 @@ fun formatTemperature(temperature: Int, isCelsius: Boolean): String {
     }
 }
 
+fun formatTemperatureAsInt(temperature: Float, isCelsius: Boolean): String {
+    return if (isCelsius) {
+        "${temperature.toInt()}°C"
+    } else {
+        "${temperature.toInt()}°F"
+    }
+}
+
 suspend fun readBatteryInfo(field: String, basePath: String = OPLUS_CHG_BATTERY_PATH): String? = withContext(Dispatchers.IO) {
     try {
         SuFileInputStream.open(basePath + field).bufferedReader().use { it.readText().trim() }
