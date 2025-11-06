@@ -47,7 +47,7 @@
 
 ## 安装
 
-1. 确保您的一加设备运行较新的ColorOS或OxygenOS（比如ColorOS 16)，或是较新的类原生系统。
+1. 确保您的一加设备运行较新的ColorOS或OxygenOS（比如ColorOS 16），或是较新的类原生系统。
 2. 前往Release页面下载并安装APK文件。
 3. 运行APP。
 4. （可选）授予root权限
