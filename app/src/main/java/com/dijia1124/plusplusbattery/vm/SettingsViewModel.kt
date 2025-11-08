@@ -86,4 +86,13 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             prefs.setDailyHistoryEnabled(context, enabled)
         }
     }
+
+    val isCelsius: StateFlow<Boolean> = prefs.isCelsiusFlow
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
+
+    fun setIsCelsius(isCelsius: Boolean) {
+        viewModelScope.launch {
+            prefs.setIsCelsius(isCelsius)
+        }
+    }
 }

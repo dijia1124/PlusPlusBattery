@@ -54,6 +54,27 @@ fun Double.formatClean(fractionDigits: Int = 2): String {
 fun Double.formatWithUnit(unit: String, fractionDigits: Int = 2): String =
     "${this.formatClean(fractionDigits)} $unit"
 
+fun convertCelsiusToFahrenheit(celsius: Double): Double {
+    return String.format(Locale.US, "%.1f", celsius * 9 / 5 + 32).toDouble()
+}
+
+fun formatTemperature(temperature: Int, isCelsius: Boolean): String {
+    val tempInCelsius = temperature / 10.0
+    return if (isCelsius) {
+        "${tempInCelsius}°C"
+    } else {
+        "${convertCelsiusToFahrenheit(tempInCelsius)}°F"
+    }
+}
+
+fun formatTemperatureAsInt(temperature: Float, isCelsius: Boolean): String {
+    return if (isCelsius) {
+        "${temperature.toInt()}°C"
+    } else {
+        "${temperature.toInt()}°F"
+    }
+}
+
 suspend fun readBatteryInfo(field: String, basePath: String = OPLUS_CHG_BATTERY_PATH): String? = withContext(Dispatchers.IO) {
     try {
         SuFileInputStream.open(basePath + field).bufferedReader().use { it.readText().trim() }
