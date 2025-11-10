@@ -69,18 +69,14 @@ class BatteryMonitorSettingsViewModel(
 
     init {
         viewModelScope.launch {
-            // Fetch non-root and root infos
-            val basicInfos = batteryRepo.getBasicBatteryInfo()
-            val nonRootInfos = batteryRepo.getNonRootVoltCurrPwr()
-            val rootInfos = batteryRepo.getRootBatteryInfo()
-            val customInfos = batteryRepo.readCustomEntries()
-
-            // Combine and extract unique titles
-            val allTitles = (basicInfos + nonRootInfos + rootInfos + customInfos)
-                .map { it.type }
-                .distinct()
-
-            _availableEntries.value = allTitles
+            prefsRepo.isRootModeFlow.collect { isRoot ->
+                val allInfos = if (isRoot) {
+                    batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo() + batteryRepo.readCustomEntries()
+                } else {
+                    batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
+                }
+                _availableEntries.value = allInfos.map { it.type }.distinct()
+            }
         }
     }
 
