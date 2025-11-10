@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.BatteryManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
@@ -50,13 +49,6 @@ class BatteryInfoViewModel(application: Application,
     val showOplusFields: StateFlow<Boolean> = prefsRepo.showOplusFields
         .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, true)
 
-    val savedEstimatedFcc: StateFlow<String> = batteryInfoRepository.estimatedFccFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Companion.Eagerly,
-            getApplication<Application>().getString(R.string.estimating_full_charge_capacity)
-        )
-
     val isDualBatt: StateFlow<Boolean> = batteryInfoRepository.isDualBattFlow
         .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, false)
 
@@ -91,11 +83,6 @@ class BatteryInfoViewModel(application: Application,
         val showOplus = showOplusFields.value
         batteryInfoRepository.getAvailableBatteryInfo(isRoot, showOplus)
     }
-
-    suspend fun refreshEstimatedFcc(): BatteryInfo =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value)
-        }
 
     suspend fun saveCycleCount() {
         saveCycleCountToHistory(context, historyInfoRepository)
