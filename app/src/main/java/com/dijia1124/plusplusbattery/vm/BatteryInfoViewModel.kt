@@ -83,23 +83,14 @@ class BatteryInfoViewModel(application: Application,
     suspend fun removeCustomEntry(path: String) =
         batteryInfoRepository.removeCustomEntry(path)
 
-    suspend fun readCustomEntries(): List<BatteryInfo> =
-        batteryInfoRepository.readCustomEntries()
-
-    suspend fun refreshBatteryInfo(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getBasicBatteryInfo()
+    suspend fun getDisplayBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
+        val isRoot = isRootMode.value
+        val infoList = batteryInfoRepository.getAvailableBatteryInfo(isRoot).toMutableList()
+        if (!isRoot) {
+            infoList.add(batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value))
         }
-
-    suspend fun refreshBatteryInfoWithRoot(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getRootBatteryInfo()
-        }
-
-    suspend fun refreshNonRootVoltCurrPwr(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getNonRootVoltCurrPwr()
-        }
+        return@withContext infoList
+    }
 
     suspend fun refreshEstimatedFcc(): BatteryInfo =
         withContext(Dispatchers.IO) {

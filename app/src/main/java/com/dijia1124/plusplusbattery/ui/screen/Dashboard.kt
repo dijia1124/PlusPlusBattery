@@ -394,38 +394,18 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 chartStartTime = System.currentTimeMillis()
 
                 while (true) {
-                    val basicList = batteryInfoViewModel.refreshBatteryInfo()
-                    val displayList = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
+                    val displayList = batteryInfoViewModel.getDisplayBatteryInfo().toMutableList()
 
-                    val intent = context.registerReceiver(
-                        null,
-                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-                    )
-
-                    intent?.let {
-                        if (isRootMode) {
-                            val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
-                            displayList.addAll(rootList)
-                            // add custom fields if root access is available
-                            val customList = batteryInfoViewModel.readCustomEntries()
-                            displayList.addAll(customList)
-                            // filter out OPLUS types if showOplusFields is false
-                            if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
-                        } else {
-                            // use system battery manager api if root access is not available
-                            val nonRootVCPList =
-                                batteryInfoViewModel.refreshNonRootVoltCurrPwr()
-                            displayList.addAll(nonRootVCPList)
-                            val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
-                            displayList.add(fccInfo)
-                        }
-
-                        // Collect power data for chart
-                        collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
-
-                        batteryInfoList.clear()
-                        batteryInfoList.addAll(displayList)
+                    // filter out OPLUS types if showOplusFields is false
+                    if (isRootMode && !showOplusFields) {
+                        displayList.removeAll { it.type in OPLUS_TYPES }
                     }
+
+                    // Collect power data for chart
+                    collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
+
+                    batteryInfoList.clear()
+                    batteryInfoList.addAll(displayList)
                     delay(refreshInterval.toLong())
                 }
             }

@@ -70,11 +70,7 @@ class BatteryMonitorSettingsViewModel(
     init {
         viewModelScope.launch {
             prefsRepo.isRootModeFlow.collect { isRoot ->
-                val allInfos = if (isRoot) {
-                    batteryRepo.getBasicBatteryInfo() + batteryRepo.getRootBatteryInfo() + batteryRepo.readCustomEntries()
-                } else {
-                    batteryRepo.getBasicBatteryInfo() + batteryRepo.getNonRootVoltCurrPwr()
-                }
+                val allInfos = batteryRepo.getAvailableBatteryInfo(isRoot)
                 _availableEntries.value = allInfos.map { it.type }.distinct()
             }
         }

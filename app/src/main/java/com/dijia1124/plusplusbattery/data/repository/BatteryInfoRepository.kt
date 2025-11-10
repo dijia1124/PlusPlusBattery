@@ -444,4 +444,12 @@ class BatteryInfoRepository(private val context: Context) {
         val list = Json.decodeFromString<List<CustomEntry>>(json)
         mergeAndSave(list)
     }
+
+    suspend fun getAvailableBatteryInfo(isRoot: Boolean): List<BatteryInfo> {
+        return if (isRoot) {
+            getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()
+        } else {
+            getBasicBatteryInfo() + getNonRootVoltCurrPwr()
+        }
+    }
 }
