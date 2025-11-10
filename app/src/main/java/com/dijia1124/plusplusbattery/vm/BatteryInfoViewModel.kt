@@ -47,6 +47,9 @@ class BatteryInfoViewModel(application: Application,
         prefsRepo.setShowSwitchOnDashboard(show)
     }
 
+    val showOplusFields: StateFlow<Boolean> = prefsRepo.showOplusFields
+        .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, true)
+
     val savedEstimatedFcc: StateFlow<String> = batteryInfoRepository.estimatedFccFlow
         .stateIn(
             viewModelScope,
@@ -85,7 +88,8 @@ class BatteryInfoViewModel(application: Application,
 
     suspend fun getDisplayBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
         val isRoot = isRootMode.value
-        val infoList = batteryInfoRepository.getAvailableBatteryInfo(isRoot).toMutableList()
+        val showOplus = showOplusFields.value
+        val infoList = batteryInfoRepository.getAvailableBatteryInfo(isRoot, showOplus).toMutableList()
         if (!isRoot) {
             infoList.add(batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value))
         }

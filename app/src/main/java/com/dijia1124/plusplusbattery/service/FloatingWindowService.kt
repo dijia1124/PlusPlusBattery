@@ -201,7 +201,8 @@ class FloatingWindowService : Service(), ViewModelStoreOwner, SavedStateRegistry
 
     private suspend fun fetchBatteryInfo(): String = withContext(Dispatchers.IO) {
         val isRoot = prefsRepo.isRootModeFlow.first()
-        val allInfos = batteryRepo.getAvailableBatteryInfo(isRoot)
+        val showOplus = prefsRepo.showOplusFields.first()
+        val allInfos = batteryRepo.getAvailableBatteryInfo(isRoot, showOplus)
 
         val visibleTypes = prefsRepo.visibleEntriesFlow.first()
 

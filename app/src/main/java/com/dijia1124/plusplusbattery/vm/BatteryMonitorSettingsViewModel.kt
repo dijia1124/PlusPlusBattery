@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -69,8 +70,9 @@ class BatteryMonitorSettingsViewModel(
 
     init {
         viewModelScope.launch {
-            prefsRepo.isRootModeFlow.collect { isRoot ->
-                val allInfos = batteryRepo.getAvailableBatteryInfo(isRoot)
+            combine(prefsRepo.isRootModeFlow, prefsRepo.showOplusFields) { isRoot, showOplus ->
+                batteryRepo.getAvailableBatteryInfo(isRoot, showOplus)
+            }.collect { allInfos ->
                 _availableEntries.value = allInfos.map { it.type }.distinct()
             }
         }

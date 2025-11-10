@@ -445,9 +445,21 @@ class BatteryInfoRepository(private val context: Context) {
         mergeAndSave(list)
     }
 
-    suspend fun getAvailableBatteryInfo(isRoot: Boolean): List<BatteryInfo> {
+    suspend fun getAvailableBatteryInfo(isRoot: Boolean, showOplus: Boolean): List<BatteryInfo> {
         return if (isRoot) {
-            getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()
+            val infoList = (getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()).toMutableList()
+            if (!showOplus) {
+                val OPLUS_TYPES = setOf(
+                    BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+                    BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+                    BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+                    BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+                    BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+                    BatteryInfoType.OPLUS_DESIGN_CAPACITY
+                )
+                infoList.removeAll { it.type in OPLUS_TYPES }
+            }
+            infoList
         } else {
             getBasicBatteryInfo() + getNonRootVoltCurrPwr()
         }

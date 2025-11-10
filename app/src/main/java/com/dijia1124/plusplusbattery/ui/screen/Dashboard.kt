@@ -1,8 +1,6 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -370,17 +368,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     val lifecycleOwner = LocalLifecycleOwner.current
-    val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
     val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
     var chartStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val OPLUS_TYPES = setOf(
-        BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
-        BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
-        BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
-        BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
-        BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
-        BatteryInfoType.OPLUS_DESIGN_CAPACITY
-    )
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner, isCelsius) {
         if (!hasRoot && isRootMode) {
@@ -395,11 +384,6 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
 
                 while (true) {
                     val displayList = batteryInfoViewModel.getDisplayBatteryInfo().toMutableList()
-
-                    // filter out OPLUS types if showOplusFields is false
-                    if (isRootMode && !showOplusFields) {
-                        displayList.removeAll { it.type in OPLUS_TYPES }
-                    }
 
                     // Collect power data for chart
                     collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
