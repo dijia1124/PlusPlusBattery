@@ -48,6 +48,14 @@ private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
 private const val BCC_CURRENT_INDEX = 8
 private const val CURRENT_FULL_IN_MA = 25
+private val OPLUS_TYPES = setOf(
+    BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+    BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+    BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+    BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+    BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+    BatteryInfoType.OPLUS_DESIGN_CAPACITY
+)
 
 class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
@@ -449,14 +457,6 @@ class BatteryInfoRepository(private val context: Context) {
         return if (isRoot) {
             val infoList = (getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()).toMutableList()
             if (!showOplus) {
-                val OPLUS_TYPES = setOf(
-                    BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
-                    BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
-                    BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
-                    BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
-                    BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
-                    BatteryInfoType.OPLUS_DESIGN_CAPACITY
-                )
                 infoList.removeAll { it.type in OPLUS_TYPES }
             }
             infoList
