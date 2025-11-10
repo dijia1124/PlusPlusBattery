@@ -461,7 +461,10 @@ class BatteryInfoRepository(private val context: Context) {
             }
             infoList
         } else {
-            getBasicBatteryInfo() + getNonRootVoltCurrPwr()
+            val infoList = (getBasicBatteryInfo() + getNonRootVoltCurrPwr()).toMutableList()
+            val savedFcc = estimatedFccFlow.first()
+            infoList.add(getEstimatedFcc(savedFcc))
+            infoList
         }
     }
 }

@@ -89,11 +89,7 @@ class BatteryInfoViewModel(application: Application,
     suspend fun getDisplayBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
         val isRoot = isRootMode.value
         val showOplus = showOplusFields.value
-        val infoList = batteryInfoRepository.getAvailableBatteryInfo(isRoot, showOplus).toMutableList()
-        if (!isRoot) {
-            infoList.add(batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value))
-        }
-        return@withContext infoList
+        batteryInfoRepository.getAvailableBatteryInfo(isRoot, showOplus)
     }
 
     suspend fun refreshEstimatedFcc(): BatteryInfo =
