@@ -48,6 +48,14 @@ private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
 private const val BCC_CURRENT_INDEX = 8
 private const val CURRENT_FULL_IN_MA = 25
+private val OPLUS_TYPES = setOf(
+    BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+    BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+    BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+    BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+    BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+    BatteryInfoType.OPLUS_DESIGN_CAPACITY
+)
 
 class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
@@ -443,5 +451,20 @@ class BatteryInfoRepository(private val context: Context) {
         val json = ctx.assets.open("profiles/$name.json").bufferedReader().readText()
         val list = Json.decodeFromString<List<CustomEntry>>(json)
         mergeAndSave(list)
+    }
+
+    suspend fun getAvailableBatteryInfo(isRoot: Boolean, showOplus: Boolean): List<BatteryInfo> {
+        return if (isRoot) {
+            val infoList = (getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()).toMutableList()
+            if (!showOplus) {
+                infoList.removeAll { it.type in OPLUS_TYPES }
+            }
+            infoList
+        } else {
+            val infoList = (getBasicBatteryInfo() + getNonRootVoltCurrPwr()).toMutableList()
+            val savedFcc = estimatedFccFlow.first()
+            infoList.add(getEstimatedFcc(savedFcc))
+            infoList
+        }
     }
 }

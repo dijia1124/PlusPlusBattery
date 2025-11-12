@@ -1,8 +1,6 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -370,17 +368,8 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     val lifecycleOwner = LocalLifecycleOwner.current
-    val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
     val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
     var chartStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val OPLUS_TYPES = setOf(
-        BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
-        BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
-        BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
-        BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
-        BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
-        BatteryInfoType.OPLUS_DESIGN_CAPACITY
-    )
 
     LaunchedEffect(isRootMode, hasRoot, lifecycleOwner, isCelsius) {
         if (!hasRoot && isRootMode) {
@@ -394,38 +383,13 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 chartStartTime = System.currentTimeMillis()
 
                 while (true) {
-                    val basicList = batteryInfoViewModel.refreshBatteryInfo()
-                    val displayList = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
+                    val displayList = batteryInfoViewModel.getDisplayBatteryInfo().toMutableList()
 
-                    val intent = context.registerReceiver(
-                        null,
-                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-                    )
+                    // Collect power data for chart
+                    collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
 
-                    intent?.let {
-                        if (isRootMode) {
-                            val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
-                            displayList.addAll(rootList)
-                            // add custom fields if root access is available
-                            val customList = batteryInfoViewModel.readCustomEntries()
-                            displayList.addAll(customList)
-                            // filter out OPLUS types if showOplusFields is false
-                            if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
-                        } else {
-                            // use system battery manager api if root access is not available
-                            val nonRootVCPList =
-                                batteryInfoViewModel.refreshNonRootVoltCurrPwr()
-                            displayList.addAll(nonRootVCPList)
-                            val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
-                            displayList.add(fccInfo)
-                        }
-
-                        // Collect power data for chart
-                        collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
-
-                        batteryInfoList.clear()
-                        batteryInfoList.addAll(displayList)
-                    }
+                    batteryInfoList.clear()
+                    batteryInfoList.addAll(displayList)
                     delay(refreshInterval.toLong())
                 }
             }

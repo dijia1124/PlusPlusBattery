@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.BatteryManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.dijia1124.plusplusbattery.R
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
@@ -47,12 +46,8 @@ class BatteryInfoViewModel(application: Application,
         prefsRepo.setShowSwitchOnDashboard(show)
     }
 
-    val savedEstimatedFcc: StateFlow<String> = batteryInfoRepository.estimatedFccFlow
-        .stateIn(
-            viewModelScope,
-            SharingStarted.Companion.Eagerly,
-            getApplication<Application>().getString(R.string.estimating_full_charge_capacity)
-        )
+    val showOplusFields: StateFlow<Boolean> = prefsRepo.showOplusFields
+        .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, true)
 
     val isDualBatt: StateFlow<Boolean> = batteryInfoRepository.isDualBattFlow
         .stateIn(viewModelScope, SharingStarted.Companion.Eagerly, false)
@@ -83,28 +78,11 @@ class BatteryInfoViewModel(application: Application,
     suspend fun removeCustomEntry(path: String) =
         batteryInfoRepository.removeCustomEntry(path)
 
-    suspend fun readCustomEntries(): List<BatteryInfo> =
-        batteryInfoRepository.readCustomEntries()
-
-    suspend fun refreshBatteryInfo(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getBasicBatteryInfo()
-        }
-
-    suspend fun refreshBatteryInfoWithRoot(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getRootBatteryInfo()
-        }
-
-    suspend fun refreshNonRootVoltCurrPwr(): List<BatteryInfo> =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getNonRootVoltCurrPwr()
-        }
-
-    suspend fun refreshEstimatedFcc(): BatteryInfo =
-        withContext(Dispatchers.IO) {
-            batteryInfoRepository.getEstimatedFcc(savedEstimatedFcc.value)
-        }
+    suspend fun getDisplayBatteryInfo(): List<BatteryInfo> = withContext(Dispatchers.IO) {
+        val isRoot = isRootMode.value
+        val showOplus = showOplusFields.value
+        batteryInfoRepository.getAvailableBatteryInfo(isRoot, showOplus)
+    }
 
     suspend fun saveCycleCount() {
         saveCycleCountToHistory(context, historyInfoRepository)
