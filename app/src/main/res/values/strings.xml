@@ -9,20 +9,21 @@
         - Battery Level: The current battery level as a percentage.\n
         - Status: The current status of the battery (Charging, Discharging, Full, Not Charging).\n
         - Temperature: The current battery temperature in degrees Celsius.\n
-        - Health: The current health of the battery (Good, Overheat, Dead, Unknown).\n
+        - Health: The current health of the battery (Good, Overheat, Dead, Over Voltage, Unknown).\n
         - Voltage: The current battery voltage in millivolts.\n
         - Charge Cycle Count: The number of charge cycles the battery has gone through.\n
         - Battery Current: The instantaneous battery current in milliamperes.\n
         - Full Charge Capacity: The estimated full charge capacity of the battery in milliampere-hours.\n
           The Full Charge Capacity is displayed when charge complete.\n
-          Charge complete only happens when Battery Level is charged to 100% and Battery Current is within the range from 0 to 20 mA.\n
-        - Root Mode (OnePlus + ColorOS15/OxygenOS15 exclusive):\n
+          Charge complete only happens when Battery Level is charged to 100% and Battery Current is within the range from 0 to 25 mA.\n
+        - Root Mode (OPlus exclusive entries + universal custom entries):\n
         - Full Charge Capacity (battery_fcc): Value read by cat /sys/class/oplus_chg/battery/battery_fcc.\n
         - Battery Health (battery_soh): Value read by cat /sys/class/oplus_chg/battery/battery_soh.\n
         - Battery Under-Voltage Threshold (vbat_uv): Value read by cat /sys/class/oplus_chg/battery/vbat_uv.\n
           The device shuts down if the voltage is lower than this threshold.\n
         - Battery Manufacture Date (battery_manu_date): Value read by cat /sys/class/oplus_chg/battery/battery_manu_date.\n
-        - Qmax refers to the chemical capacity of the battery. The value of this capacity is load independent. This is the capacity that can be released by a battery under very low load current, usually expressed in mAh.\n
+        - Qmax (batt_qmax): Qmax refers to the chemical capacity of the battery. The value of this capacity is load independent. This is the capacity that can be released by a battery under very low load current, usually expressed in mAh.\n
+        - Custom Entries: Customizable entries for universal devices, with default presets displaying charge cycles &amp; fccs from generic linux power_supply files. You can also add any other readable path as you like. Users can also export/import custom profiles.\n
 "</string>
     <string name="plus_plus_battery">Plus Plus Battery</string>
     <string name="history">History</string>
@@ -36,7 +37,7 @@
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
     <string name="estimated_fcc_title">FCC Estimation</string>
-    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and the current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual battery option above need to be correctly selected. \n\nAdditionally, this feature does not require you to keep the app running in the background. All it needs is that moment when charge is full.</string>
+    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and the current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual cell option above need to be correctly selected. \n\nAdditionally, this feature does not require you to keep the app running in the background. All it needs is that moment when charge is full and you are at Dashboard screen.</string>
     <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
@@ -49,7 +50,7 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_about">About</string>
-    <string name="dual_battery">Dual Battery</string>
+    <string name="dual_cell">Dual Cell</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="unknown">Unknown</string>
@@ -108,7 +109,7 @@
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">Please select the entries you want to show in the battery monitor:</string>
     <string name="monitor">Monitor</string>
     <string name="stop">Stop</string>
-    <string name="disable_battery_optimization">Disable battery optimization to make the monitor service work properly. For ColorOS 15, enabling auto-launch for this app in system settings might also be necessary to pause the monitor service when screen-off and resume when screen-on.</string>
+    <string name="disable_battery_optimization">Disable battery optimization to make the monitor service work properly. For ColorOS, enabling auto-launch for this app in system settings might also be necessary to pause the monitor service when screen-off and resume when screen-on.</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="set_refresh_interval_ms">Set refresh interval (ms)</string>
     <string name="current_value">Current value: %1$s</string>
@@ -143,7 +144,7 @@
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="battery_cycle_count_info">This feature requires a specific BatteryManager API. If the value shows "-1" or "5" all the time, it means it may not be supported on your device. This can happen on Android versions below 14 or, in some cases, on a few devices running Android 14 and even newer.</string>
-    <string name="wrong_battery_voltage_info">If this value is less than 10 mV, your device might be reporting battery voltage in V (volt) instead of mV (millivolt), which also leads to the incorrect battery power value. With root access, OPlus devices may get the correct voltage</string>
+    <string name="wrong_battery_voltage_info">If this value is less than 10 mV, your device might be reporting battery voltage in V (volt) instead of mV (millivolt), which also leads to the incorrect battery power value. With root access, OPlus devices may get the correct voltage.</string>
     <string name="automatic_daily_charge_cycle_log">Automatic daily charge cycle log</string>
     <string name="workmanager_for_charge_cycle">By default, charge cycles are recorded when the app is opened. You may need to switch between the Dashboard and History tabs to trigger it.\n\nAlternatively, you can enable the \'Automatic daily charge cycle log\' option in Settings for it to be recorded automatically by WorkManager without manually opening the app.</string>
     <string name="opacity">Opacity: %1$s</string>

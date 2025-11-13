@@ -219,7 +219,7 @@ fun BatteryCardWithCalibration(
             Spacer(modifier = Modifier.weight(1f))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column {
-                    Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                    Text(text = stringResource(R.string.dual_cell), style = MaterialTheme.typography.bodyMedium)
                     Text(
                         text = getBoolString(isDualBatt, context),
                         style = MaterialTheme.typography.bodyLarge,

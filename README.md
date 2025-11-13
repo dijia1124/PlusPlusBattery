@@ -47,11 +47,11 @@ Or download the APK from [Github Release](https://github.com/dijia1124/PlusPlusB
 
 ## Installation
 
-1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 15), or a relatively new AOSP-based ROM.
+1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 16), or a relatively new AOSP-based ROM.
 2. Go to the Release page to download and install the APK.
 3. Launch the app.
 4. (Optional) Grant root access.
-5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS 15 users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
+5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
 6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode, and edit the custom entries to suit your needs.
 
 ## Credits
