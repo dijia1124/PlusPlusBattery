@@ -37,7 +37,7 @@
     <string name="battery_current">Battery Current</string>
     <string name="full_charge_capacity">Full Charge Capacity</string>
     <string name="estimated_fcc_title">FCC Estimation</string>
-    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and the current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual battery option above need to be correctly selected. \n\nAdditionally, this feature does not require you to keep the app running in the background. All it needs is that moment when charge is full and you are at Dashboard screen.</string>
+    <string name="estimated_fcc_info">This value is estimated when charge is full (100%) and the current is less than 25 mA. The charge counter is then recorded as estimated full charge capacity and displayed here. \nNote that the battery current multiplier and dual cell option above need to be correctly selected. \n\nAdditionally, this feature does not require you to keep the app running in the background. All it needs is that moment when charge is full and you are at Dashboard screen.</string>
     <string name="estimating_full_charge_capacity">Estimating Full Charge Capacity…</string>
     <string name="capacity_unavailable">Capacity unavailable.</string>
     <string name="charging">Charging</string>
@@ -50,7 +50,7 @@
     <string name="nav_dashboard">Dashboard</string>
     <string name="nav_history">History</string>
     <string name="nav_about">About</string>
-    <string name="dual_battery">Dual Battery</string>
+    <string name="dual_cell">Dual Cell</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="unknown">Unknown</string>
