@@ -1,6 +1,6 @@
 # PlusPlusBattery - Battery Info Viewer for OPlus Devices
 
-[简体中文](./README.zh.md) | English
+[简体中文](./README.zh.md) | [繁體中文](./README.zh-Hant.md) | English
 
 ## Introduction
 

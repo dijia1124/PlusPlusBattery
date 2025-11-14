@@ -1,0 +1,167 @@
+<resources>
+    <string name="app_name">Plus Plus Battery</string>
+    <string name="about">關於</string>
+    <string name="instructions_content" formatted="false">"
+        Repo: https://github.com/dijia1124/PlusPlusBattery \n
+        作者: @dijia1124 aka goodnic \n
+        鳴謝: @shminer aka bybycode \n
+        本應用程式顯示以下電池資訊：\n
+        - 電量：目前的電池電量百分比。\n
+        - 狀態：目前的電池狀態（充電中、放電中、已充滿、未在充電）。\n
+        - 溫度：目前的電池溫度（攝氏度）。\n
+        - 健康度：目前的電池健康狀況（良好、過熱、損壞、未知）。\n
+        - 電壓：目前的電池電壓（毫伏）。\n
+        -充電循環次數：電池經歷的充電循環次數。\n
+        - 電池電流：瞬時電池電流（毫安）。\n
+        - 完全充電容量：電池的估計完全充電容量（毫安時）。\n
+          完全充電容量在充電完成時顯示。\n
+          充電完成僅在電量充至 100% 且電池電流在 0 到 20 mA 範圍內時發生。\n
+        - Root 模式 (OnePlus + ColorOS15/OxygenOS15 專屬)：\n
+        - 完全充電容量 (battery_fcc)：透過 cat /sys/class/oplus_chg/battery/battery_fcc 讀取的值。\n
+        - 電池健康度 (battery_soh)：透過 cat /sys/class/oplus_chg/battery/battery_soh 讀取的值。\n
+        - 電池低電壓閾值 (vbat_uv)：透過 cat /sys/class/oplus_chg/battery/vbat_uv 讀取的值。\n
+          如果電壓低於此閾值，裝置將關機。\n
+        - 電池製造日期 (battery_manu_date)：透過 cat /sys/class/oplus_chg/battery/battery_manu_date 讀取的值。\n
+        - Qmax 指的是電池的化學容量。此容量值與負載無關。這是電池在極低負載電流下可以釋放的容量，通常以 mAh 表示。\n
+"</string>
+    <string name="plus_plus_battery">Plus Plus Battery</string>
+    <string name="history">歷史記錄</string>
+    <string name="cycle_counts">"充電循環次數："</string>
+    <string name="battery_level">電量</string>
+    <string name="battery_temperature">電池溫度</string>
+    <string name="battery_voltage">電池電壓</string>
+    <string name="battery_status">電池狀態</string>
+    <string name="battery_health">電池健康度</string>
+    <string name="battery_cycle_count">充電循環次數</string>
+    <string name="battery_current">電池電流</string>
+    <string name="full_charge_capacity">完全充電容量</string>
+    <string name="estimated_fcc_title">FCC 估算</string>
+    <string name="estimated_fcc_info">此值在電量充滿 (100%) 且電流小於 25 mA 時估算。然後將充電計數器記錄為估計的完全充電容量並顯示在此處。\n請注意，需要正確選擇上方的電池電流倍率和雙電池選項。\n\n此外，此功能不需要您在背景中保持應用程式執行。它所需要的只是電量充滿的那一刻。</string>
+    <string name="estimating_full_charge_capacity">正在估算完全充電容量…</string>
+    <string name="capacity_unavailable">容量無法取得。</string>
+    <string name="charging">充電中</string>
+    <string name="discharging">放電中</string>
+    <string name="full">已充滿</string>
+    <string name="good">良好</string>
+    <string name="overheat">過熱</string>
+    <string name="dead">損壞</string>
+    <string name="overvolt">電壓過高</string>
+    <string name="nav_dashboard">主畫面</string>
+    <string name="nav_history">歷史記錄</string>
+    <string name="nav_about">關於</string>
+    <string name="dual_battery">雙電池</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="unknown">未知</string>
+    <string name="not_charging">未在充電</string>
+    <string name="battery_power">電池功率</string>
+    <string name="multiply">乘以</string>
+    <string name="divide">除以</string>
+    <string name="multiplier">%1$s倍率</string>
+    <string name="calibrate_via_multiplier">透過倍率校準</string>
+    <string name="reset">重設</string>
+    <string name="close">關閉</string>
+    <string name="use_basic_mode">使用基本模式</string>
+    <string name="enable_root_mode">啟用 Root 模式</string>
+    <string name="disable_root_mode">停用 Root 模式</string>
+    <string name="full_charge_capacity_battery_fcc">完全充電容量 (battery_fcc)</string>
+    <string name="battery_health_battery_soh">電池健康度 (battery_soh)</string>
+    <string name="battery_manufacture_date_battery_manu_date">電池製造日期 (battery_manu_date)</string>
+    <string name="root_access_denied">Root 權限遭拒</string>
+    <string name="battery_under_voltage_threshold_vbat_uv">電池低電壓閾值 (vbat_uv)</string>
+    <string name="raw_battery_health_before_compensation">原始電池健康度</string>
+    <string name="raw_full_charge_capacity_before_compensation">原始完全充電容量</string>
+    <string name="remaining_charge_counter">"剩餘充電計數器 (battery_rm)"</string>
+    <string name="battery_serial_number_battery_sn">電池序號 (battery_sn)</string>
+    <string name="fcc_soh_offset_table">FCC/SOH 補償表</string>
+    <string name="vbatuv_mv_fccoffset_mah_sohoffset">\nvbatUv, fccOffset, sohOffset\n</string>
+    <string name="offset_table_not_found">\n找不到補償表\n</string>
+    <string name="unknown_due_to_fcc_equals_design_capacity" formatted="false">\n如果 battery_fcc 等於 design_capacity，或 battery_soh 等於 100%，此值可能會顯示「未知」，因為實際補償值可能超過最大值，導致原始值不準確。\n</string>
+    <string name="raw_fcc_soh_calc_intro"><![CDATA[Plus Plus Battery 中的原始 fcc 和 soh 是使用此表計算的\n]]></string>
+    <string name="settings">設定</string>
+    <string name="text_color">文字顏色</string>
+    <string name="color_auto">自動</string>
+    <string name="color_primary">主要</string>
+    <string name="color_secondary">次要</string>
+    <string name="color_error">錯誤</string>
+    <string name="background_color">背景顏色</string>
+    <string name="color_primary_container">主要容器</string>
+    <string name="color_secondary_container">次要容器</string>
+    <string name="color_error_container">錯誤容器</string>
+    <string name="show_fab_on_dashboard">在主畫面顯示懸浮按鈕</string>
+    <string name="version">版本：%1$s</string>
+    <string name="battery_qmax">最大化學容量 (batt_qmax)</string>
+    <string name="follow_system_theme">跟隨系統主題</string>
+    <string name="enable_dark_mode">啟用深色模式</string>
+    <string name="battery_type_battery_type">電池類型 (battery_type)</string>
+    <string name="design_capacity_design_capacity">設計容量 (design_capacity)</string>
+    <string name="notification_permission_denied">通知權限遭拒</string>
+    <string name="show_in_floating_window">在懸浮視窗中顯示</string>
+    <string name="overlay_permission_denied">懸浮視窗權限遭拒</string>
+    <string name="battery_monitor">電池監控</string>
+    <string name="initializing">正在初始化…</string>
+    <string name="battery_monitor_entry_settings">監控項目設定</string>
+    <string name="battery_monitor_entry_settings_list_item_title">監控項目設定</string>
+    <string name="floating_window_settings">懸浮視窗設定</string>
+    <string name="floating_window_settings_list_item_title">懸浮視窗設定</string>
+    <string name="show_in_notification_bar">在通知列中顯示</string>
+    <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">請選擇您想在電池監控中顯示的項目：</string>
+    <string name="monitor">監控</string>
+    <string name="stop">停止</string>
+    <string name="disable_battery_optimization">停用電池最佳化以使監控服務正常運作。對於 ColorOS 15，可能還需要在系統設定中為此應用程式啟用自動啟動，以便在螢幕關閉時暫停並在螢幕開啟時恢復監控服務。</string>
+    <string name="check_for_updates">檢查更新</string>
+    <string name="set_refresh_interval_ms">設定刷新間隔 (ms)</string>
+    <string name="current_value">目前值：%1$s</string>
+    <string name="oem_refresh_interval_limitation_description">僅在 root 模式下生效。非 root 模式受限於不短於 oem 設定的間隔。</string>
+    <string name="refresh_interval_battery_drain_description">將刷新間隔設定得太低可能會導致不必要的電池消耗。</string>
+    <string name="get_from_logcat">實驗性功能：logcat 電池資料</string>
+    <string name="get_from_logcat_title">Logcat 電池資料</string>
+    <string name="waiting_for_battery_data_from_logcat">請在電池電量未滿（低於 100%）時將您的裝置連接到充電器… \n如果資料未正確顯示或沒有任何顯示，則表示您的型號的 logcat 可能尚不被 Plus Plus Battery 支援，或者 logcat 不包含電池相關資訊。</string>
+    <string name="manufacturer">製造商：%1$s</string>
+    <string name="model">型號：%1$s</string>
+    <string name="custom_battery_info">自訂項目</string>
+    <string name="enable_oplus_fields">顯示 OPlus 專屬項目</string>
+    <string name="design_capacity">設計容量</string>
+    <string name="manage_custom_entries">管理自訂項目</string>
+    <string name="choose_from_presets">從預設中選擇</string>
+    <string name="export_profile">匯出設定檔</string>
+    <string name="import_profile">匯入設定檔</string>
+    <string name="imported">已匯入</string>
+    <string name="import_failed">匯入失敗：%1$s</string>
+    <string name="saved_to_downloads">已儲存至下載</string>
+    <string name="export_failed">匯出失敗</string>
+    <string name="no_custom_entries">尚無自訂項目</string>
+    <string name="add">新增</string>
+    <string name="preset_imported">預設 %1$s 已匯入</string>
+    <string name="edit_custom_entry">編輯自訂項目</string>
+    <string name="add_custom_entry">新增自訂項目</string>
+    <string name="path_sys">路徑 (/sys/…)</string>
+    <string name="title">標題</string>
+    <string name="unit_optional">單位 (可選)</string>
+    <string name="scale">校準倍率：</string>
+    <string name="existed">已存在</string>
+    <string name="save">儲存</string>
+    <string name="cancel">取消</string>
+    <string name="battery_cycle_count_info">此功能需要特定的 BatteryManager API。如果該值一直顯示「-1」或「5」，則表示您的裝置可能不支援此功能。這種情況可能發生在 Android 14 以下的版本，或在少數執行 Android 14 甚至更新版本的裝置上。</string>
+    <string name="wrong_battery_voltage_info">如果此值小於 10 mV，您的裝置可能以 V (伏特) 而非 mV (毫伏) 為單位回報電池電壓，這也會導致不正確的電池功率值。透過 root 權限，OPlus 裝置可能可以取得正確的電壓。</string>
+    <string name="automatic_daily_charge_cycle_log">自動每日充電循環記錄</string>
+    <string name="workmanager_for_charge_cycle">預設情況下，充電循環會在應用程式開啟時記錄。您可能需要在「主畫面」和「歷史記錄」分頁之間切換以觸發它。\n\n或者，您可以在「設定」中啟用「自動每日充電循環記錄」選項，讓 WorkManager 自動記錄，而無需手動開啟應用程式。</string>
+    <string name="opacity">不透明度：%1$s</string>
+    <string name="size">大小：%1$s</string>
+    <string name="enable_touch">啟用觸控</string>
+    <string name="font_weight">字體粗細：%d</string>
+    <string name="text_shadow">文字陰影</string>
+    <string name="text_stroke">文字描邊</string>
+    <string name="export_history">匯出歷史記錄</string>
+    <string name="export_history_confirmation">要將所有歷史記錄匯出為 CSV 檔案嗎？\n最早：%1$s\n最新：%2$s</string>
+    <string name="export">匯出</string>
+    <string name="general">一般</string>
+    <string name="notification">通知</string>
+    <string name="floating_window">懸浮視窗</string>
+    <string name="tips">提示</string>
+    <string name="ui">介面</string>
+    <string name="root">Root</string>
+    <string name="other">其他</string>
+    <string name="text">文字</string>
+    <string name="interaction">互動</string>
+</resources>
