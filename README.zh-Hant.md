@@ -47,11 +47,11 @@
 
 ## 安裝
 
-1. 確保您的 OnePlus 裝置正在執行較新版本的 ColorOS 或 OxygenOS（例如 ColorOS 15），或較新的 AOSP-based ROM。
+1. 確保您的 OnePlus 裝置正在執行較新版本的 ColorOS 或 OxygenOS（例如 ColorOS 16），或較新的 AOSP-based ROM。
 2. 前往 Release 頁面下載並安裝 APK。
 3. 啟動應用程式。
 4. （可選）授予 root 權限。
-5. （可選）若要使用電池監控通知：需在系統設定中關閉 PlusPlusBattery 的電池最佳化。此外，對於 ColorOS 15 使用者，還需要在系統設定中為 PlusPlusBattery 啟用「自動啟動」權限，以確保監控服務能根據螢幕開啟/關閉狀態正常地恢復/暫停。
+5. （可選）若要使用電池監控通知：需在系統設定中關閉 PlusPlusBattery 的電池最佳化。此外，對於 ColorOS 使用者，還需要在系統設定中為 PlusPlusBattery 啟用「自動啟動」權限，以確保監控服務能根據螢幕開啟/關閉狀態正常地恢復/暫停。
 6. （可選）對於非 Oppo/OnePlus/Realme 裝置，您可能會想停用「顯示 OPlus 專屬項目」選項以隱藏 root 模式下那些無用的資料，並編輯自訂項目以符合您的需求。
 
 ## 鳴謝

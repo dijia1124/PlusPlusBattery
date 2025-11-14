@@ -9,20 +9,21 @@
         - 電量：目前的電池電量百分比。\n
         - 狀態：目前的電池狀態（充電中、放電中、已充滿、未在充電）。\n
         - 溫度：目前的電池溫度（攝氏度）。\n
-        - 健康度：目前的電池健康狀況（良好、過熱、損壞、未知）。\n
+        - 健康度：目前的電池健康狀況（良好、過熱、損壞、過電壓、未知）。\n
         - 電壓：目前的電池電壓（毫伏）。\n
         -充電循環次數：電池經歷的充電循環次數。\n
         - 電池電流：瞬時電池電流（毫安）。\n
         - 完全充電容量：電池的估計完全充電容量（毫安時）。\n
           完全充電容量在充電完成時顯示。\n
-          充電完成僅在電量充至 100% 且電池電流在 0 到 20 mA 範圍內時發生。\n
-        - Root 模式 (OnePlus + ColorOS15/OxygenOS15 專屬)：\n
+          充電完成僅在電量充至 100% 且電池電流在 0 到 25 mA 範圍內時發生。\n
+        - Root 模式 (OPlus 專屬項目 + 通用自訂項目)：\n
         - 完全充電容量 (battery_fcc)：透過 cat /sys/class/oplus_chg/battery/battery_fcc 讀取的值。\n
         - 電池健康度 (battery_soh)：透過 cat /sys/class/oplus_chg/battery/battery_soh 讀取的值。\n
         - 電池低電壓閾值 (vbat_uv)：透過 cat /sys/class/oplus_chg/battery/vbat_uv 讀取的值。\n
           如果電壓低於此閾值，裝置將關機。\n
         - 電池製造日期 (battery_manu_date)：透過 cat /sys/class/oplus_chg/battery/battery_manu_date 讀取的值。\n
-        - Qmax 指的是電池的化學容量。此容量值與負載無關。這是電池在極低負載電流下可以釋放的容量，通常以 mAh 表示。\n
+        - Qmax (batt_qmax): Qmax 指的是電池的化學容量。此容量值與負載無關。這是電池在極低負載電流下可以釋放的容量，通常以 mAh 表示。\n
+        - 自訂項目：為通用裝置提供可自訂的項目，預設會顯示來自通用 Linux power_supply 檔案的充電循環次數和 FCC。您也可以隨意新增任何其他可讀取的路徑。使用者還可以匯出/匯入自訂設定檔。 \n
 "</string>
     <string name="plus_plus_battery">Plus Plus Battery</string>
     <string name="history">歷史記錄</string>
@@ -36,7 +37,7 @@
     <string name="battery_current">電池電流</string>
     <string name="full_charge_capacity">完全充電容量</string>
     <string name="estimated_fcc_title">FCC 估算</string>
-    <string name="estimated_fcc_info">此值在電量充滿 (100%) 且電流小於 25 mA 時估算。然後將充電計數器記錄為估計的完全充電容量並顯示在此處。\n請注意，需要正確選擇上方的電池電流倍率和雙電池選項。\n\n此外，此功能不需要您在背景中保持應用程式執行。它所需要的只是電量充滿的那一刻。</string>
+    <string name="estimated_fcc_info">此值在電量充滿 (100%) 且電流小於 25 mA 時估算。然後將充電計數器記錄為估計的完全充電容量並顯示在此處。\n請注意，需要正確選擇上方的電池電流倍率和雙電池組選項。\n\n此外，此功能不需要您在背景中保持應用程式執行。它所需要的只是電量充滿的那一刻您停留在應用程式主畫面即可。</string>
     <string name="estimating_full_charge_capacity">正在估算完全充電容量…</string>
     <string name="capacity_unavailable">容量無法取得。</string>
     <string name="charging">充電中</string>
@@ -49,7 +50,7 @@
     <string name="nav_dashboard">主畫面</string>
     <string name="nav_history">歷史記錄</string>
     <string name="nav_about">關於</string>
-    <string name="dual_battery">雙電池</string>
+    <string name="dual_cell">雙電池組</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="unknown">未知</string>
@@ -108,7 +109,7 @@
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">請選擇您想在電池監控中顯示的項目：</string>
     <string name="monitor">監控</string>
     <string name="stop">停止</string>
-    <string name="disable_battery_optimization">停用電池最佳化以使監控服務正常運作。對於 ColorOS 15，可能還需要在系統設定中為此應用程式啟用自動啟動，以便在螢幕關閉時暫停並在螢幕開啟時恢復監控服務。</string>
+    <string name="disable_battery_optimization">停用電池最佳化以使監控服務正常運作。對於 ColorOS，可能還需要在系統設定中為此應用程式啟用自動啟動，以便在螢幕關閉時暫停並在螢幕開啟時恢復監控服務。</string>
     <string name="check_for_updates">檢查更新</string>
     <string name="set_refresh_interval_ms">設定刷新間隔 (ms)</string>
     <string name="current_value">目前值：%1$s</string>
