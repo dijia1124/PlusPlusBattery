@@ -96,6 +96,7 @@ import com.dijia1124.plusplusbattery.ui.components.getListItemShape
 import com.dijia1124.plusplusbattery.ui.components.showRootDeniedToast
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -859,8 +860,9 @@ private fun collectPowerDataForChart(
 
     powerInfo?.let { power ->
         try {
-            val powerValue = power.value.replace(Regex("[^-?0-9.]"), "").toFloatOrNull() ?: 0f
-            val tempValue = tempInfo?.value?.replace(Regex("[^-?0-9.]"), "")?.toFloatOrNull() ?: 0f
+            val nf = NumberFormat.getInstance()
+            val powerValue = nf.parse(power.value)?.toFloat() ?: 0f
+            val tempValue = tempInfo?.value?.let { nf.parse(it)?.toFloat() } ?: 0f
             val currentTime = System.currentTimeMillis()
 
             powerDataPoints.add(PowerDataPoint(
