@@ -1,6 +1,6 @@
 # PlusPlusBattery - 加加电池 （第三方欧加手机电池信息查看工具）
 
-简体中文 | [English](./README.md)
+简体中文 | [繁體中文](./README.zh-Hant.md) | [English](./README.md)
 
 ## 简介
 
