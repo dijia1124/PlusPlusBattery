@@ -22,7 +22,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dijia1124.plusplusbattery.data.model.BatteryInfo
-import com.dijia1124.plusplusbattery.data.util.formatTemperature
 import com.dijia1124.plusplusbattery.data.util.formatTemperatureAsInt
 import com.dijia1124.plusplusbattery.ui.screen.NormalBatteryCard
 import com.dijia1124.plusplusbattery.R

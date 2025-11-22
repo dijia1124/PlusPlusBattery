@@ -384,7 +384,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 chartStartTime = System.currentTimeMillis()
 
                 while (true) {
-                    val displayList = batteryInfoViewModel.getDisplayBatteryInfo().toMutableList()
+                    val displayList = batteryInfoViewModel.getDisplayBatteryInfo()
 
                     // Collect power data for chart
                     collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
