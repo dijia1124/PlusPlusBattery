@@ -297,10 +297,12 @@ fun EstFccInfoDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.estimated_fcc_title)) },
         text = {
-            Text(
-                text = stringResource(R.string.estimated_fcc_info),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = stringResource(R.string.estimated_fcc_info),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         },
         confirmButton = {
             Button(onClick = onDismiss) {
