@@ -37,7 +37,7 @@
     <string name="battery_current">電池電流</string>
     <string name="full_charge_capacity">完全充電容量</string>
     <string name="estimated_fcc_title">FCC 估算</string>
-    <string name="estimated_fcc_info">此值在電量充滿 (100%) 且電流小於 25 mA 時估算。然後將充電計數器記錄為估計的完全充電容量並顯示在此處。\n請注意，需要正確選擇上方的電池電流倍率和雙電池組選項。\n\n此外，此功能不需要您在背景中保持應用程式執行。它所需要的只是電量充滿的那一刻您停留在應用程式主畫面即可。</string>
+    <string name="estimated_fcc_info">此值在電量充滿 (100%) 且電流小於 25 mA 時估算。然後將充電計數器記錄為估計的完全充電容量並顯示在此處。\n\n請注意，需要正確選擇上方的電池電流倍率和雙電池組選項。\n\n此外，此功能不需要您在背景中保持應用程式執行。它所需要的只是電量充滿的那一刻您停留在應用程式主畫面即可。\n\n另外，您也可以在「電池監控」介面開啟懸浮視窗或通知功能。待電池充飽後，只需點亮螢幕，App 便會記錄估算的滿電容量。</string>
     <string name="estimating_full_charge_capacity">正在估算完全充電容量…</string>
     <string name="capacity_unavailable">容量無法取得。</string>
     <string name="charging">充電中</string>
