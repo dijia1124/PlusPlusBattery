@@ -19,6 +19,8 @@ import com.dijia1124.plusplusbattery.data.model.BatteryInfo
 import com.dijia1124.plusplusbattery.data.model.BatteryInfoType
 import com.dijia1124.plusplusbattery.data.model.CustomEntry
 import com.dijia1124.plusplusbattery.data.util.CUSTOM_ENTRIES
+import com.dijia1124.plusplusbattery.data.util.IS_CELSIUS
+import com.dijia1124.plusplusbattery.data.util.formatTemperature
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.data.util.formatWithUnit
 import com.dijia1124.plusplusbattery.data.util.getHealthString
@@ -46,6 +48,14 @@ private const val BCC_VOLTAGE_0_INDEX = 6
 private const val BCC_VOLTAGE_1_INDEX = 11
 private const val BCC_CURRENT_INDEX = 8
 private const val CURRENT_FULL_IN_MA = 25
+private val OPLUS_TYPES = setOf(
+    BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
+    BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
+    BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
+    BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
+    BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
+    BatteryInfoType.OPLUS_DESIGN_CAPACITY
+)
 
 class BatteryInfoRepository(private val context: Context) {
     private val batteryManager get() =
@@ -82,6 +92,9 @@ class BatteryInfoRepository(private val context: Context) {
     val selectedMagnitudeFlow: Flow<Int> = settings.data
         .map { prefs -> prefs[MULTIPLIER_MAGNITUDE_KEY] ?: 0 }
 
+    val isCelsiusFlow: Flow<Boolean> = settings.data
+        .map { prefs -> prefs[IS_CELSIUS] ?: true }
+
     val estimatedFccFlow: Flow<String> = settings.data
         .map { prefs ->
             prefs[ESTIMATED_FCC_KEY]?.toString()
@@ -95,6 +108,8 @@ class BatteryInfoRepository(private val context: Context) {
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val health = intent?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0) ?: 0
         val cycleCount = intent?.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1) ?: -1
+        val isCelsius = isCelsiusFlow.first()
+
         listOf(
             BatteryInfo(
                 BatteryInfoType.LEVEL,
@@ -118,7 +133,7 @@ class BatteryInfoRepository(private val context: Context) {
             ),
             BatteryInfo(
                 BatteryInfoType.TEMP,
-                "${temperature / 10.0}°C",
+                formatTemperature(temperature, isCelsius),
                 false
             ),
         )
@@ -436,5 +451,20 @@ class BatteryInfoRepository(private val context: Context) {
         val json = ctx.assets.open("profiles/$name.json").bufferedReader().readText()
         val list = Json.decodeFromString<List<CustomEntry>>(json)
         mergeAndSave(list)
+    }
+
+    suspend fun getAvailableBatteryInfo(isRoot: Boolean, showOplus: Boolean): List<BatteryInfo> {
+        return if (isRoot) {
+            val infoList = (getBasicBatteryInfo() + getRootBatteryInfo() + readCustomEntries()).toMutableList()
+            if (!showOplus) {
+                infoList.removeAll { it.type in OPLUS_TYPES }
+            }
+            infoList
+        } else {
+            val infoList = (getBasicBatteryInfo() + getNonRootVoltCurrPwr()).toMutableList()
+            val savedFcc = estimatedFccFlow.first()
+            infoList.add(getEstimatedFcc(savedFcc))
+            infoList
+        }
     }
 }

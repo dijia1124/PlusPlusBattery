@@ -44,15 +44,37 @@ fun getBoolString(boolVal: Boolean, context: Context): String = when(boolVal) {
 fun Double.formatClean(fractionDigits: Int = 2): String {
     return if (this % 1.0 == 0.0) {
         // hide decimal point for integer
-        "%d".format(this.toLong())
+        String.format(Locale.getDefault(), "%d", this.toLong())
     } else {
         // show decimal point for double
-        "%.${fractionDigits}f".format(this)
+        String.format(Locale.getDefault(), "%.${fractionDigits}f", this)
     }
 }
 
 fun Double.formatWithUnit(unit: String, fractionDigits: Int = 2): String =
     "${this.formatClean(fractionDigits)} $unit"
+
+fun convertCelsiusToFahrenheit(celsius: Double): Double {
+    return celsius * 9 / 5 + 32
+}
+
+fun formatTemperature(temperature: Int, isCelsius: Boolean): String {
+    val tempInCelsius = temperature / 10.0
+    return if (isCelsius) {
+        String.format(Locale.getDefault(), "%.1f°C", tempInCelsius)
+    } else {
+        val tempInFahrenheit = convertCelsiusToFahrenheit(tempInCelsius)
+        String.format(Locale.getDefault(), "%.1f°F", tempInFahrenheit)
+    }
+}
+
+fun formatTemperatureAsInt(temperature: Float, isCelsius: Boolean): String {
+    return if (isCelsius) {
+        "${temperature.toInt()}°C"
+    } else {
+        "${temperature.toInt()}°F"
+    }
+}
 
 suspend fun readBatteryInfo(field: String, basePath: String = OPLUS_CHG_BATTERY_PATH): String? = withContext(Dispatchers.IO) {
     try {

@@ -1,8 +1,6 @@
 package com.dijia1124.plusplusbattery.ui.screen
 
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -98,6 +96,7 @@ import com.dijia1124.plusplusbattery.ui.components.getListItemShape
 import com.dijia1124.plusplusbattery.ui.components.showRootDeniedToast
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -122,9 +121,11 @@ fun NormalBatteryCard(info: BatteryInfo) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun BatteryCardWithInfo(
+fun BatteryCardWithButton(
     info: BatteryInfo,
-    onShowInfo: () -> Unit
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(
@@ -148,14 +149,40 @@ fun BatteryCardWithInfo(
         }
         Box(modifier = Modifier.padding(horizontal = 4.dp)) {
             FilledTonalIconButton(
-                onClick = onShowInfo,
+                onClick = onClick,
                 modifier = Modifier.size(36.dp),
                 shapes = IconButtonDefaults.shapes()
             ) {
-                Icon(ImageVector.vectorResource(id = R.drawable.info_24dp_1f1f1f_fill0_wght400_grad0_opsz24), contentDescription = "Show Info", modifier = Modifier.size(18.dp))
+                Icon(icon, contentDescription = contentDescription, modifier = Modifier.size(18.dp))
             }
         }
     }
+}
+
+@Composable
+fun BatteryCardWithInfo(
+    info: BatteryInfo,
+    onShowInfo: () -> Unit
+) {
+    BatteryCardWithButton(
+        info = info,
+        icon = ImageVector.vectorResource(id = R.drawable.info_24dp_1f1f1f_fill0_wght400_grad0_opsz24),
+        contentDescription = "Show Info",
+        onClick = onShowInfo
+    )
+}
+
+@Composable
+fun BatteryCardWithSwap(
+    info: BatteryInfo,
+    onSwap: () -> Unit
+) {
+    BatteryCardWithButton(
+        info = info,
+        icon = ImageVector.vectorResource(id = R.drawable.swap_horiz_24dp_1f1f1f_fill0_wght400_grad0_opsz24),
+        contentDescription = "Swap Unit",
+        onClick = onSwap
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -192,8 +219,8 @@ fun BatteryCardWithCalibration(
         if (!isRootMode) {
             Spacer(modifier = Modifier.weight(1f))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Column {
-                    Text(text = stringResource(R.string.dual_battery), style = MaterialTheme.typography.bodyMedium)
+                Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+                    Text(text = stringResource(R.string.dual_cell), style = MaterialTheme.typography.bodyMedium)
                     Text(
                         text = getBoolString(isDualBatt, context),
                         style = MaterialTheme.typography.bodyLarge,
@@ -270,10 +297,12 @@ fun EstFccInfoDialog(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.estimated_fcc_title)) },
         text = {
-            Text(
-                text = stringResource(R.string.estimated_fcc_info),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(
+                    text = stringResource(R.string.estimated_fcc_info),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         },
         confirmButton = {
             Button(onClick = onDismiss) {
@@ -333,6 +362,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val isPowerChartExpanded by settingsViewModel.isPowerChartExpanded.collectAsState()
     val selectedMagnitude by batteryInfoViewModel.selectedMagnitude.collectAsState()
     val showSwitch by batteryInfoViewModel.showSwitchOnDashboard.collectAsState()
+    val isCelsius by settingsViewModel.isCelsius.collectAsState()
     var showCoeffDialog by remember { mutableStateOf(false) }
     var showMultiplierDialog by remember { mutableStateOf(false) }
     var showCycleCountDialog by remember { mutableStateOf(false) }
@@ -341,19 +371,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     var coeffDialogText by remember { mutableStateOf(context.getString(R.string.unknown)) }
     val batteryInfoList = remember { mutableStateListOf<BatteryInfo>() }
     val lifecycleOwner = LocalLifecycleOwner.current
-    val showOplusFields by settingsViewModel.showOplusFields.collectAsState()
     val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
     var chartStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val OPLUS_TYPES = setOf(
-        BatteryInfoType.OPLUS_RM, BatteryInfoType.OPLUS_FCC,
-        BatteryInfoType.OPLUS_RAW_FCC, BatteryInfoType.OPLUS_SOH,
-        BatteryInfoType.OPLUS_RAW_SOH, BatteryInfoType.OPLUS_QMAX,
-        BatteryInfoType.OPLUS_VBAT_UV, BatteryInfoType.OPLUS_SN,
-        BatteryInfoType.OPLUS_MANU_DATE, BatteryInfoType.OPLUS_BATTERY_TYPE,
-        BatteryInfoType.OPLUS_DESIGN_CAPACITY
-    )
 
-    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner) {
+    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner, isCelsius) {
         if (!hasRoot && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
         }
@@ -365,38 +386,13 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                 chartStartTime = System.currentTimeMillis()
 
                 while (true) {
-                    val basicList = batteryInfoViewModel.refreshBatteryInfo()
-                    val displayList = mutableListOf<BatteryInfo>().apply { addAll(basicList) }
+                    val displayList = batteryInfoViewModel.getDisplayBatteryInfo()
 
-                    val intent = context.registerReceiver(
-                        null,
-                        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-                    )
+                    // Collect power data for chart
+                    collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
 
-                    intent?.let {
-                        if (isRootMode) {
-                            val rootList = batteryInfoViewModel.refreshBatteryInfoWithRoot()
-                            displayList.addAll(rootList)
-                            // add custom fields if root access is available
-                            val customList = batteryInfoViewModel.readCustomEntries()
-                            displayList.addAll(customList)
-                            // filter out OPLUS types if showOplusFields is false
-                            if (!showOplusFields) displayList.removeAll { it.type in OPLUS_TYPES }
-                        } else {
-                            // use system battery manager api if root access is not available
-                            val nonRootVCPList =
-                                batteryInfoViewModel.refreshNonRootVoltCurrPwr()
-                            displayList.addAll(nonRootVCPList)
-                            val fccInfo = batteryInfoViewModel.refreshEstimatedFcc()
-                            displayList.add(fccInfo)
-                        }
-
-                        // Collect power data for chart
-                        collectPowerDataForChart(displayList, powerDataPoints, chartStartTime)
-
-                        batteryInfoList.clear()
-                        batteryInfoList.addAll(displayList)
-                    }
+                    batteryInfoList.clear()
+                    batteryInfoList.addAll(displayList)
                     delay(refreshInterval.toLong())
                 }
             }
@@ -434,6 +430,12 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                     info = info,
                                     onShowInfo = { showCycleCountDialog = true}
                                 )
+                                BatteryInfoType.TEMP -> BatteryCardWithSwap(
+                                    info = info,
+                                    onSwap = {
+                                        settingsViewModel.setIsCelsius(!isCelsius)
+                                    }
+                                )
                                 BatteryInfoType.POWER -> CardWithPowerChart(
                                     info = info,
                                     powerData = powerDataPoints.toList(),
@@ -442,6 +444,7 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
                                         chartStartTime = System.currentTimeMillis()
                                     },
                                     isExpanded = isPowerChartExpanded,
+                                    isCelsius = isCelsius,
                                     onChartExpand = {
                                         settingsViewModel.setPowerChartExpanded(!isPowerChartExpanded)
                                     }
@@ -859,8 +862,9 @@ private fun collectPowerDataForChart(
 
     powerInfo?.let { power ->
         try {
-            val powerValue = power.value.replace(Regex("[^-?0-9.]"), "").toFloatOrNull() ?: 0f
-            val tempValue = tempInfo?.value?.replace(Regex("[^-?0-9.]"), "")?.toFloatOrNull() ?: 0f
+            val nf = NumberFormat.getInstance()
+            val powerValue = nf.parse(power.value)?.toFloat() ?: 0f
+            val tempValue = tempInfo?.value?.let { nf.parse(it)?.toFloat() } ?: 0f
             val currentTime = System.currentTimeMillis()
 
             powerDataPoints.add(PowerDataPoint(

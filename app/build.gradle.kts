@@ -14,8 +14,8 @@ android {
         applicationId = "com.dijia1124.plusplusbattery"
         minSdk = 31
         targetSdk = 35
-        versionCode = 28
-        versionName = "2.3.6"
+        versionCode = 29
+        versionName = "2.3.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

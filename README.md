@@ -1,6 +1,6 @@
 # PlusPlusBattery - Battery Info Viewer for OPlus Devices
 
-[简体中文](./README.zh.md) | English
+[简体中文](./README.zh.md) | [繁體中文](./README.zh-Hant.md) | English
 
 ## Introduction
 
@@ -9,7 +9,7 @@
 ## Features
 
 - **Real-time Battery Info**: Displays current battery level, voltage, current, charge/discharge power with charts, and health status without root access.
-- **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery level is 100% and the battery current is within the range from 0 to 20 mA. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
+- **Battery Health Estimation**: Calculates and records Full Charge Capacity only when the battery level is 100% and the battery current is within the range from 0 to 25 mA. This is used to estimate battery health and lifespan. Not a true value, just an estimation.
 - **Cycle Count History**: Records the daily cycle count automatically or manually, and saves it locally using a Room database. Users can view it on the history page, and export it to csv files.
 - **Real-Time Battery Monitor**: Show battery metrics in a customizable floating window or the notification area. Info entries can be customized.
 - **Root Mode**: Requires root permission to read additional information.
@@ -47,11 +47,11 @@ Or download the APK from [Github Release](https://github.com/dijia1124/PlusPlusB
 
 ## Installation
 
-1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 15), or a relatively new AOSP-based ROM.
+1. Ensure your OnePlus device is running a recent version of ColorOS or OxygenOS (e.g., ColorOS 16), or a relatively new AOSP-based ROM.
 2. Go to the Release page to download and install the APK.
 3. Launch the app.
 4. (Optional) Grant root access.
-5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS 15 users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
+5. (Optional) For battery monitor notification: battery optimization in system settings for PlusPlusBattery needs to be off. Additionally, for ColorOS users, enabling "Auto-launch" permission in system settings for PlusPlusBattery is also needed to make the monitor service resume/pause depending on screen-on/off properly.
 6. (Optional) For non-Oppo/OnePlus/Realme devices, you may want to disable the option 'Show OPlus exclusive entries' to hide those useless data under root mode, and edit the custom entries to suit your needs.
 
 ## Credits

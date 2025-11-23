@@ -9,19 +9,20 @@
     - 电量：当前电池电量的百分比。\n
     - 电池状态：当前电池的状态（充电中、放电中、已充满、未充电）。\n
     - 电池温度：当前电池温度（摄氏度）。\n
-    - 电池健康：电池当前的健康状况（良好、过热、损坏、未知）。\n
+    - 电池健康：电池当前的健康状况（良好、过热、损坏、超压、未知）。\n
     - 电压：当前电池电压（毫伏）。\n
     - 循环计数：电池充放电的次数。\n
     - 电流：当前电池的瞬时电流（毫安）。\n
     - 完全充满时的容量：估算的电池完全充满时的容量（毫安时）。\n
     完全充满时的容量会在电池充满时显示：\n
-    仅当电量为 100% 且电流在 0-20 mA 之间时，才视为电池充满。\n
-    - Root模式（仅限OnePlus设备 + ColorOS15/OxygenOS15）：\n
+    仅当电量为 100% 且电流在 0-25 mA 之间时，才视为电池充满。\n
+    - Root模式（欧加设备专属条目 + 通用自定义条目）：\n
     - 完全充满时的容量（battery_fcc）：通过读取/sys/class/oplus_chg/battery/battery_fcc获取的值。\n
     - 电池健康（battery_soh）：通过读取/sys/class/oplus_chg/battery/battery_soh获取的值。\n
     - 截止电压（vbat_uv）：通过读取/sys/class/oplus_chg/battery/vbat_uv获取的值。低于此电压会关机。\n
     - 电池生产日期（battery_manu_date）：通过读取/sys/class/oplus_chg/battery/battery_manu_date获取的值。\n
     - 电池最大化学容量（batt_qmax）：电池的最大化学容量。该容量值与负载无关。它是电池在非常小的负载电流下可以释放的容量，通常以毫安时表示。\n
+    - 自定义显示条目：为通用设备支持的自定义条目, 预设配置文件可供选择，读取linux power_supply目录下的文件可以显示电池容量和循环计数。当然你也可以添加其他任意路径来读取你想要的数据。用户也可以自行导出配置进行分享或者导入外部配置。\n
     </string>
     <string name="plus_plus_battery">加加电池</string>
     <string name="history">历史信息</string>
@@ -35,7 +36,7 @@
     <string name="battery_current">电流</string>
     <string name="full_charge_capacity">完全充满时的容量</string>
     <string name="estimated_fcc_title">电池容量估算</string>
-    <string name="estimated_fcc_info">此值在电量完全充满（100%）且电流小于25 mA 时进行估算。此时的charge counter的值会被记录并且显示于此。 \n注意上方电流倍率和单双电芯选项需要选择正确。\n\n另外，这个功能不需要app常驻后台，理论上它只需要你充满电的那一瞬间。</string>
+    <string name="estimated_fcc_info">此值在电量完全充满（100%）且电流小于25 mA 时进行估算。此时的charge counter的值会被记录并且显示于此。 \n\n注意上方电流倍率和单双电芯选项需要选择正确。\n\n同时，这个功能不需要app常驻后台，理论上它只需要你充满电的那一刻处于app主页。\n\n另外，您也可以在电池监控界面开启悬浮窗或通知功能。当电池充满后，只需点亮屏幕，App 便会记录估算的满电容量。</string>
     <string name="estimating_full_charge_capacity">正在测量完全充满时的容量…</string>
     <string name="capacity_unavailable">无法读取容量</string>
     <string name="charging">充电中</string>
@@ -48,7 +49,7 @@
     <string name="nav_dashboard">主页</string>
     <string name="nav_history">历史</string>
     <string name="nav_about">关于</string>
-    <string name="dual_battery">双电芯</string>
+    <string name="dual_cell">双电芯</string>
     <string name="yes">是</string>
     <string name="no">否</string>
     <string name="unknown">未知</string>
@@ -107,7 +108,7 @@
     <string name="please_select_the_entries_you_want_to_show_in_the_battery_monitor">请选择你想要电池监控显示的条目:</string>
     <string name="monitor">监控</string>
     <string name="stop">停止</string>
-    <string name="disable_battery_optimization">加入电池优化白名单以便电池监控服务正常运行。在 ColorOS 15 上也许需要在系统设置中为加加电池打开自启动权限以便熄屏暂停电池监控和亮屏继续电池监控正常运行。</string>
+    <string name="disable_battery_optimization">加入电池优化白名单以便电池监控服务正常运行。在 ColorOS 上也许需要在系统设置中为加加电池打开自启动权限以便熄屏暂停电池监控和亮屏继续电池监控正常运行。</string>
     <string name="check_for_updates">检查更新</string>
     <string name="set_refresh_interval_ms">设置刷新间隔 (毫秒)</string>
     <string name="current_value">当前数值: %1$s</string>
