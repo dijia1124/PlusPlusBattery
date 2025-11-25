@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -16,8 +17,12 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class HistoryInfoViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class HistoryInfoViewModel @Inject constructor(
+    application: Application
+) : AndroidViewModel(application) {
     private val cRepository: HistoryInfoRepository
     init{
         cRepository = HistoryInfoRepository(application)

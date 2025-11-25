@@ -10,6 +10,7 @@ import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.service.BatteryMonitorService
 import com.dijia1124.plusplusbattery.service.FloatingWindowService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,8 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class BatteryMonitorSettingsViewModel(
+@HiltViewModel
+class BatteryMonitorSettingsViewModel @Inject constructor(
     application: Application,
     private val batteryRepo: BatteryInfoRepository = BatteryInfoRepository(application),
     private val prefsRepo: PrefsRepository = PrefsRepository(application)

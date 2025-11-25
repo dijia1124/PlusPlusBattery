@@ -26,11 +26,15 @@ import com.dijia1124.plusplusbattery.data.util.SHOW_SWITCH_ON_DASHBOARD
 import com.dijia1124.plusplusbattery.data.util.IS_CELSIUS
 import com.dijia1124.plusplusbattery.data.util.dataStore
 import com.dijia1124.plusplusbattery.service.DailyHistoryWorker
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class PrefsRepository(context: Context) {
+class PrefsRepository @Inject constructor (
+    @ApplicationContext context: Context
+) {
 
     private val dataStore = context.dataStore
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -25,8 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import com.dijia1124.plusplusbattery.ui.nav.NavRoute
 import com.dijia1124.plusplusbattery.ui.screen.About
@@ -44,80 +43,25 @@ import com.dijia1124.plusplusbattery.vm.FloatingWindowSettingsViewModel
 import com.dijia1124.plusplusbattery.vm.HistoryInfoViewModel
 import com.dijia1124.plusplusbattery.vm.SettingsViewModel
 import com.topjohnwu.superuser.Shell
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     // This list contains the top-level routes that will show the bottom navigation bar
     private val topLevelRoutes = listOf(
         "dashboard", "battery_monitor", "history", "settings"
     )
+    private val settingsViewModel: SettingsViewModel by viewModels()
+    private val battMonViewModel: BatteryMonitorSettingsViewModel by viewModels()
+    private val floatingWindowSettingsViewModel: FloatingWindowSettingsViewModel by viewModels()
+    private val batteryInfoViewModel: BatteryInfoViewModel by viewModels()
+    private val historyInfoViewModel: HistoryInfoViewModel by viewModels()
+    private val batteryLogViewModel: BatteryLogViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        val settingsViewModel by lazy {
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                        SettingsViewModel(application) as T
-                }
-            )[SettingsViewModel::class.java]
-        }
-
-        val battMonViewModel by lazy{
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                        BatteryMonitorSettingsViewModel(application) as T
-                }
-            )[BatteryMonitorSettingsViewModel::class.java]
-        }
-
-        val floatingWindowSettingsViewModel by lazy {
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                        FloatingWindowSettingsViewModel(application) as T
-                }
-            )[FloatingWindowSettingsViewModel::class.java]
-        }
-
-        val batteryInfoViewModel by lazy {
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return BatteryInfoViewModel(application) as T
-                    }
-                }
-            )[BatteryInfoViewModel::class.java]
-        }
-
-        val historyInfoViewModel by lazy {
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return HistoryInfoViewModel(application) as T
-                    }
-                }
-            )[HistoryInfoViewModel::class.java]
-        }
-
-        val batteryLogViewModel by lazy {
-            ViewModelProvider(
-                this,
-                object : ViewModelProvider.Factory {
-                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                        return BatteryLogViewModel(application) as T
-                    }
-                }
-            )[BatteryLogViewModel::class.java]
-        }
 
         setContent {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
