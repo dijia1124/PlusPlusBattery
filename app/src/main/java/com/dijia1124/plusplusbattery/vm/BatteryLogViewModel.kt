@@ -7,20 +7,22 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.dijia1124.plusplusbattery.data.model.DeviceInfo
 import com.dijia1124.plusplusbattery.data.repository.BatteryLogRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class BatteryLogViewModel(
+@HiltViewModel
+class BatteryLogViewModel @Inject constructor(
     application: Application,
-    private val repo: BatteryLogRepository = BatteryLogRepository(),
-    private val refreshIntervalMs: Long = 1000L
+    private val repo: BatteryLogRepository = BatteryLogRepository()
 ) : AndroidViewModel(application) {
 
+    private val refreshIntervalMs: Long = 1000L
     private val _deviceInfo = MutableStateFlow(
         DeviceInfo(
             Build.MANUFACTURER ?: "Unknown",

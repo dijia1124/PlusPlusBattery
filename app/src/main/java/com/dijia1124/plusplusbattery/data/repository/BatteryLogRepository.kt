@@ -10,8 +10,9 @@ import com.dijia1124.plusplusbattery.data.parser.XiaomiLogParser
 import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class BatteryLogRepository {
+class BatteryLogRepository @Inject constructor() {
     private val oplusParsers = listOf(OPlusLogParser(), FallbackLogParser())
 
     private val allParsers: Map<String, List<LogParser>> = mapOf(

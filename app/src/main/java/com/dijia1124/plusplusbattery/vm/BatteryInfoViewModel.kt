@@ -12,21 +12,25 @@ import com.dijia1124.plusplusbattery.data.repository.BatteryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.HistoryInfoRepository
 import com.dijia1124.plusplusbattery.data.repository.PrefsRepository
 import com.dijia1124.plusplusbattery.data.util.saveCycleCountToHistory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class BatteryInfoViewModel(application: Application,
-                           private val batteryInfoRepository: BatteryInfoRepository = BatteryInfoRepository(
-                               application
-                           ),
-                           private val prefsRepo: PrefsRepository = PrefsRepository(application),
-                           private val historyInfoRepository: HistoryInfoRepository = HistoryInfoRepository(
-                               application
-                           )
+@HiltViewModel
+class BatteryInfoViewModel @Inject constructor(
+    application: Application,
+    private val batteryInfoRepository: BatteryInfoRepository = BatteryInfoRepository(
+        application
+    ),
+    private val prefsRepo: PrefsRepository = PrefsRepository(application),
+    private val historyInfoRepository: HistoryInfoRepository = HistoryInfoRepository(
+        application
+    )
 ) : AndroidViewModel(application) {
     private val context = application.applicationContext
 

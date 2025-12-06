@@ -31,6 +31,7 @@ import com.dijia1124.plusplusbattery.data.util.readBatteryInfo
 import com.dijia1124.plusplusbattery.data.util.readBatteryLogMap
 import com.dijia1124.plusplusbattery.data.util.readTermCoeff
 import com.dijia1124.plusplusbattery.data.util.safeRootReadInt
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -41,6 +42,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.IOException
+import javax.inject.Inject
 import kotlin.collections.map
 import kotlin.math.pow
 
@@ -57,7 +59,9 @@ private val OPLUS_TYPES = setOf(
     BatteryInfoType.OPLUS_DESIGN_CAPACITY
 )
 
-class BatteryInfoRepository(private val context: Context) {
+class BatteryInfoRepository @Inject constructor(
+    @param:ApplicationContext private val context: Context
+) {
     private val batteryManager get() =
         context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
     private val settings by lazy { context.dataStore }

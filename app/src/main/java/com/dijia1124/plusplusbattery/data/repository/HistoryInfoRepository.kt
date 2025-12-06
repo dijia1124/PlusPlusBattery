@@ -5,8 +5,11 @@ import com.dijia1124.plusplusbattery.data.local.HistoryInfoDao
 import com.dijia1124.plusplusbattery.data.local.HistoryInfoDatabase
 import com.dijia1124.plusplusbattery.data.model.HistoryInfo
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class HistoryInfoRepository (application: Application) {
+class HistoryInfoRepository @Inject constructor (
+    application: Application
+) {
     private var historyInfoDao: HistoryInfoDao =
         HistoryInfoDatabase.Companion.getDatabase(application).historyInfoDao()
     val allHistoryInfos: Flow<List<HistoryInfo>> = historyInfoDao.getAllHistoryInfos()
