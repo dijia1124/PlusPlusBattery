@@ -165,4 +165,5 @@
     <string name="other">Other</string>
     <string name="text">Text</string>
     <string name="interaction">Interaction</string>
+    <string name="battery_current_info">System values are treated as mA by default. However, some devices report in uA or other units. Please adjust the setting here if your readings appear incorrect.</string>
 </resources>

@@ -164,4 +164,5 @@
     <string name="other">其他</string>
     <string name="text">文本</string>
     <string name="interaction">交互</string>
+    <string name="battery_current_info">默认情况下，本应用将系统上报的数值视为 mA。但部分设备可能使用 uA 或其他单位。若读数不准确，请在此进行调整。</string>
 </resources>
