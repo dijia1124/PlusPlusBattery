@@ -544,12 +544,15 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
             onDismissRequest = { showMultiplierDialog = false },
             title = { Text(stringResource(R.string.calibrate_via_multiplier)) },
             text = {
-                MultiplierSelector(
-                    isMultiply = isMultiply,
-                    onMultiplyChange = { batteryInfoViewModel.setMultiplierPrefs(it, selectedMagnitude) },
-                    selectedMagnitude = selectedMagnitude,
-                    onMagnitudeChange = { batteryInfoViewModel.setMultiplierPrefs(isMultiply, it) }
-                )
+                Column (modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Text(stringResource(R.string.battery_current_info))
+                    MultiplierSelector(
+                        isMultiply = isMultiply,
+                        onMultiplyChange = { batteryInfoViewModel.setMultiplierPrefs(it, selectedMagnitude) },
+                        selectedMagnitude = selectedMagnitude,
+                        onMagnitudeChange = { batteryInfoViewModel.setMultiplierPrefs(isMultiply, it) }
+                    )
+                }
             },
             confirmButton = {
                 Button(onClick = { showMultiplierDialog = false }) {
