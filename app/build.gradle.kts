@@ -76,6 +76,9 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     ksp(libs.androidx.room.compiler)
+
+    implementation(libs.shizuku.api)
+    implementation(libs.shizuku.provider)
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
     testRuntimeOnly(libs.junit.jupiter)

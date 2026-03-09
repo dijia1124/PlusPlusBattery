@@ -77,27 +77,43 @@ fun formatTemperatureAsInt(temperature: Float, isCelsius: Boolean): String {
 }
 
 suspend fun readBatteryInfo(field: String, basePath: String = OPLUS_CHG_BATTERY_PATH): String? = withContext(Dispatchers.IO) {
+    val path = basePath + field
     try {
-        SuFileInputStream.open(basePath + field).bufferedReader().use { it.readText().trim() }
+        SuFileInputStream.open(path).bufferedReader().use { it.readText().trim() }
     } catch (e: IOException) {
-        null
+        // Fallback to Shizuku if available and permitted
+        if (ShizukuUtils.hasShizukuPermission()) {
+            val res = ShizukuUtils.executeCommand("cat $path")
+            if (res != null) return@withContext res.trim()
+        }
+
+        // Final fallback to Runtime exec (in case we have ADB privileges directly)
+        try {
+            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "cat $path"))
+            val output = process.inputStream.bufferedReader().use { it.readText().trim() }
+            process.waitFor()
+            if (process.exitValue() == 0 && output.isNotEmpty()) {
+                output
+            } else {
+                null
+            }
+        } catch (ex: Exception) {
+            null
+        }
     }
 }
 
 suspend fun readBatteryInfo(field: String, index: Int): String? = withContext(Dispatchers.IO) {
-    try {
-        val raw = SuFileInputStream
-            .open("$OPLUS_CHG_BATTERY_PATH$field")
-            .bufferedReader()
-            .use { it.readText().trim() }
+    val raw = readBatteryInfo(field, OPLUS_CHG_BATTERY_PATH) ?: return@withContext null
 
+    try {
         val parts = raw.split(",")
         if (field == "bcc_parms" && parts.size - 1 != BCC_CURRENT_INDICES_LAST) {
             null
         } else {
             parts.getOrNull(index)?.trim()
         }
-    } catch (e: IOException) {
+    } catch (e: Exception) {
         null
     }
 }
@@ -126,7 +142,19 @@ suspend fun readTermCoeff(context: Context): List<Triple<Int, Int, Int>> = withC
 
     val ddResult = Shell.cmd("su -c 'dd if=$sourcePath of=$targetPath'").exec()
     if (!ddResult.isSuccess) {
-        return@withContext emptyList<Triple<Int, Int, Int>>()
+        // Fallback to Shizuku
+        if (ShizukuUtils.hasShizukuPermission()) {
+            val cmd = "dd if=$sourcePath of=$targetPath"
+            ShizukuUtils.executeCommand(cmd)
+        } else {
+            // Fallback to Runtime
+            try {
+                val p = Runtime.getRuntime().exec(arrayOf("sh", "-c", "dd if=$sourcePath of=$targetPath"))
+                p.waitFor()
+            } catch (e: Exception) {
+                // Ignore
+            }
+        }
     }
 
     try {

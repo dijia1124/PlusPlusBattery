@@ -39,7 +39,16 @@ class SettingsViewModel @Inject constructor(
 
     private suspend fun hasRootAccess(): Boolean = withContext(Dispatchers.IO) {
         try {
-            Shell.cmd("su -c whoami").exec().isSuccess
+            val hasSu = Shell.cmd("su -c whoami").exec().isSuccess
+            if (hasSu) return@withContext true
+
+            val hasShizuku = com.dijia1124.plusplusbattery.data.util.ShizukuUtils.hasShizukuPermission()
+            if (hasShizuku) return@withContext true
+
+            val adbProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", "whoami"))
+            val adbOut = adbProcess.inputStream.bufferedReader().use { it.readText().trim() }
+            adbProcess.waitFor()
+            adbOut == "root" || adbOut == "shell"
         } catch (e: Exception) {
             false
         }

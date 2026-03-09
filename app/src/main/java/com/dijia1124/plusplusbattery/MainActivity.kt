@@ -63,6 +63,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        // Request Shizuku permission on app start if available but not granted yet
+        if (com.dijia1124.plusplusbattery.data.util.ShizukuUtils.isShizukuAvailable() && !com.dijia1124.plusplusbattery.data.util.ShizukuUtils.hasShizukuPermission()) {
+            com.dijia1124.plusplusbattery.data.util.ShizukuUtils.requestShizukuPermission(1)
+        }
+
         setContent {
             //        Shell.enableVerboseLogging = true  // Enable verbose logging for debugging
             Shell.getShell()
