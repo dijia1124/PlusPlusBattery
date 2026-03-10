@@ -26,6 +26,9 @@ class SettingsViewModel @Inject constructor(
     private val _hasRoot = MutableStateFlow(false)
     val hasRoot: StateFlow<Boolean> = _hasRoot
 
+    private val _hasShizuku = MutableStateFlow(false)
+    val hasShizuku: StateFlow<Boolean> = _hasShizuku
+
     init {
         // check if the device has root access
         viewModelScope.launch {
@@ -34,6 +37,29 @@ class SettingsViewModel @Inject constructor(
             } catch (e: Exception) {
                 false
             }
+
+            _hasShizuku.value = withContext(Dispatchers.IO) {
+                com.dijia1124.plusplusbattery.data.util.ShizukuUtils.hasShizukuPermission() || isAdbShell()
+            }
+        }
+
+        com.dijia1124.plusplusbattery.data.util.ShizukuUtils.addPermissionListener { _, _ ->
+            viewModelScope.launch {
+                _hasShizuku.value = withContext(Dispatchers.IO) {
+                    com.dijia1124.plusplusbattery.data.util.ShizukuUtils.hasShizukuPermission() || isAdbShell()
+                }
+            }
+        }
+    }
+
+    private fun isAdbShell(): Boolean {
+        return try {
+            val adbProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", "whoami"))
+            val adbOut = adbProcess.inputStream.bufferedReader().use { it.readText().trim() }
+            adbProcess.waitFor()
+            adbOut == "shell"
+        } catch (e: Exception) {
+            false
         }
     }
 
@@ -42,13 +68,10 @@ class SettingsViewModel @Inject constructor(
             val hasSu = Shell.cmd("su -c whoami").exec().isSuccess
             if (hasSu) return@withContext true
 
-            val hasShizuku = com.dijia1124.plusplusbattery.data.util.ShizukuUtils.hasShizukuPermission()
-            if (hasShizuku) return@withContext true
-
             val adbProcess = Runtime.getRuntime().exec(arrayOf("sh", "-c", "whoami"))
             val adbOut = adbProcess.inputStream.bufferedReader().use { it.readText().trim() }
             adbProcess.waitFor()
-            adbOut == "root" || adbOut == "shell"
+            adbOut == "root" // Root via local ADB shell
         } catch (e: Exception) {
             false
         }

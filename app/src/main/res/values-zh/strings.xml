@@ -64,6 +64,9 @@
     <string name="use_basic_mode">使用基础模式</string>
     <string name="enable_root_mode">启用 Root 模式</string>
     <string name="disable_root_mode">禁用 Root 模式</string>
+    <string name="enable_shizuku_mode">启用 Shizuku 模式</string>
+    <string name="disable_shizuku_mode">关闭 Shizuku 模式</string>
+    <string name="shizuku_mode">Shizuku</string>
     <string name="full_charge_capacity_battery_fcc">完全充满时的容量 (battery_fcc)</string>
     <string name="battery_health_battery_soh">电池健康 (battery_soh)</string>
     <string name="battery_manufacture_date_battery_manu_date">电池生产日期 (battery_manu_date)</string>

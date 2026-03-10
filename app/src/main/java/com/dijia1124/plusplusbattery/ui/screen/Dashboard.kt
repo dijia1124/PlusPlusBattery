@@ -374,8 +374,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
     val powerDataPoints = remember { mutableStateListOf<PowerDataPoint>() }
     var chartStartTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(isRootMode, hasRoot, lifecycleOwner, isCelsius) {
-        if (!hasRoot && isRootMode) {
+    val hasShizuku by settingsViewModel.hasShizuku.collectAsState()
+
+    LaunchedEffect(isRootMode, hasRoot, hasShizuku, lifecycleOwner, isCelsius) {
+        if (!(hasRoot || hasShizuku) && isRootMode) {
             batteryInfoViewModel.setRootMode(false)
         }
 
@@ -501,8 +503,10 @@ fun DashBoardContent(hasRoot: Boolean, batteryInfoViewModel: BatteryInfoViewMode
         }
 
         if (showSwitch) {
+            val hasShizuku by settingsViewModel.hasShizuku.collectAsState()
             ExpandableFab(
                 hasRoot = hasRoot,
+                hasShizuku = hasShizuku,
                 isRootMode = isRootMode,
                 context = context,
                 batteryInfoViewModel = batteryInfoViewModel,
@@ -890,6 +894,7 @@ private fun collectPowerDataForChart(
 @Composable
 fun ExpandableFab(
     hasRoot: Boolean,
+    hasShizuku: Boolean,
     isRootMode: Boolean,
     context: Context,
     batteryInfoViewModel: BatteryInfoViewModel,
@@ -960,10 +965,23 @@ fun ExpandableFab(
                     }
                 )
                 // Root Mode Extended FAB
+                val rootText = if (hasShizuku && !hasRoot) {
+                    if (isRootMode) stringResource(R.string.disable_shizuku_mode) else stringResource(R.string.enable_shizuku_mode)
+                } else {
+                    if (isRootMode) stringResource(R.string.disable_root_mode) else stringResource(R.string.enable_root_mode)
+                }
+                val deniedToastText = if (hasShizuku && !hasRoot) {
+                    R.string.shizuku_access_denied
+                } else {
+                    R.string.root_access_denied
+                }
+
                 ExtendedFloatingActionButton(
                     onClick = {
                         if (!isRootMode) {
-                            if (hasRoot) onToggleRootMode(true) else context.showRootDeniedToast()
+                            if (hasRoot || hasShizuku) onToggleRootMode(true) else {
+                                Toast.makeText(context, deniedToastText, Toast.LENGTH_SHORT).show()
+                            }
                         } else {
                             onToggleRootMode(false)
                         }
@@ -974,7 +992,7 @@ fun ExpandableFab(
                     icon = { Icon(ImageVector.vectorResource(R.drawable.numbers_24dp_1f1f1f_fill0_wght400_grad0_opsz24), null) },
                     text = {
                         Text(
-                            text = if (isRootMode) stringResource(R.string.disable_root_mode) else stringResource(R.string.enable_root_mode)
+                            text = rootText
                         )
                     }
                 )
@@ -1003,8 +1021,12 @@ fun ExpandableFab(
         }
 
         if (showMgr) {
-            if (!hasRoot || !isRootMode) {
-                context.showRootDeniedToast()
+            if (!(hasRoot || hasShizuku) || !isRootMode) {
+                if (hasShizuku && !hasRoot) {
+                    Toast.makeText(context, R.string.shizuku_access_denied, Toast.LENGTH_SHORT).show()
+                } else {
+                    context.showRootDeniedToast()
+                }
                 showMgr = false
             }
             else {

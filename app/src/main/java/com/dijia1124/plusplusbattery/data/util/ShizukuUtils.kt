@@ -9,6 +9,16 @@ import java.io.InputStreamReader
 
 object ShizukuUtils {
 
+    fun addPermissionListener(listener: Shizuku.OnRequestPermissionResultListener) {
+        if (!isShizukuAvailable()) return
+        Shizuku.addRequestPermissionResultListener(listener)
+    }
+
+    fun removePermissionListener(listener: Shizuku.OnRequestPermissionResultListener) {
+        if (!isShizukuAvailable()) return
+        Shizuku.removeRequestPermissionResultListener(listener)
+    }
+
     fun isShizukuAvailable(): Boolean {
         return try {
             Shizuku.pingBinder()
